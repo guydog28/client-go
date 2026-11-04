@@ -973,18 +973,3 @@ func (d *CtxDocument) Audit(ctx context.Context, req CtxDocumentAuditRequest) (*
 		return callResult[ContextDocumentAuditResult]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
 	})
 }
-
-// AssessAccess audits a document and evaluates authored, authoritative, and
-// projected access targets without modifying the subject or policy artifacts.
-func (d *CtxDocument) AssessAccess(ctx context.Context, req CtxDocumentAssessAccessRequest) (*ContextDocumentAccessAssessmentResult, error) {
-	if err := rejectInvalidText("document.assessAccess", req.Text); err != nil {
-		return nil, err
-	}
-	return do(d.cx, ctx, "document.assessAccess", func(wireCtx context.Context) (callResult[ContextDocumentAccessAssessmentResult], error) {
-		r, err := d.cx.client.CtxDocumentAssessAccessWithResponse(wireCtx, d.cx.id, d.cx.version, req)
-		if err != nil {
-			return callResult[ContextDocumentAccessAssessmentResult]{}, err
-		}
-		return callResult[ContextDocumentAccessAssessmentResult]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
-	})
-}

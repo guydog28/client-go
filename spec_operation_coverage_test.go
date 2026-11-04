@@ -62,7 +62,6 @@ var specOperationMethods = map[string]string{
 	"ctxGuideFilterRules":           "CtxGuide.FilterRules",
 	"ctxGuideView":                  "CtxGuide.View",
 	"ctxDocumentAudit":              "CtxDocument.Audit",
-	"ctxDocumentAssessAccess":       "CtxDocument.AssessAccess",
 	"ctxCrosswalkTranslate":         "CtxCrosswalk.Translate",
 }
 

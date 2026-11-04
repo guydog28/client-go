@@ -41,12 +41,12 @@ func TestCanonicalCodegenViewPreservesNullableShapes(t *testing.T) {
 		t.Fatalf("codegen OpenAPI version = %q", got)
 	}
 	schemas := at(t, root, "components", "schemas")
-	target := at(t, schemas, "AccessScenarioAssessment", "properties", "target")
+	target := at(t, schemas, "DocumentAuditReport", "properties", "wholeValidation")
 	if got := at(t, target, "nullable").Value; got != "true" {
 		t.Fatalf("target nullable = %q", got)
 	}
 	ref := at(t, target, "allOf").Content[0]
-	if got := at(t, ref, "$ref").Value; got != "#/components/schemas/EffectiveDocumentTarget" {
+	if got := at(t, ref, "$ref").Value; got != "#/components/schemas/MarkingValidation" {
 		t.Fatalf("target reference = %q", got)
 	}
 	if field(target, "anyOf") != nil {

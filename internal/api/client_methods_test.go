@@ -83,10 +83,6 @@ func TestEndpointRoutes(t *testing.T) {
 			_, e := c.CtxDocumentAuditWithResponse(ctx, ctxID, version, CtxDocumentAuditJSONRequestBody{})
 			return e
 		}},
-		{"DocumentAccess", "POST", base + "/document/assess-access", func() error {
-			_, e := c.CtxDocumentAssessAccessWithResponse(ctx, ctxID, version, CtxDocumentAssessAccessJSONRequestBody{})
-			return e
-		}},
 		{"GuideScan", "POST", base + "/guide/scan", func() error {
 			_, e := c.CtxGuideScanWithResponse(ctx, ctxID, version, CtxGuideScanJSONRequestBody{})
 			return e

@@ -247,9 +247,6 @@ func replayThroughPublicContext(t *testing.T, key semanticContextKey, operation 
 	if operation == "auditDocument" && payload["text"] == nil {
 		payload["text"] = json.RawMessage(`" \t\n"`)
 	}
-	if operation == "assessDocumentAccess" && payload["text"] == nil {
-		payload["text"] = json.RawMessage(`" \t\n"`)
-	}
 	invalidUnicode := operation != "documentAccessRequirements" && strings.Contains(string(rawRequest), "invalidInputRecipes")
 	if invalidUnicode {
 		payload["text"] = json.RawMessage(`"\ufffd"`)
@@ -267,13 +264,6 @@ func replayThroughPublicContext(t *testing.T, key semanticContextKey, operation 
 			request.Text = string([]byte{0xff})
 		}
 		value, err = cx.Document.Audit(context.Background(), request)
-	case "assessDocumentAccess":
-		var request ezclassify.CtxDocumentAssessAccessRequest
-		decodePayload(t, payload, &request)
-		if invalidUnicode {
-			request.Text = string([]byte{0xff})
-		}
-		value, err = cx.Document.AssessAccess(context.Background(), request)
 	case "documentAccessRequirements":
 		var request ezclassify.CtxAccessDescribeRequirementsRequest
 		decodePayload(t, payload, &request)
@@ -311,7 +301,7 @@ func canonicalPayload(t *testing.T, operation string, raw json.RawMessage) map[s
 	if err := json.Unmarshal(raw, &recipe); err != nil {
 		t.Fatalf("decode canonical request recipe: %v", err)
 	}
-	keys := map[string][]string{"auditDocument": {"text", "guideDeterminations", "responseProfile"}, "cliDocument": {"text", "guideDeterminations", "responseProfile"}, "assessDocumentAccess": {"text", "guideDeterminations", "userAttributes", "context", "responseProfile"}, "documentAccessRequirements": {"marking", "assertions"}}[operation]
+	keys := map[string][]string{"auditDocument": {"text", "guideDeterminations", "responseProfile"}, "cliDocument": {"text", "guideDeterminations", "responseProfile"}, "documentAccessRequirements": {"marking", "assertions"}}[operation]
 	payload := make(map[string]json.RawMessage, len(keys))
 	for _, key := range keys {
 		if raw, ok := recipe[key]; ok {
@@ -359,7 +349,7 @@ func newSemanticContextServer(t *testing.T, key semanticContextKey, operation st
 		server.mu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("X-EzClassify-Resolved-Version", key.Version)
-		expectedSuffix := map[string]string{"auditDocument": "/document/audit", "cliDocument": "/document/audit", "assessDocumentAccess": "/document/assess-access", "documentAccessRequirements": "/access/describe-requirements"}[operation]
+		expectedSuffix := map[string]string{"auditDocument": "/document/audit", "cliDocument": "/document/audit", "documentAccessRequirements": "/access/describe-requirements"}[operation]
 		if !strings.HasPrefix(r.URL.Path, "/v1/ctx/"+key.ID+"/"+key.Version+"/") || !strings.HasSuffix(r.URL.Path, expectedSuffix) {
 			t.Errorf("unexpected route %s", r.URL.Path)
 			w.WriteHeader(http.StatusNotFound)

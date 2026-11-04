@@ -69,25 +69,19 @@ type (
 	AccessRuleResult              = api.AccessRuleResult
 	AccessRuleDescription         = api.AccessRuleDescription
 	AccessRequirementsDescription = api.AccessRequirementsDescription
-	AccessScenarioAssessment      = api.AccessScenarioAssessment
-	AccessScenarioBasis           = api.AccessScenarioBasis
-	AccessScenarioStatus          = api.AccessScenarioStatus
 
 	ArtifactReference               = api.ArtifactReference
 	ArtifactKind                    = api.ArtifactKind
 	AssertionReference              = api.AssertionReference
 	AssertionSupport                = api.AssertionSupport
 	AssessmentLimitation            = api.AssessmentLimitation
-	ContentChangeRequirement        = api.ContentChangeRequirement
 	ContentEvidenceSpan             = api.ContentEvidenceSpan
 	ContextResolution               = api.ContextResolution
-	DocumentAccessAssessment        = api.DocumentAccessAssessment
 	DocumentGuideAssessment         = api.DocumentGuideAssessment
 	DocumentResponseCounts          = api.DocumentResponseCounts
 	DocumentResponseProfile         = api.DocumentResponseProfile
 	DocumentResponseProjection      = api.DocumentResponseProjection
 	DocumentUnmarkedSpan            = api.DocumentUnmarkedSpan
-	EffectiveDocumentTarget         = api.EffectiveDocumentTarget
 	GuideCompilationStatus          = api.GuideCompilationStatus
 	GuideCompiledDetail             = api.GuideCompiledDetail
 	GuideCompiledResult             = api.GuideCompiledResult
@@ -109,7 +103,6 @@ type (
 	SourceReference                 = api.SourceReference
 	ReproducibleSourceReference     = api.ReproducibleSourceReference
 	BestEffortSourceReference       = api.BestEffortSourceReference
-	SubjectContextRequirement       = api.SubjectContextRequirement
 	ErrorResponse                   = api.ErrorResponse
 	CategoryPositionOverrides       = api.CategoryPositionOverrides
 
@@ -137,7 +130,6 @@ type (
 	ContextAccessRequirementsResult         = api.ContextAccessRequirementsResult
 	ContextAccessRuleDescriptionResult      = api.ContextAccessRuleDescriptionResult
 	ContextCrosswalkTranslationResult       = api.ContextCrosswalkTranslationResult
-	ContextDocumentAccessAssessmentResult   = api.ContextDocumentAccessAssessmentResult
 	ContextDocumentAuditResult              = api.ContextDocumentAuditResult
 	ContextGuideEvaluationResult            = api.ContextGuideEvaluationResult
 	ContextGuideFilterRulesResult           = api.ContextGuideFilterRulesResult
@@ -255,14 +247,6 @@ const (
 	AccessOperandSourceLiteral   = api.AccessOperandSourceLiteral
 	AccessOperandSourceSubject   = api.AccessOperandSourceSubject
 
-	AccessScenarioBasisAuthored      = api.Authored
-	AccessScenarioBasisAuthoritative = api.Authoritative
-	AccessScenarioBasisProjected     = api.Projected
-
-	AccessScenarioStatusDenied       = api.AccessScenarioStatusDenied
-	AccessScenarioStatusGranted      = api.AccessScenarioStatusGranted
-	AccessScenarioStatusNotEvaluated = api.AccessScenarioStatusNotEvaluated
-
 	ArtifactKindAccess  = api.ArtifactKindAccess
 	ArtifactKindContext = api.ArtifactKindContext
 	ArtifactKindGuide   = api.ArtifactKindGuide
@@ -316,7 +300,6 @@ type (
 	CtxSchemeNoticesRequest              = api.CtxSchemeNoticesJSONRequestBody
 	CtxSchemeViewRequest                 = api.CtxSchemeViewJSONRequestBody
 	CtxDocumentAuditRequest              = api.CtxDocumentAuditJSONRequestBody
-	CtxDocumentAssessAccessRequest       = api.CtxDocumentAssessAccessJSONRequestBody
 	CtxGuideScanRequest                  = api.CtxGuideScanJSONRequestBody
 	CtxGuideEvaluateRequest              = api.CtxGuideEvaluateJSONRequestBody
 	CtxGuideFilterRulesRequest           = api.CtxGuideFilterRulesJSONRequestBody

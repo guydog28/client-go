@@ -45,7 +45,6 @@ var wireDrivers = map[string]string{
 	"ctx-describe.crosswalks":                                        publicDriver,
 	"ctx-document-audit.ok":                                          publicDriver,
 	"ctx-document-audit.empty-text":                                  publicDriver,
-	"ctx-document-assess-access.ok":                                  publicDriver,
 	"ctx-describe.presets":                                           publicDriver,
 	"ctx-scheme-summary.ok":                                          publicDriver,
 	"ctx-scheme-concepts.ok":                                         publicDriver,
@@ -317,8 +316,6 @@ func driveWire(ctx context.Context, h *ez.EzClassifyContext, r wireCase, u *url.
 		return wireCall[ez.CtxGuideFilterRulesRequest](r.Request.Body, func(v ez.CtxGuideFilterRulesRequest) (interface{}, error) { return h.Guide.FilterRules(ctx, v) })
 	case "ctxDocumentAudit":
 		return wireCall[ez.CtxDocumentAuditRequest](r.Request.Body, func(v ez.CtxDocumentAuditRequest) (interface{}, error) { return h.Document.Audit(ctx, v) })
-	case "ctxDocumentAssessAccess":
-		return wireCall[ez.CtxDocumentAssessAccessRequest](r.Request.Body, func(v ez.CtxDocumentAssessAccessRequest) (interface{}, error) { return h.Document.AssessAccess(ctx, v) })
 	case "ctxCrosswalkTranslate":
 		return wireCall[ez.CtxCrosswalkTranslateRequest](r.Request.Body, func(v ez.CtxCrosswalkTranslateRequest) (interface{}, error) { return h.Crosswalk.Translate(ctx, v) })
 	case "ctxGuideView":

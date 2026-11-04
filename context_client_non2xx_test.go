@@ -100,13 +100,6 @@ func TestCtxOpsNotFoundReturnsContextNotFoundError(t *testing.T) {
 				return e
 			},
 		},
-		{
-			"Document.AssessAccess",
-			func(cx *ezclassify.EzClassifyContext) error {
-				_, e := cx.Document.AssessAccess(context.Background(), ezclassify.CtxDocumentAssessAccessRequest{Text: "x", UserAttributes: map[string]interface{}{}})
-				return e
-			},
-		},
 	}
 
 	for _, tc := range cases {
@@ -336,9 +329,6 @@ func TestCtxOpsTransportErrorPropagate(t *testing.T) {
 	if _, err := cx.Document.Audit(ctx, ezclassify.CtxDocumentAuditRequest{}); err == nil {
 		t.Error("Document.Audit: expected transport error")
 	}
-	if _, err := cx.Document.AssessAccess(ctx, ezclassify.CtxDocumentAssessAccessRequest{}); err == nil {
-		t.Error("Document.AssessAccess: expected transport error")
-	}
 }
 
 // TestCtxOpsNotFoundRemainingMethods extends TestCtxOpsNotFoundReturnsContextNotFoundError
@@ -506,13 +496,6 @@ func TestCtxOpsDecodeErrorOnWrongBodyType(t *testing.T) {
 			"Guide.View",
 			func(cx *ezclassify.EzClassifyContext) error {
 				_, e := cx.Guide.View(context.Background(), nil)
-				return e
-			},
-		},
-		{
-			"Document.AssessAccess",
-			func(cx *ezclassify.EzClassifyContext) error {
-				_, e := cx.Document.AssessAccess(context.Background(), ezclassify.CtxDocumentAssessAccessRequest{})
 				return e
 			},
 		},

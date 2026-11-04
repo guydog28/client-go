@@ -34,7 +34,6 @@ var contextResponseTypes = map[string]reflect.Type{
 	"/access/describe-requirements":  reflect.TypeOf(ez.ContextAccessRequirementsResult{}),
 	"/access/describe-rule":          reflect.TypeOf(ez.ContextAccessRuleDescriptionResult{}),
 	"/document/audit":                reflect.TypeOf(ez.ContextDocumentAuditResult{}),
-	"/document/assess-access":        reflect.TypeOf(ez.ContextDocumentAccessAssessmentResult{}),
 	"/crosswalk/translate":           reflect.TypeOf(ez.ContextCrosswalkTranslationResult{}),
 }
 

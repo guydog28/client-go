@@ -721,16 +721,6 @@ var requestCases = []requestCase{
 		})
 		return err
 	}},
-	{"document.assess-access", "document/assess-access", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Document.AssessAccess(ctx, ezclassify.CtxDocumentAssessAccessRequest{
-			Text:                "document text",
-			UserAttributes:      map[string]any{"clearance": "high"},
-			Context:             &map[string]any{"project": "p1"},
-			GuideDeterminations: &caseDeterminations,
-			ResponseProfile:     ptr(ezclassify.DocumentResponseProfileFull),
-		})
-		return err
-	}},
 }
 
 // sentRequest is what one case put on the wire.

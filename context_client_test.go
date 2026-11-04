@@ -438,68 +438,6 @@ func TestDocumentAudit(t *testing.T) {
 	}
 }
 
-func TestDocumentAssessAccessPreservesEnvelopeProjectionAndProvenance(t *testing.T) {
-	const response = `{
-		"resolution":{"contextId":"ctx","requestedVersion":"latest","resolvedVersion":"1.2.3","artifacts":[{"kind":"context","id":"ctx","version":"1.2.3","digest":"sha256:ctx"}],"sources":[{"providerId":"policy-source","reproducibility":"reproducible","snapshotId":"sha256:snapshot","attribution":{"name":"Policy source","license":"public-domain"}}]},
-		"operationLimitations":[{"code":"best-effort-source","reason":"one optional source is mutable","scope":"guide"}],
-		"responseProjection":{"profile":"summary","detailsComplete":false,"omittedFields":["/result/authoritative/decision/rules"],"counts":{"nominations":2,"evidenceSpans":3,"guideUnits":1,"accessRuleResults":1,"contentRequirements":0,"contextRequirements":1}},
-		"result":{
-			"audit":{"documentDigest":"sha256:document","guideAssessment":null,"limitations":[],"overallVerdict":"pass","parts":[],"proceduralFlags":[],"unmarkedSpans":[],"vocabulary":null,"whole":null,"wholeCoversParts":null,"wholeValidation":null,"wholes":[]},
-			"authored":{"advisory":false,"basis":"authored","decision":null,"limitations":[],"status":"not-evaluated","target":null},
-			"authoritative":{"advisory":false,"basis":"authoritative","limitations":[],"status":"denied","target":null,"decision":{"granted":false,"provenance":{"providerId":"policy-source","reproducibility":"reproducible","snapshotId":"sha256:snapshot","attribution":{"name":"Policy source","license":"public-domain"}},"rules":[{"activation":{"assertions":[],"contextPaths":["distribution"],"matched":true},"comparisons":[{"left":{"source":"subject","path":"membership","value":["A"]},"operator":"intersects","right":{"source":"context","path":"distribution","value":["B"]},"matched":false,"missing":["B"]}],"granted":false,"name":"Distribution","reason":"membership does not intersect distribution","rule":{"artifact":{"kind":"access","id":"access","version":"1.0.0","digest":"sha256:access"},"ruleId":"distribution","ruleDigest":"sha256:rule","source":{"providerId":"policy-source","reproducibility":"reproducible","snapshotId":"sha256:snapshot"}},"ruleIndex":0,"skipped":false}]}}
-			,"projected":null
-		}
-	}`
-
-	var requestBody string
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, _ := io.ReadAll(r.Body)
-		requestBody = string(body)
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("X-EzClassify-Resolved-Version", "1.2.3")
-		_, _ = io.WriteString(w, fixtureAs[ezclassify.ContextDocumentAccessAssessmentResult](response))
-	}))
-	t.Cleanup(srv.Close)
-
-	profile := ezclassify.DocumentResponseProfileSummary
-	result, err := ezclassify.Connect(srv.URL, "ctx", "latest").Document.AssessAccess(context.Background(), ezclassify.CtxDocumentAssessAccessRequest{
-		Text:            "document",
-		UserAttributes:  map[string]interface{}{"membership": []string{"A"}},
-		Context:         &map[string]interface{}{"distribution": []string{"B"}},
-		ResponseProfile: &profile,
-	})
-	if err != nil {
-		t.Fatalf("AssessAccess: %v", err)
-	}
-	if !strings.Contains(requestBody, `"responseProfile":"summary"`) || !strings.Contains(requestBody, `"userAttributes"`) {
-		t.Fatalf("request body lost access inputs: %s", requestBody)
-	}
-	if result.Resolution.ResolvedVersion != "1.2.3" || len(result.Resolution.Sources) != 1 {
-		t.Fatalf("resolution provenance = %+v", result.Resolution)
-	}
-	source, err := result.Resolution.Sources[0].AsReproducibleSourceReference()
-	if err != nil || source.SnapshotID != "sha256:snapshot" || source.Attribution.License != "public-domain" {
-		t.Fatalf("source provenance = %+v err=%v", source, err)
-	}
-	if result.ResponseProjection == nil || result.ResponseProjection.Profile != ezclassify.DocumentResponseProfileSummary || result.ResponseProjection.DetailsComplete {
-		t.Fatalf("response projection = %+v", result.ResponseProjection)
-	}
-	if result.Result.Authoritative.ContentRequirements != nil || result.Result.Authoritative.ContextRequirements != nil {
-		t.Fatalf("profile-controlled omissions decoded as present: %+v", result.Result.Authoritative)
-	}
-	if got := result.ResponseProjection.Counts.AccessRuleResults; got != 1 {
-		t.Fatalf("access rule count = %d, want 1", got)
-	}
-	comparison := result.Result.Authoritative.Decision.Rules[0].Comparisons[0]
-	if comparison.Left.Source != ezclassify.AccessOperandSourceSubject || comparison.Right.Source != ezclassify.AccessOperandSourceContext || comparison.Matched {
-		t.Fatalf("comparison fidelity = %+v", comparison)
-	}
-	ruleSource, err := result.Result.Authoritative.Decision.Rules[0].Rule.Source.AsReproducibleRuleSourceReference()
-	if err != nil || ruleSource.SnapshotID != "sha256:snapshot" {
-		t.Fatalf("rule provenance = %+v err=%v", ruleSource, err)
-	}
-}
-
 func TestDocumentErrorsPreserveStatusAndStableDetail(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -511,10 +449,6 @@ func TestDocumentErrorsPreserveStatusAndStableDetail(t *testing.T) {
 			_, err := cx.Document.Audit(context.Background(), ezclassify.CtxDocumentAuditRequest{Text: "document"})
 			return err
 		}, "stale-guide-determination"},
-		{"access unavailable", http.StatusUnprocessableEntity, func(cx *ezclassify.EzClassifyContext) error {
-			_, err := cx.Document.AssessAccess(context.Background(), ezclassify.CtxDocumentAssessAccessRequest{Text: "document", UserAttributes: map[string]interface{}{}})
-			return err
-		}, "access-not-configured"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -556,10 +490,6 @@ func TestTextOperationsRejectInvalidUTF8BeforeSerialization(t *testing.T) {
 			_, err := cx.Document.Audit(context.Background(), ezclassify.CtxDocumentAuditRequest{Text: invalid})
 			return err
 		}, "document.audit"},
-		{"assess access", func() error {
-			_, err := cx.Document.AssessAccess(context.Background(), ezclassify.CtxDocumentAssessAccessRequest{Text: invalid, UserAttributes: map[string]interface{}{}})
-			return err
-		}, "document.assessAccess"},
 		{"scheme scan", func() error {
 			_, err := cx.Scheme.Scan(context.Background(), ezclassify.CtxSchemeScanRequest{Text: invalid})
 			return err
