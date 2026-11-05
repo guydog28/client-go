@@ -1,4 +1,4 @@
-module github.com/ezclassify/client-go/tools/sbom
+module github.com/ezclassify/sdk-go/tools/sbom
 
 go 1.26.10
 

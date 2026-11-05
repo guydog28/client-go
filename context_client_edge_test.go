@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 // TestContextIDSpecialCharEncoding verifies that a context ID containing

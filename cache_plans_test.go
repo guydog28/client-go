@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	ez "github.com/ezclassify/client-go"
+	ez "github.com/ezclassify/sdk-go"
 )
 
 // The cache plans are the contract the other EzClassify clients run too:

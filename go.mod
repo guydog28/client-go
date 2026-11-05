@@ -1,4 +1,4 @@
-module github.com/ezclassify/client-go
+module github.com/ezclassify/sdk-go
 
 go 1.26.10
 

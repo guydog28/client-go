@@ -30,7 +30,7 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	ez "github.com/ezclassify/client-go"
+	ez "github.com/ezclassify/sdk-go"
 )
 
 // specResponseOperation is one contract operation and the schema of its

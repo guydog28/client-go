@@ -36,7 +36,7 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 const (

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 // TestStatusToTypedErrorTable pins the complete HTTP status → error-type

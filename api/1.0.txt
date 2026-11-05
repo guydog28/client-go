@@ -6,12 +6,6 @@ ezclassify, const AccessOperandSourceAssertion
 ezclassify, const AccessOperandSourceContext
 ezclassify, const AccessOperandSourceLiteral
 ezclassify, const AccessOperandSourceSubject
-ezclassify, const AccessScenarioBasisAuthored
-ezclassify, const AccessScenarioBasisAuthoritative
-ezclassify, const AccessScenarioBasisProjected
-ezclassify, const AccessScenarioStatusDenied
-ezclassify, const AccessScenarioStatusGranted
-ezclassify, const AccessScenarioStatusNotEvaluated
 ezclassify, const ArtifactKindAccess
 ezclassify, const ArtifactKindContext
 ezclassify, const ArtifactKindGuide
@@ -110,7 +104,6 @@ ezclassify, method (*CtxAccess) DescribeRequirements(context.Context, CtxAccessD
 ezclassify, method (*CtxAccess) DescribeRule(context.Context, CtxAccessDescribeRuleRequest) (*ContextAccessRuleDescriptionResult, error)
 ezclassify, method (*CtxAccess) Rules(context.Context) (*AccessRulesResponse, error)
 ezclassify, method (*CtxCrosswalk) Translate(context.Context, CtxCrosswalkTranslateRequest) (*ContextCrosswalkTranslationResult, error)
-ezclassify, method (*CtxDocument) AssessAccess(context.Context, CtxDocumentAssessAccessRequest) (*ContextDocumentAccessAssessmentResult, error)
 ezclassify, method (*CtxDocument) Audit(context.Context, CtxDocumentAuditRequest) (*ContextDocumentAuditResult, error)
 ezclassify, method (*CtxGuide) DescribeRule(context.Context, CtxGuideDescribeRuleRequest) (*ContextGuideRuleDescriptionResult, error)
 ezclassify, method (*CtxGuide) Evaluate(context.Context, CtxGuideEvaluateRequest) (*ContextGuideEvaluationResult, error)
@@ -162,9 +155,6 @@ ezclassify, type AccessRequirementsDescription = api.AccessRequirementsDescripti
 ezclassify, type AccessRuleDescription = api.AccessRuleDescription
 ezclassify, type AccessRuleResult = api.AccessRuleResult
 ezclassify, type AccessRulesResponse = api.CtxAccessRulesResponseBody
-ezclassify, type AccessScenarioAssessment = api.AccessScenarioAssessment
-ezclassify, type AccessScenarioBasis = api.AccessScenarioBasis
-ezclassify, type AccessScenarioStatus = api.AccessScenarioStatus
 ezclassify, type AggregateResult = api.AggregateResult
 ezclassify, type ApplyPresetRequest = api.ApplyPresetRequest
 ezclassify, type ArtifactKind = api.ArtifactKind
@@ -184,14 +174,12 @@ ezclassify, type Client struct, embedded *api.ClientWithResponses
 ezclassify, type ConceptDescription = api.ConceptDescription
 ezclassify, type ConceptNoticeType = api.ConceptNoticeType
 ezclassify, type ConceptView = api.ConceptView
-ezclassify, type ContentChangeRequirement = api.ContentChangeRequirement
 ezclassify, type ContentEvidenceSpan = api.ContentEvidenceSpan
 ezclassify, type ContextAccessDecisionResult = api.ContextAccessDecisionResult
 ezclassify, type ContextAccessRequirementsResult = api.ContextAccessRequirementsResult
 ezclassify, type ContextAccessRuleDescriptionResult = api.ContextAccessRuleDescriptionResult
 ezclassify, type ContextCrosswalkTranslationResult = api.ContextCrosswalkTranslationResult
 ezclassify, type ContextDescription = api.CtxDescribeResponseBody
-ezclassify, type ContextDocumentAccessAssessmentResult = api.ContextDocumentAccessAssessmentResult
 ezclassify, type ContextDocumentAuditResult = api.ContextDocumentAuditResult
 ezclassify, type ContextGuideEvaluationResult = api.ContextGuideEvaluationResult
 ezclassify, type ContextGuideFilterRulesResult = api.ContextGuideFilterRulesResult
@@ -227,7 +215,6 @@ ezclassify, type CtxAccessDescribeRuleRequest = api.CtxAccessDescribeRuleJSONReq
 ezclassify, type CtxCrosswalk struct
 ezclassify, type CtxCrosswalkTranslateRequest = api.CtxCrosswalkTranslateJSONRequestBody
 ezclassify, type CtxDocument struct
-ezclassify, type CtxDocumentAssessAccessRequest = api.CtxDocumentAssessAccessJSONRequestBody
 ezclassify, type CtxDocumentAuditRequest = api.CtxDocumentAuditJSONRequestBody
 ezclassify, type CtxGuide struct
 ezclassify, type CtxGuideDescribeRuleRequest = api.CtxGuideDescribeRuleJSONRequestBody
@@ -253,7 +240,6 @@ ezclassify, type CtxSchemeValidateRequest = api.CtxSchemeValidateJSONRequestBody
 ezclassify, type CtxSchemeViewRequest = api.CtxSchemeViewJSONRequestBody
 ezclassify, type DecisionProposalOrigin = api.DecisionProposalOrigin
 ezclassify, type DiffResult = api.DiffResult
-ezclassify, type DocumentAccessAssessment = api.DocumentAccessAssessment
 ezclassify, type DocumentAuditReport = api.DocumentAuditReport
 ezclassify, type DocumentGuideAssessment = api.DocumentGuideAssessment
 ezclassify, type DocumentOverallVerdict = api.DocumentOverallVerdict
@@ -261,7 +247,6 @@ ezclassify, type DocumentResponseCounts = api.DocumentResponseCounts
 ezclassify, type DocumentResponseProfile = api.DocumentResponseProfile
 ezclassify, type DocumentResponseProjection = api.DocumentResponseProjection
 ezclassify, type DocumentUnmarkedSpan = api.DocumentUnmarkedSpan
-ezclassify, type EffectiveDocumentTarget = api.EffectiveDocumentTarget
 ezclassify, type ErrorResponse = api.ErrorResponse
 ezclassify, type EvaluationResult = api.EvaluationResult
 ezclassify, type ExplanationTrace = api.ExplanationTrace
@@ -340,7 +325,6 @@ ezclassify, type SchemeScope = api.SchemeScope
 ezclassify, type SchemeSummary = api.SchemeSummary
 ezclassify, type SchemeView = api.SchemeViewResponse
 ezclassify, type SourceReference = api.SourceReference
-ezclassify, type SubjectContextRequirement = api.SubjectContextRequirement
 ezclassify, type SuggestResult = api.SuggestResult
 ezclassify, type SuggestResultsByCategory = api.SuggestResultsByCategory
 ezclassify, type Suggestion = api.Suggestion

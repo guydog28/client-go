@@ -9,7 +9,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/ezclassify/client-go/internal/api"
+	"github.com/ezclassify/sdk-go/internal/api"
 )
 
 // resolvedVersionHeader carries the concrete version the rest-api resolved a

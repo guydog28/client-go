@@ -24,7 +24,7 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 // specDocument is the vendored OpenAPI document as decoded JSON.

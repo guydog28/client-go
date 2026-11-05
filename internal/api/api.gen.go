@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@cf1679c6bae46071cec779c7864802568a3f517aea6b3cc7a2a634de512c6e61 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@c5c3cfa4244ddfb7968d13a9ced6e0a31d82b9706baef1b523b5457d988ff313 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -33,48 +33,6 @@ func (e AccessOperandSource) Valid() bool {
 	case AccessOperandSourceLiteral:
 		return true
 	case AccessOperandSourceSubject:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for AccessScenarioBasis.
-const (
-	Authored      AccessScenarioBasis = "authored"
-	Authoritative AccessScenarioBasis = "authoritative"
-	Projected     AccessScenarioBasis = "projected"
-)
-
-// Valid indicates whether the value is a known member of the AccessScenarioBasis enum.
-func (e AccessScenarioBasis) Valid() bool {
-	switch e {
-	case Authored:
-		return true
-	case Authoritative:
-		return true
-	case Projected:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for AccessScenarioStatus.
-const (
-	AccessScenarioStatusDenied       AccessScenarioStatus = "denied"
-	AccessScenarioStatusGranted      AccessScenarioStatus = "granted"
-	AccessScenarioStatusNotEvaluated AccessScenarioStatus = "not-evaluated"
-)
-
-// Valid indicates whether the value is a known member of the AccessScenarioStatus enum.
-func (e AccessScenarioStatus) Valid() bool {
-	switch e {
-	case AccessScenarioStatusDenied:
-		return true
-	case AccessScenarioStatusGranted:
-		return true
-	case AccessScenarioStatusNotEvaluated:
 		return true
 	default:
 		return false
@@ -431,25 +389,25 @@ func (e FormatHeaderPosition) Valid() bool {
 
 // Defines values for GuideCompilationStatus.
 const (
-	GuideCompilationStatusDeterminedInsufficient GuideCompilationStatus = "determined-insufficient"
-	GuideCompilationStatusDeterminedSufficient   GuideCompilationStatus = "determined-sufficient"
-	GuideCompilationStatusNoFindings             GuideCompilationStatus = "no-findings"
-	GuideCompilationStatusNotEvaluated           GuideCompilationStatus = "not-evaluated"
-	GuideCompilationStatusPendingDetermination   GuideCompilationStatus = "pending-determination"
+	DeterminedInsufficient GuideCompilationStatus = "determined-insufficient"
+	DeterminedSufficient   GuideCompilationStatus = "determined-sufficient"
+	NoFindings             GuideCompilationStatus = "no-findings"
+	NotEvaluated           GuideCompilationStatus = "not-evaluated"
+	PendingDetermination   GuideCompilationStatus = "pending-determination"
 )
 
 // Valid indicates whether the value is a known member of the GuideCompilationStatus enum.
 func (e GuideCompilationStatus) Valid() bool {
 	switch e {
-	case GuideCompilationStatusDeterminedInsufficient:
+	case DeterminedInsufficient:
 		return true
-	case GuideCompilationStatusDeterminedSufficient:
+	case DeterminedSufficient:
 		return true
-	case GuideCompilationStatusNoFindings:
+	case NoFindings:
 		return true
-	case GuideCompilationStatusNotEvaluated:
+	case NotEvaluated:
 		return true
-	case GuideCompilationStatusPendingDetermination:
+	case PendingDetermination:
 		return true
 	default:
 		return false
@@ -1041,6 +999,9 @@ type AccessDecision struct {
 
 	// Rules One result per rule in the policy, in policy order.
 	Rules []AccessRuleResult `json:"rules"`
+
+	// Warnings Warnings from preparing and evaluating the target, including automatic changes. Present on granted and denied decisions; empty when none apply.
+	Warnings []Warning `json:"warnings"`
 }
 
 // AccessOperand Typed operand captured while an access rule is evaluated.
@@ -1178,41 +1139,6 @@ type AccessRuleResult struct {
 	// Skipped Whether the rule was skipped because its activation did not match.
 	Skipped bool `json:"skipped"`
 }
-
-// AccessScenarioAssessment Access result for one authored, authoritative, or projected target.
-type AccessScenarioAssessment struct {
-	// Advisory Whether the scenario is advisory rather than authoritative.
-	Advisory bool `json:"advisory"`
-
-	// Basis Authority basis used to construct an access scenario.
-	Basis AccessScenarioBasis `json:"basis"`
-
-	// ContentRequirements Traceable document-side requirements, omitted by summary.
-	ContentRequirements *[]ContentChangeRequirement `json:"contentRequirements,omitempty"`
-
-	// ContextRequirements Conditional relationship requirements, omitted by summary.
-	ContextRequirements *[]SubjectContextRequirement `json:"contextRequirements,omitempty"`
-
-	// Decision Overall access decision with per-rule breakdown.
-	//
-	// Returned by `AccessEngineAdapter.check()`. `granted` is `true` only when every non-skipped rule granted access. Inspect `rules` to surface per-category denial reasons in an authorization UI: each `AccessRuleResult` carries a human-readable `reason` field.
-	Decision *AccessDecision `json:"decision,omitempty"`
-
-	// Limitations Scenario-specific limitations.
-	Limitations []AssessmentLimitation `json:"limitations"`
-
-	// Status Closed evaluation status of an access scenario.
-	Status AccessScenarioStatus `json:"status"`
-
-	// Target Effective target, or null when none can be derived.
-	Target *EffectiveDocumentTarget `json:"target"`
-}
-
-// AccessScenarioBasis Authority basis used to construct an access scenario.
-type AccessScenarioBasis string
-
-// AccessScenarioStatus Closed evaluation status of an access scenario.
-type AccessScenarioStatus string
 
 // AggregateResult Output of SchemeEngine.aggregate(): the combined marking produced from multiple portion inputs. By design aggregate always produces the proper aggregate: fixes are applied, never proposed. Every field it shares with `ValidateResult` means what it means there, `valid` included. It differs in that:
 //
@@ -1831,24 +1757,6 @@ type ConditionalDefaultConcept struct {
 	When RuleWhen `json:"when"`
 }
 
-// ContentChangeRequirement Traceable document-side route for causing an assertion to cease applying.
-type ContentChangeRequirement struct {
-	// Assertion Compact reference to an assertion without engine-production metadata.
-	Assertion AssertionReference `json:"assertion"`
-
-	// Instruction Conditional instruction that does not synthesize replacement text.
-	Instruction string `json:"instruction"`
-
-	// Rule Identifies the exact resolved semantics of one policy rule.
-	Rule RuleReference `json:"rule"`
-
-	// SupportIds Assertion support records proving the content lineage.
-	SupportIds []string `json:"supportIds"`
-
-	// VerificationRequired Revised content must always be reassessed.
-	VerificationRequired bool `json:"verificationRequired"`
-}
-
 // ContentEvidenceSpan Evidence range in the exact accepted UTF-8 document bytes.
 type ContentEvidenceSpan struct {
 	// End Zero-based exclusive byte offset.
@@ -1929,21 +1837,6 @@ type ContextCrosswalkTranslationResult struct {
 
 	// Result Result of applying a reviewed directional crosswalk.
 	Result CrosswalkTranslationResult `json:"result"`
-}
-
-// ContextDocumentAccessAssessmentResult Resolved Context envelope returned by document access assessment.
-type ContextDocumentAccessAssessmentResult struct {
-	// OperationLimitations Limitations applying to the operation as a whole.
-	OperationLimitations []AssessmentLimitation `json:"operationLimitations"`
-
-	// Resolution Resolution identity shared by every branch of one Context operation.
-	Resolution ContextResolution `json:"resolution"`
-
-	// ResponseProjection Describes the explicit projection applied after full evaluation.
-	ResponseProjection *DocumentResponseProjection `json:"responseProjection,omitempty"`
-
-	// Result Three-scenario document access result with no fused grant or denial.
-	Result DocumentAccessAssessment `json:"result"`
 }
 
 // ContextDocumentAuditResult Resolved Context envelope returned by document audit operations.
@@ -2672,24 +2565,6 @@ type CtxDescribeResponseBody struct {
 	Version string `json:"version"`
 }
 
-// CtxDocumentAssessAccessRequestBody POST /v1/ctx/{ctxId}/{version?}/document/assess-access
-type CtxDocumentAssessAccessRequestBody struct {
-	// Context Optional relationship attributes used with the user attributes.
-	Context *map[string]interface{} `json:"context,omitempty"`
-
-	// GuideDeterminations Set-semantic analyst input supplied to guide evaluation.
-	GuideDeterminations *GuideDeterminationInput `json:"guideDeterminations,omitempty"`
-
-	// ResponseProfile Controls how much evidence detail a document operation returns.
-	ResponseProfile *DocumentResponseProfile `json:"responseProfile,omitempty"`
-
-	// Text Full document text to audit before access is assessed.
-	Text string `json:"text"`
-
-	// UserAttributes User attributes interpreted by the Context's access policy.
-	UserAttributes map[string]interface{} `json:"userAttributes"`
-}
-
 // CtxDocumentAuditRequestBody POST /v1/ctx/{ctxId}/{version?}/document/audit
 type CtxDocumentAuditRequestBody struct {
 	// GuideDeterminations Set-semantic analyst input supplied to guide evaluation.
@@ -3015,21 +2890,6 @@ type DiffResult struct {
 	Removed []Assertion `json:"removed"`
 }
 
-// DocumentAccessAssessment Three-scenario document access result with no fused grant or denial.
-type DocumentAccessAssessment struct {
-	// Audit Authored structural and analyst-determined guide audit of one document.
-	Audit DocumentAuditReport `json:"audit"`
-
-	// Authored Access result for one authored, authoritative, or projected target.
-	Authored AccessScenarioAssessment `json:"authored"`
-
-	// Authoritative Access result for one authored, authoritative, or projected target.
-	Authoritative AccessScenarioAssessment `json:"authoritative"`
-
-	// Projected Advisory unresolved-nomination scenario when it adds an assertion.
-	Projected *AccessScenarioAssessment `json:"projected"`
-}
-
 // DocumentAuditReport Authored structural and analyst-determined guide audit of one document.
 type DocumentAuditReport struct {
 	// DocumentDigest SHA-256 digest of the exact accepted UTF-8 document bytes.
@@ -3230,30 +3090,6 @@ type EachAffix struct {
 
 	// Suffix Written after each value.
 	Suffix *string `json:"suffix,omitempty"`
-}
-
-// EffectiveDocumentTarget Effective marking/assertion target evaluated in one access scenario.
-type EffectiveDocumentTarget struct {
-	// Assertions Effective assertions evaluated by access policy, listed in print order: the order `marking` places each concept; a concept it leaves out appears where it would print.
-	Assertions []Assertion `json:"assertions"`
-
-	// AuthoredParts Authored part markings.
-	AuthoredParts []string `json:"authoredParts"`
-
-	// AuthoredWhole Authored document-wide marking when present.
-	AuthoredWhole *string `json:"authoredWhole,omitempty"`
-
-	// Basis Authority basis used to construct an access scenario.
-	Basis AccessScenarioBasis `json:"basis"`
-
-	// DeterminedGuideRequiredWhole Whole required by accepted/manual guide facts.
-	DeterminedGuideRequiredWhole *string `json:"determinedGuideRequiredWhole,omitempty"`
-
-	// Marking Scheme-rendered effective marking.
-	Marking string `json:"marking"`
-
-	// ProjectedGuideRequiredWhole Advisory whole additionally assuming unresolved nominations.
-	ProjectedGuideRequiredWhole *string `json:"projectedGuideRequiredWhole,omitempty"`
 }
 
 // EmbeddedMarkingStyle One way a marking can appear embedded inside free text, e.g. a parenthesized short form like "(H)" at the start of a paragraph. A scheme may declare multiple styles; all are matched during scanning.
@@ -4920,27 +4756,6 @@ type SourceReference struct {
 	union json.RawMessage
 }
 
-// SubjectContextRequirement Conditional external relationship needed by a subject-context comparison.
-type SubjectContextRequirement struct {
-	// AcceptableValues Context values that would satisfy the relationship, when known.
-	AcceptableValues *[]interface{} `json:"acceptableValues,omitempty"`
-
-	// ContextPath Supplied context operand path.
-	ContextPath string `json:"contextPath"`
-
-	// Instruction Conditional explanation of the external-state prerequisite.
-	Instruction string `json:"instruction"`
-
-	// Operator Comparison operator.
-	Operator string `json:"operator"`
-
-	// Rule Identifies the exact resolved semantics of one policy rule.
-	Rule RuleReference `json:"rule"`
-
-	// SubjectPath Immutable subject operand path.
-	SubjectPath string `json:"subjectPath"`
-}
-
 // SuggestResult What suggest answers: the concepts a picker may offer, and nothing about the marking itself.
 //
 // How the current marking reads and whether it stands are what validate and process answer, and suggest does not repeat them. A caller that wants both in one round trip asks process for them with `suggestFor`.
@@ -5407,9 +5222,6 @@ type CtxAccessDescribeRuleJSONRequestBody = CtxAccessDescribeRuleRequestBody
 
 // CtxCrosswalkTranslateJSONRequestBody defines body for CtxCrosswalkTranslate for application/json ContentType.
 type CtxCrosswalkTranslateJSONRequestBody = CtxCrosswalkTranslateRequestBody
-
-// CtxDocumentAssessAccessJSONRequestBody defines body for CtxDocumentAssessAccess for application/json ContentType.
-type CtxDocumentAssessAccessJSONRequestBody = CtxDocumentAssessAccessRequestBody
 
 // CtxDocumentAuditJSONRequestBody defines body for CtxDocumentAudit for application/json ContentType.
 type CtxDocumentAuditJSONRequestBody = CtxDocumentAuditRequestBody
@@ -6701,7 +6513,7 @@ type ClientInterface interface {
 
 	// CtxAccessDescribeRequirementsWithBody Describe access requirements for a target in a context
 	//
-	// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`. Document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers document receivability and content or context remediation questions.
+	// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -6710,7 +6522,7 @@ type ClientInterface interface {
 
 	// CtxAccessDescribeRequirements Describe access requirements for a target in a context
 	//
-	// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`. Document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers document receivability and content or context remediation questions.
+	// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -6760,27 +6572,9 @@ type ClientInterface interface {
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/crosswalk/translate (the `CtxCrosswalkTranslate` operationId).
 	CtxCrosswalkTranslate(ctx context.Context, ctxID string, version string, body CtxCrosswalkTranslateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CtxDocumentAssessAccessWithBody Assess document access in a context
-	//
-	// Answers whether the supplied userAttributes satisfy a document under the Context policy. It audits the document once and evaluates authored, authoritative, and projected access scenarios against immutable userAttributes and Context policy. Lexical matches are nominations, never automatic decisions; accepted findings bind to the returned finding ID and document digest, and revised text requires new decisions. Authoritative includes authored facts plus explicit analyst decisions. Projected assumes unresolved nominations and remains advisory. contentRequirements identify supported content that must cease to apply after content change and re-evaluation; they are not instructions to lower a marking. contextRequirements are conditional future relationships between userAttributes and authoritative context, not mutations performed by EzClassify. A denial remains denied until revised text or authoritative external state is re-evaluated. The standard profile is the default; summary suits only an initial large-document overview, standard is needed before decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
-	//
-	// Takes any type of body and a specified content type.
-	//
-	// Corresponds with POST /v1/ctx/{ctxId}/{version}/document/assess-access (the `CtxDocumentAssessAccess` operationId).
-	CtxDocumentAssessAccessWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CtxDocumentAssessAccess Assess document access in a context
-	//
-	// Answers whether the supplied userAttributes satisfy a document under the Context policy. It audits the document once and evaluates authored, authoritative, and projected access scenarios against immutable userAttributes and Context policy. Lexical matches are nominations, never automatic decisions; accepted findings bind to the returned finding ID and document digest, and revised text requires new decisions. Authoritative includes authored facts plus explicit analyst decisions. Projected assumes unresolved nominations and remains advisory. contentRequirements identify supported content that must cease to apply after content change and re-evaluation; they are not instructions to lower a marking. contextRequirements are conditional future relationships between userAttributes and authoritative context, not mutations performed by EzClassify. A denial remains denied until revised text or authoritative external state is re-evaluated. The standard profile is the default; summary suits only an initial large-document overview, standard is needed before decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
-	//
-	// Takes a body of the `application/json` content type.
-	//
-	// Corresponds with POST /v1/ctx/{ctxId}/{version}/document/assess-access (the `CtxDocumentAssessAccess` operationId).
-	CtxDocumentAssessAccess(ctx context.Context, ctxID string, version string, body CtxDocumentAssessAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// CtxDocumentAuditWithBody Audit a document for marking coverage in a context
 	//
-	// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review; document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers whether supplied userAttributes satisfy the document policy. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
+	// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -6789,7 +6583,7 @@ type ClientInterface interface {
 
 	// CtxDocumentAudit Audit a document for marking coverage in a context
 	//
-	// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review; document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers whether supplied userAttributes satisfy the document policy. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
+	// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -7318,7 +7112,7 @@ func (c *Client) CtxAccessCheck(ctx context.Context, ctxID string, version strin
 
 // CtxAccessDescribeRequirementsWithBody Describe access requirements for a target in a context
 //
-// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`. Document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers document receivability and content or context remediation questions.
+// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`.
 //
 // Takes any type of body and a specified content type.
 //
@@ -7337,7 +7131,7 @@ func (c *Client) CtxAccessDescribeRequirementsWithBody(ctx context.Context, ctxI
 
 // CtxAccessDescribeRequirements Describe access requirements for a target in a context
 //
-// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`. Document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers document receivability and content or context remediation questions.
+// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -7447,47 +7241,9 @@ func (c *Client) CtxCrosswalkTranslate(ctx context.Context, ctxID string, versio
 	return c.Client.Do(req)
 }
 
-// CtxDocumentAssessAccessWithBody Assess document access in a context
-//
-// Answers whether the supplied userAttributes satisfy a document under the Context policy. It audits the document once and evaluates authored, authoritative, and projected access scenarios against immutable userAttributes and Context policy. Lexical matches are nominations, never automatic decisions; accepted findings bind to the returned finding ID and document digest, and revised text requires new decisions. Authoritative includes authored facts plus explicit analyst decisions. Projected assumes unresolved nominations and remains advisory. contentRequirements identify supported content that must cease to apply after content change and re-evaluation; they are not instructions to lower a marking. contextRequirements are conditional future relationships between userAttributes and authoritative context, not mutations performed by EzClassify. A denial remains denied until revised text or authoritative external state is re-evaluated. The standard profile is the default; summary suits only an initial large-document overview, standard is needed before decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
-//
-// Takes any type of body and a specified content type.
-//
-// Corresponds with POST /v1/ctx/{ctxId}/{version}/document/assess-access (the `CtxDocumentAssessAccess` operationId).
-func (c *Client) CtxDocumentAssessAccessWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxDocumentAssessAccessRequestWithBody(c.Server, ctxID, version, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-// CtxDocumentAssessAccess Assess document access in a context
-//
-// Answers whether the supplied userAttributes satisfy a document under the Context policy. It audits the document once and evaluates authored, authoritative, and projected access scenarios against immutable userAttributes and Context policy. Lexical matches are nominations, never automatic decisions; accepted findings bind to the returned finding ID and document digest, and revised text requires new decisions. Authoritative includes authored facts plus explicit analyst decisions. Projected assumes unresolved nominations and remains advisory. contentRequirements identify supported content that must cease to apply after content change and re-evaluation; they are not instructions to lower a marking. contextRequirements are conditional future relationships between userAttributes and authoritative context, not mutations performed by EzClassify. A denial remains denied until revised text or authoritative external state is re-evaluated. The standard profile is the default; summary suits only an initial large-document overview, standard is needed before decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
-//
-// Takes a body of the `application/json` content type.
-//
-// Corresponds with POST /v1/ctx/{ctxId}/{version}/document/assess-access (the `CtxDocumentAssessAccess` operationId).
-func (c *Client) CtxDocumentAssessAccess(ctx context.Context, ctxID string, version string, body CtxDocumentAssessAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxDocumentAssessAccessRequest(c.Server, ctxID, version, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 // CtxDocumentAuditWithBody Audit a document for marking coverage in a context
 //
-// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review; document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers whether supplied userAttributes satisfy the document policy. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
+// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
 //
 // Takes any type of body and a specified content type.
 //
@@ -7506,7 +7262,7 @@ func (c *Client) CtxDocumentAuditWithBody(ctx context.Context, ctxID string, ver
 
 // CtxDocumentAudit Audit a document for marking coverage in a context
 //
-// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review; document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers whether supplied userAttributes satisfy the document policy. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
+// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -8793,60 +8549,6 @@ func NewCtxCrosswalkTranslateRequestWithBody(server string, ctxID string, versio
 	}
 
 	operationPath := fmt.Sprintf("/v1/ctx/%s/%s/crosswalk/translate", pathParam0, pathParam1)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewCtxDocumentAssessAccessRequest calls the generic CtxDocumentAssessAccess builder with application/json body
-func NewCtxDocumentAssessAccessRequest(server string, ctxID string, version string, body CtxDocumentAssessAccessJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCtxDocumentAssessAccessRequestWithBody(server, ctxID, version, "application/json", bodyReader)
-}
-
-// NewCtxDocumentAssessAccessRequestWithBody constructs an http.Request for the CtxDocumentAssessAccess method, with any body, and a specified content type
-func NewCtxDocumentAssessAccessRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "ctxId", ctxID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	var pathParam1 string
-
-	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v1/ctx/%s/%s/document/assess-access", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -10678,7 +10380,7 @@ type ClientWithResponsesInterface interface {
 
 	// CtxAccessDescribeRequirementsWithBodyWithResponse Describe access requirements for a target in a context
 	//
-	// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`. Document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers document receivability and content or context remediation questions.
+	// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10687,7 +10389,7 @@ type ClientWithResponsesInterface interface {
 
 	// CtxAccessDescribeRequirementsWithResponse Describe access requirements for a target in a context
 	//
-	// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`. Document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers document receivability and content or context remediation questions.
+	// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10739,27 +10441,9 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/crosswalk/translate (the `CtxCrosswalkTranslate` operationId).
 	CtxCrosswalkTranslateWithResponse(ctx context.Context, ctxID string, version string, body CtxCrosswalkTranslateJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxCrosswalkTranslateHTTP, error)
 
-	// CtxDocumentAssessAccessWithBodyWithResponse Assess document access in a context
-	//
-	// Answers whether the supplied userAttributes satisfy a document under the Context policy. It audits the document once and evaluates authored, authoritative, and projected access scenarios against immutable userAttributes and Context policy. Lexical matches are nominations, never automatic decisions; accepted findings bind to the returned finding ID and document digest, and revised text requires new decisions. Authoritative includes authored facts plus explicit analyst decisions. Projected assumes unresolved nominations and remains advisory. contentRequirements identify supported content that must cease to apply after content change and re-evaluation; they are not instructions to lower a marking. contextRequirements are conditional future relationships between userAttributes and authoritative context, not mutations performed by EzClassify. A denial remains denied until revised text or authoritative external state is re-evaluated. The standard profile is the default; summary suits only an initial large-document overview, standard is needed before decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
-	//
-	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /v1/ctx/{ctxId}/{version}/document/assess-access (the `CtxDocumentAssessAccess` operationId).
-	CtxDocumentAssessAccessWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxDocumentAssessAccessHTTP, error)
-
-	// CtxDocumentAssessAccessWithResponse Assess document access in a context
-	//
-	// Answers whether the supplied userAttributes satisfy a document under the Context policy. It audits the document once and evaluates authored, authoritative, and projected access scenarios against immutable userAttributes and Context policy. Lexical matches are nominations, never automatic decisions; accepted findings bind to the returned finding ID and document digest, and revised text requires new decisions. Authoritative includes authored facts plus explicit analyst decisions. Projected assumes unresolved nominations and remains advisory. contentRequirements identify supported content that must cease to apply after content change and re-evaluation; they are not instructions to lower a marking. contextRequirements are conditional future relationships between userAttributes and authoritative context, not mutations performed by EzClassify. A denial remains denied until revised text or authoritative external state is re-evaluated. The standard profile is the default; summary suits only an initial large-document overview, standard is needed before decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
-	//
-	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-	//
-	// Corresponds with POST /v1/ctx/{ctxId}/{version}/document/assess-access (the `CtxDocumentAssessAccess` operationId).
-	CtxDocumentAssessAccessWithResponse(ctx context.Context, ctxID string, version string, body CtxDocumentAssessAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxDocumentAssessAccessHTTP, error)
-
 	// CtxDocumentAuditWithBodyWithResponse Audit a document for marking coverage in a context
 	//
-	// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review; document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers whether supplied userAttributes satisfy the document policy. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
+	// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10768,7 +10452,7 @@ type ClientWithResponsesInterface interface {
 
 	// CtxDocumentAuditWithResponse Audit a document for marking coverage in a context
 	//
-	// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review; document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers whether supplied userAttributes satisfy the document policy. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
+	// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -11929,106 +11613,6 @@ func (r CtxCrosswalkTranslateHTTP) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CtxCrosswalkTranslateHTTP) ContentType() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Header.Get("Content-Type")
-	}
-	return ""
-}
-
-// CtxDocumentAssessAccessHTTP200Headers the declared response headers of an HTTP 200 response for CtxDocumentAssessAccess
-type CtxDocumentAssessAccessHTTP200Headers struct {
-	XEzClassifyResolvedVersion *string
-}
-
-// CtxDocumentAssessAccessHTTP429Headers the declared response headers of an HTTP 429 response for CtxDocumentAssessAccess
-type CtxDocumentAssessAccessHTTP429Headers struct {
-	RetryAfter          *int
-	XRateLimitLimit     *int
-	XRateLimitRemaining *int
-	XRateLimitReset     *int
-}
-
-type CtxDocumentAssessAccessHTTP struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	// JSON200 the response for an HTTP 200 `application/json` response
-	JSON200 *ContextDocumentAccessAssessmentResult
-	// JSON400 the response for an HTTP 400 `application/json` response
-	JSON400 *BadRequest
-	// JSON404 the response for an HTTP 404 `application/json` response
-	JSON404 *NotFound
-	// JSON409 the response for an HTTP 409 `application/json` response
-	JSON409 *Conflict
-	// JSON422 the response for an HTTP 422 `application/json` response
-	JSON422 *UnprocessableEntity
-	// JSON429 the response for an HTTP 429 `application/json` response
-	JSON429 *TooManyRequests
-	// JSON500 the response for an HTTP 500 `application/json` response
-	JSON500 *InternalError
-	// Headers200 the parsed response headers for an HTTP 200 response
-	Headers200 *CtxDocumentAssessAccessHTTP200Headers
-	// Headers429 the parsed response headers for an HTTP 429 response
-	Headers429 *CtxDocumentAssessAccessHTTP429Headers
-}
-
-// GetJSON200 returns the response for an HTTP 200 `application/json` response
-func (r CtxDocumentAssessAccessHTTP) GetJSON200() *ContextDocumentAccessAssessmentResult {
-	return r.JSON200
-}
-
-// GetJSON400 returns the response for an HTTP 400 `application/json` response
-func (r CtxDocumentAssessAccessHTTP) GetJSON400() *BadRequest {
-	return r.JSON400
-}
-
-// GetJSON404 returns the response for an HTTP 404 `application/json` response
-func (r CtxDocumentAssessAccessHTTP) GetJSON404() *NotFound {
-	return r.JSON404
-}
-
-// GetJSON409 returns the response for an HTTP 409 `application/json` response
-func (r CtxDocumentAssessAccessHTTP) GetJSON409() *Conflict {
-	return r.JSON409
-}
-
-// GetJSON422 returns the response for an HTTP 422 `application/json` response
-func (r CtxDocumentAssessAccessHTTP) GetJSON422() *UnprocessableEntity {
-	return r.JSON422
-}
-
-// GetJSON429 returns the response for an HTTP 429 `application/json` response
-func (r CtxDocumentAssessAccessHTTP) GetJSON429() *TooManyRequests {
-	return r.JSON429
-}
-
-// GetJSON500 returns the response for an HTTP 500 `application/json` response
-func (r CtxDocumentAssessAccessHTTP) GetJSON500() *InternalError {
-	return r.JSON500
-}
-
-// GetBody returns the raw response body bytes
-func (r CtxDocumentAssessAccessHTTP) GetBody() []byte {
-	return r.Body
-}
-
-// Status returns HTTPResponse.Status
-func (r CtxDocumentAssessAccessHTTP) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CtxDocumentAssessAccessHTTP) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
-func (r CtxDocumentAssessAccessHTTP) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -14785,7 +14369,7 @@ func (c *ClientWithResponses) CtxAccessCheckWithResponse(ctx context.Context, ct
 
 // CtxAccessDescribeRequirementsWithBodyWithResponse Describe access requirements for a target in a context
 //
-// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`. Document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers document receivability and content or context remediation questions.
+// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -14800,7 +14384,7 @@ func (c *ClientWithResponses) CtxAccessDescribeRequirementsWithBodyWithResponse(
 
 // CtxAccessDescribeRequirementsWithResponse Describe access requirements for a target in a context
 //
-// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`. Document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers document receivability and content or context remediation questions.
+// Describes requirements imposed by immutable policy for a trusted target supplied as `marking`, structured `assertions`, or both. Both target forms are normalized through the same Context scheme path used by access check. These are policy requirements for the supplied target, not remediation instructions and not advice to change immutable `userAttributes`.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -14888,39 +14472,9 @@ func (c *ClientWithResponses) CtxCrosswalkTranslateWithResponse(ctx context.Cont
 	return ParseCtxCrosswalkTranslateHTTP(rsp)
 }
 
-// CtxDocumentAssessAccessWithBodyWithResponse Assess document access in a context
-//
-// Answers whether the supplied userAttributes satisfy a document under the Context policy. It audits the document once and evaluates authored, authoritative, and projected access scenarios against immutable userAttributes and Context policy. Lexical matches are nominations, never automatic decisions; accepted findings bind to the returned finding ID and document digest, and revised text requires new decisions. Authoritative includes authored facts plus explicit analyst decisions. Projected assumes unresolved nominations and remains advisory. contentRequirements identify supported content that must cease to apply after content change and re-evaluation; they are not instructions to lower a marking. contextRequirements are conditional future relationships between userAttributes and authoritative context, not mutations performed by EzClassify. A denial remains denied until revised text or authoritative external state is re-evaluated. The standard profile is the default; summary suits only an initial large-document overview, standard is needed before decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
-//
-// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /v1/ctx/{ctxId}/{version}/document/assess-access (the `CtxDocumentAssessAccess` operationId).
-func (c *ClientWithResponses) CtxDocumentAssessAccessWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxDocumentAssessAccessHTTP, error) {
-	rsp, err := c.CtxDocumentAssessAccessWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCtxDocumentAssessAccessHTTP(rsp)
-}
-
-// CtxDocumentAssessAccessWithResponse Assess document access in a context
-//
-// Answers whether the supplied userAttributes satisfy a document under the Context policy. It audits the document once and evaluates authored, authoritative, and projected access scenarios against immutable userAttributes and Context policy. Lexical matches are nominations, never automatic decisions; accepted findings bind to the returned finding ID and document digest, and revised text requires new decisions. Authoritative includes authored facts plus explicit analyst decisions. Projected assumes unresolved nominations and remains advisory. contentRequirements identify supported content that must cease to apply after content change and re-evaluation; they are not instructions to lower a marking. contextRequirements are conditional future relationships between userAttributes and authoritative context, not mutations performed by EzClassify. A denial remains denied until revised text or authoritative external state is re-evaluated. The standard profile is the default; summary suits only an initial large-document overview, standard is needed before decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
-//
-// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
-//
-// Corresponds with POST /v1/ctx/{ctxId}/{version}/document/assess-access (the `CtxDocumentAssessAccess` operationId).
-func (c *ClientWithResponses) CtxDocumentAssessAccessWithResponse(ctx context.Context, ctxID string, version string, body CtxDocumentAssessAccessJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxDocumentAssessAccessHTTP, error) {
-	rsp, err := c.CtxDocumentAssessAccess(ctx, ctxID, version, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCtxDocumentAssessAccessHTTP(rsp)
-}
-
 // CtxDocumentAuditWithBodyWithResponse Audit a document for marking coverage in a context
 //
-// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review; document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers whether supplied userAttributes satisfy the document policy. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
+// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -14935,7 +14489,7 @@ func (c *ClientWithResponses) CtxDocumentAuditWithBodyWithResponse(ctx context.C
 
 // CtxDocumentAuditWithResponse Audit a document for marking coverage in a context
 //
-// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review; document access assessment (POST /v1/ctx/{ctxId}/{version}/document/assess-access) answers whether supplied userAttributes satisfy the document policy. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
+// Audits authored document markings and evaluates guide nominations without treating lexical matches as authoritative facts. Never accept a nomination without an explicit analyst decision bound to its finding ID and document digest; revised text requires new decisions. Determined results include only accepted findings and manual selections, while projected results assume unresolved nominations and remain advisory. This operation answers authored correctness and guide review. The standard response profile is the default; summary suits only an initial large-document overview, standard is needed before analyst decisions or remediation, and full only when matched text or complete breakdowns are necessary. responseProjection counts and omittedFields state what the profile left out; omitted detail is not absent evidence.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -16463,118 +16017,6 @@ func ParseCtxCrosswalkTranslateHTTP(rsp *http.Response) (*CtxCrosswalkTranslateH
 		response.Headers200 = &headers
 	case rsp.StatusCode == 429:
 		var headers CtxCrosswalkTranslateHTTP429Headers
-		if values := rsp.Header.Values("Retry-After"); len(values) > 0 {
-			var value int
-			if err := runtime.BindStyledParameterWithOptions("simple", "Retry-After", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.RetryAfter = &value
-		}
-		if values := rsp.Header.Values("X-RateLimit-Limit"); len(values) > 0 {
-			var value int
-			if err := runtime.BindStyledParameterWithOptions("simple", "X-RateLimit-Limit", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.XRateLimitLimit = &value
-		}
-		if values := rsp.Header.Values("X-RateLimit-Remaining"); len(values) > 0 {
-			var value int
-			if err := runtime.BindStyledParameterWithOptions("simple", "X-RateLimit-Remaining", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.XRateLimitRemaining = &value
-		}
-		if values := rsp.Header.Values("X-RateLimit-Reset"); len(values) > 0 {
-			var value int
-			if err := runtime.BindStyledParameterWithOptions("simple", "X-RateLimit-Reset", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.XRateLimitReset = &value
-		}
-		response.Headers429 = &headers
-	}
-
-	return response, nil
-}
-
-// ParseCtxDocumentAssessAccessHTTP parses an HTTP response from a CtxDocumentAssessAccessWithResponse call
-func ParseCtxDocumentAssessAccessHTTP(rsp *http.Response) (*CtxDocumentAssessAccessHTTP, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CtxDocumentAssessAccessHTTP{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ContextDocumentAccessAssessmentResult
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest BadRequest
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest NotFound
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest Conflict
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON409 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
-		var dest UnprocessableEntity
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON422 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
-		var dest TooManyRequests
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON429 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	switch {
-	case rsp.StatusCode == 200:
-		var headers CtxDocumentAssessAccessHTTP200Headers
-		if values := rsp.Header.Values("X-EzClassify-Resolved-Version"); len(values) > 0 {
-			var value string
-			if err := runtime.BindStyledParameterWithOptions("simple", "X-EzClassify-Resolved-Version", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
-				return nil, err
-			}
-			headers.XEzClassifyResolvedVersion = &value
-		}
-		response.Headers200 = &headers
-	case rsp.StatusCode == 429:
-		var headers CtxDocumentAssessAccessHTTP429Headers
 		if values := rsp.Header.Values("Retry-After"); len(values) > 0 {
 			var value int
 			if err := runtime.BindStyledParameterWithOptions("simple", "Retry-After", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {

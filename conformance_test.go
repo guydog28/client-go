@@ -7,7 +7,7 @@
 //
 // Run with:
 //
-//	cd client-go && go test -run TestConformance ./...
+//	cd sdk-go && go test -run TestConformance ./...
 package ezclassify_test
 
 import (
@@ -15,7 +15,7 @@ import (
 	"runtime"
 	"testing"
 
-	conformancerunner "github.com/ezclassify/client-go/internal/conformancerunner"
+	conformancerunner "github.com/ezclassify/sdk-go/internal/conformancerunner"
 )
 
 // TestConformance runs the engine-slice conformance suite against the local

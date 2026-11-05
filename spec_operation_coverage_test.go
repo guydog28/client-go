@@ -20,7 +20,7 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	ez "github.com/ezclassify/client-go"
+	ez "github.com/ezclassify/sdk-go"
 )
 
 // specOperationMethods maps each operationId to the public method that sends it.

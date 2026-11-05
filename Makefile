@@ -63,7 +63,7 @@ docs:
 	mkdir -p dist/api
 	go list ./... > dist/api/packages.txt
 	@while IFS= read -r package; do \
-		relative=$${package#github.com/ezclassify/client-go}; \
+		relative=$${package#github.com/ezclassify/sdk-go}; \
 		mkdir -p "dist/api$$relative"; \
 		go doc -all "$$package" > "dist/api$$relative/index.txt" || exit; \
 	done < dist/api/packages.txt

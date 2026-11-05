@@ -20,8 +20,8 @@ import (
 	"sync"
 	"testing"
 
-	ezclassify "github.com/ezclassify/client-go"
-	"github.com/ezclassify/client-go/internal/subsetmatch"
+	ezclassify "github.com/ezclassify/sdk-go"
+	"github.com/ezclassify/sdk-go/internal/subsetmatch"
 )
 
 var (
@@ -123,20 +123,20 @@ func TestDocumentSemanticConformance(t *testing.T) {
 	if recordings.Status != "recorded-operation-output" {
 		t.Fatalf("recordings status = %q, want recorded-operation-output", recordings.Status)
 	}
-	// The corpus is the count. Cases run 1..N below and every inventory has to
-	// name exactly those N, so a dropped or added case fails without a pinned
-	// total to move.
+	// Every inventory must name exactly the contract's ordered stable case identities.
 	caseCount := len(contract.Cases)
 	if caseCount == 0 || len(requests) != caseCount || len(recordings.Cases) != caseCount || len(coverage) != caseCount {
 		t.Fatalf("canonical inventory sizes: contract=%d requests=%d recordings=%d coverage=%d, want the contract's count in each", caseCount, len(requests), len(recordings.Cases), len(coverage))
 	}
 
 	semanticIDs := make(map[string]struct{}, caseCount)
+	previousNumber := 0
 	for index, testCase := range contract.Cases {
-		wantNumber, wantID := index+1, fmt.Sprintf("case-%02d", index+1)
-		if testCase.Number != wantNumber || testCase.RequestID != wantID {
-			t.Fatalf("case %d inventory entry = number %d request %q, want number %d request %q", index, testCase.Number, testCase.RequestID, wantNumber, wantID)
+		wantID := fmt.Sprintf("case-%02d", testCase.Number)
+		if testCase.Number <= previousNumber || testCase.RequestID != wantID {
+			t.Fatalf("case %d inventory entry = number %d request %q, want an increasing positive number and request %q", index, testCase.Number, testCase.RequestID, wantID)
 		}
+		previousNumber = testCase.Number
 		if !testCase.Required || testCase.Implementation != "recorded" || len(testCase.Assertions) == 0 {
 			t.Fatalf("%s is not a required recorded case with assertions", testCase.RequestID)
 		}

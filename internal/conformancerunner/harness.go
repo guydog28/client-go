@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ezclassify/client-go/internal/replayer"
+	"github.com/ezclassify/sdk-go/internal/replayer"
 )
 
 // computeRecordingKey reproduces the canonical recording hash algorithm.

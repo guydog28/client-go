@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	ez "github.com/ezclassify/client-go"
+	ez "github.com/ezclassify/sdk-go"
 	"maps"
 	"net/url"
 	"strings"

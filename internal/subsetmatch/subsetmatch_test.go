@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/ezclassify/client-go/internal/subsetmatch"
+	"github.com/ezclassify/sdk-go/internal/subsetmatch"
 )
 
 // mustJSON decodes a JSON literal into the interface{} shapes json.Unmarshal

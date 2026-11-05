@@ -98,5 +98,5 @@ their command contracts in this guide and their source headers. Output is ignore
 by Git.
 
 For interactive terminal lookup, use `go doc Client`, `go doc EzClassifyContext`
-or `go doc -all .`. The module's Go doc comments also provide the reference on [pkg.go.dev](https://pkg.go.dev/github.com/ezclassify/client-go).
+or `go doc -all .`. The module's Go doc comments also provide the reference on [pkg.go.dev](https://pkg.go.dev/github.com/ezclassify/sdk-go).
 Generated wire declarations remain owned by `make regen`.

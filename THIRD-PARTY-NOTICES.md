@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-The EzClassify Go SDK (`github.com/ezclassify/client-go`) is licensed under the
+The EzClassify Go SDK (`github.com/ezclassify/sdk-go`) is licensed under the
 Apache License 2.0 (see `LICENSE`). It depends at runtime on, and vendors
 the source of, the third-party Go modules listed below. Each remains under
 its own license; the texts vendored under `vendor/` govern your use of
