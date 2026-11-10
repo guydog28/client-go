@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@b83ffe08c6e45854b1d07e0052c5c7d09895df6abcec963be11df12039b73f37 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@b88f22507ef6197276e92b2e9800de45505708891d089e17b315774c8658eab6 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -3260,10 +3260,10 @@ type EmbeddedMarkingStyleAutoInsert string
 
 // ErrorResponse Response body for error responses (4xx / 5xx).
 type ErrorResponse struct {
-	// Code Stable machine-readable classification of the failure, present whenever the server can name one. Set to `INVALID_INPUT` when the failure originated in engine input or the request carried something the operation does not declare, and to `route_not_found` on a 404 that reached routing and matched no route. A request refused before routing carries the constant refusal body instead, which has no `code` at all by design, so the absence of a code on a 404 is itself uninformative.
+	// Code Stable machine-readable classification of the failure, present whenever the server can name one. Set to `INVALID_INPUT` when the failure originated in engine input or the request carried something the operation does not declare, to `route_not_found` on a 404 that reached routing and matched no route, and to `scheme_not_found` on a 404 for a `?scheme=` key the Context does not hold. A request refused before routing carries the constant refusal body instead, which has no `code` at all by design, so the absence of a code on a 404 is itself uninformative.
 	Code *string `json:"code,omitempty"`
 
-	// Detail What the failure is about, beside `code`: a stable operation-specific detail used to classify it. For a request that names a format, a concept or a category the scheme does not declare, it is the request field and the id it named, written `field: id`, such as `outputFormat: nope` or `conceptId: NOPE`. For a request that carries a query parameter the operation does not declare, it is `query: ` and the parameter's name; for an undeclared body field, `body`, the JSON pointer of the object that holds it, `: ` and the field, such as `body: extra` or `body/context: extra`. Never a scheme's internals.
+	// Detail What the failure is about, beside `code`: a stable operation-specific detail used to classify it. For a request that names a format, a concept or a category the scheme does not declare, it is the request field and the id it named, written `field: id`, such as `outputFormat: nope` or `conceptId: NOPE`. For a request that carries a query parameter the operation does not declare, or names a declared one twice, it is `query: ` and the parameter's name; for an undeclared body field, `body`, the JSON pointer of the object that holds it, `: ` and the field, such as `body: extra` or `body/context: extra`. Never a scheme's internals.
 	Detail *string `json:"detail,omitempty"`
 
 	// Error Human-readable error message. Prose for an operator, not a contract: a client that branches on this string breaks the first time the wording is improved. Branch on `code` instead.
@@ -5363,37 +5363,37 @@ type UnprocessableEntity = ErrorResponse
 
 // CtxSchemeSummaryParams defines parameters for CtxSchemeSummary.
 type CtxSchemeSummaryParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeAggregateParams defines parameters for CtxSchemeAggregate.
 type CtxSchemeAggregateParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeApplyPresetParams defines parameters for CtxSchemeApplyPreset.
 type CtxSchemeApplyPresetParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeCategoriesParams defines parameters for CtxSchemeCategories.
 type CtxSchemeCategoriesParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeCheckCoverageParams defines parameters for CtxSchemeCheckCoverage.
 type CtxSchemeCheckCoverageParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeConceptsParams defines parameters for CtxSchemeConcepts.
 type CtxSchemeConceptsParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
@@ -5408,103 +5408,103 @@ type CtxSchemeDescribeConceptParams struct {
 	// View The view to name the concept in: a key of the concept's `views`. Omitted, its default view.
 	View *string `form:"view,omitempty" json:"view,omitempty"`
 
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeDiffParams defines parameters for CtxSchemeDiff.
 type CtxSchemeDiffParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeExplainParams defines parameters for CtxSchemeExplain.
 type CtxSchemeExplainParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeFilterConceptsParams defines parameters for CtxSchemeFilterConcepts.
 type CtxSchemeFilterConceptsParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeFormatsParams defines parameters for CtxSchemeFormats.
 type CtxSchemeFormatsParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeGrammarParams defines parameters for CtxSchemeGrammar.
 type CtxSchemeGrammarParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeLabelPresetsParams defines parameters for CtxSchemeLabelPresets.
 type CtxSchemeLabelPresetsParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeNormalizeParams defines parameters for CtxSchemeNormalize.
 type CtxSchemeNormalizeParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeNoticesParams defines parameters for CtxSchemeNotices.
 type CtxSchemeNoticesParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeProcessParams defines parameters for CtxSchemeProcess.
 type CtxSchemeProcessParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeRenderParams defines parameters for CtxSchemeRender.
 type CtxSchemeRenderParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeScanParams defines parameters for CtxSchemeScan.
 type CtxSchemeScanParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeScopesParams defines parameters for CtxSchemeScopes.
 type CtxSchemeScopesParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeSuggestParams defines parameters for CtxSchemeSuggest.
 type CtxSchemeSuggestParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeSuggestForCategoriesParams defines parameters for CtxSchemeSuggestForCategories.
 type CtxSchemeSuggestForCategoriesParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeValidateParams defines parameters for CtxSchemeValidate.
 type CtxSchemeValidateParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeViewParams defines parameters for CtxSchemeView.
 type CtxSchemeViewParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
