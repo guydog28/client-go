@@ -124,16 +124,17 @@ func ConnectWith(client *Client, contextID, version string) *EzClassifyContext {
 func (cx *EzClassifyContext) ID() string { return cx.id }
 
 // SchemeView returns the scheme operations for one scheme this Context holds,
-// named by selector: its context-local key or its unambiguous artifact id, the
-// value [ContextDescription] lists as each scheme's Selector. Every call
+// named by selector: its context-local key, the value [ContextDescription]
+// lists as each scheme's Selector. Every call
 // through the view, operation and read alike, sends the selector as the
 // request's scheme query parameter, so the server answers it in that scheme.
 // [EzClassifyContext.Scheme] stays the view of the primary scheme and sends
 // none.
 //
 // The server resolves the selector on each call. A selector the Context does
-// not hold is answered 404 and returned as an error; the call never falls back
-// to the primary scheme.
+// not hold is answered 404 and returned as an [APIError] with code
+// scheme_not_found, not a [ContextNotFoundError]; the call never falls back to
+// the primary scheme.
 //
 // The same selector always returns the same view. A view shares this handle's
 // binding, resolved version and response cache, and its cached results are
@@ -338,7 +339,7 @@ func (cx *EzClassifyContext) ctxError(op string, status int, header http.Header,
 		return &MalformedResponseError{Op: op, StatusCode: status}
 	}
 	apiErr := newAPIError(op, status, header, body)
-	if status == http.StatusNotFound && !isRouteNotFound(apiErr) && !isConceptNotFound(apiErr) {
+	if status == http.StatusNotFound && !isRouteNotFound(apiErr) && !isSchemeNotFound(apiErr) && !isConceptNotFound(apiErr) {
 		return &ContextNotFoundError{ContextID: cx.id, APIError: apiErr}
 	}
 	return apiErr
@@ -357,6 +358,16 @@ func isRouteNotFound(apiErr *APIError) bool {
 		return false
 	}
 	return *apiErr.Response.Code == routeNotFoundCode
+}
+
+// schemeNotFoundCode is the wire contract's classifier for a 404 answering a
+// scheme selector the Context does not hold. The Context itself exists.
+const schemeNotFoundCode = "scheme_not_found"
+
+// isSchemeNotFound reports whether a 404 names a scheme the Context does not
+// hold, so a host that re-resolves a missing Context does not act on it.
+func isSchemeNotFound(apiErr *APIError) bool {
+	return apiErr != nil && apiErr.Response != nil && apiErr.Response.Code != nil && *apiErr.Response.Code == schemeNotFoundCode
 }
 
 // isConceptNotFound uses the server's structured resource classifier. A

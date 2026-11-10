@@ -321,7 +321,7 @@ if len(*presets) > 0 {
 
 ### A Context's other schemes
 
-`cx.Scheme` is the Context's primary scheme. A Context can hold more, such as the source and target of a crosswalk, and `cx.SchemeView(selector)` returns the same operations for one of them. The selector is the scheme's Context-local key or its unambiguous artifact id; `Describe` lists every scheme the Context holds with the `Selector` that addresses it. Every call through the view, the operations and the reads alike, sends the selector as `?scheme=`:
+`cx.Scheme` is the Context's primary scheme. A Context can hold more, such as the source and target of a crosswalk, and `cx.SchemeView(selector)` returns the same operations for one of them. The selector is the scheme's Context-local key; `Describe` lists every scheme the Context holds with the `Selector` that addresses it. Every call through the view, the operations and the reads alike, sends the selector as `?scheme=`:
 
 ```go
 description, err := cx.Describe(ctx)

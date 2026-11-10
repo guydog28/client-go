@@ -104,6 +104,29 @@ func TestContextNotFoundWrapsAPIError(t *testing.T) {
 	}
 }
 
+// TestUnknownSchemeSelectorIsNotContextNotFound pins that a 404 refusing a
+// scheme selector stays an APIError carrying its code: the Context exists, so
+// a host that drops or re-resolves a missing Context must not act on it.
+func TestUnknownSchemeSelectorIsNotContextNotFound(t *testing.T) {
+	body := `{"error":"Scheme not found in context: other","code":"scheme_not_found"}`
+	srv := httptest.NewServer(stubStatus(http.StatusNotFound, body))
+	t.Cleanup(srv.Close)
+	cx := ezclassify.Connect(srv.URL, "held-ctx", "1.0.0")
+
+	_, err := cx.SchemeView("other").Process(context.Background(), ezclassify.CtxSchemeProcessRequest{Input: "X"})
+	var notFound *ezclassify.ContextNotFoundError
+	if errors.As(err, &notFound) {
+		t.Fatalf("got ContextNotFoundError for a scheme the Context does not hold: %v", err)
+	}
+	var apiErr *ezclassify.APIError
+	if !errors.As(err, &apiErr) {
+		t.Fatalf("got %T(%v), want *APIError", err, err)
+	}
+	if apiErr.StatusCode != http.StatusNotFound || apiErr.Response == nil || apiErr.Response.Code == nil || *apiErr.Response.Code != "scheme_not_found" {
+		t.Fatalf("APIError = %+v, want a 404 with code scheme_not_found", apiErr)
+	}
+}
+
 // TestResolveNotFoundWrapsAPIError pins that Resolve's 404 path carries the
 // same wrapped APIError, with Resolve's own op string.
 func TestResolveNotFoundWrapsAPIError(t *testing.T) {
