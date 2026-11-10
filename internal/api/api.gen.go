@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@57bd298b71064b4752d7661b92399cad7797705a4ff840283306c4ce10c39de8 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@b83ffe08c6e45854b1d07e0052c5c7d09895df6abcec963be11df12039b73f37 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -2118,7 +2118,7 @@ type ContextSchemeCoverageResult struct {
 //
 // Read it as a sentence: this Context holds a scheme you select with `selector`, it is `id` at `version`, and it plays these `roles`.
 //
-// `selector` is the whole point. A Context keys its schemes locally, and an operation that addresses one takes that key, so a caller that cannot enumerate the keys cannot reach anything but the primary. On the REST surface the same value is what `?scheme=` takes.
+// `selector` is the whole point. A Context keys its schemes locally, and a caller reaches a scheme by its key: an adapter's `schemeView` takes it, and so does `?scheme=` on the REST surface. A caller that cannot enumerate the keys cannot reach anything but the primary.
 type ContextSchemeDescriptor struct {
 	// ID Scheme id, from the scheme document itself.
 	ID string `json:"id"`
@@ -5363,19 +5363,37 @@ type UnprocessableEntity = ErrorResponse
 
 // CtxSchemeSummaryParams defines parameters for CtxSchemeSummary.
 type CtxSchemeSummaryParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme to read. Defaults to the context's primary scheme; a crosswalk's source or target scheme is named here. A key the context does not hold answers 404.
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeAggregateParams defines parameters for CtxSchemeAggregate.
+type CtxSchemeAggregateParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeApplyPresetParams defines parameters for CtxSchemeApplyPreset.
+type CtxSchemeApplyPresetParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeCategoriesParams defines parameters for CtxSchemeCategories.
 type CtxSchemeCategoriesParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme to read. Defaults to the context's primary scheme; a crosswalk's source or target scheme is named here. A key the context does not hold answers 404.
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeCheckCoverageParams defines parameters for CtxSchemeCheckCoverage.
+type CtxSchemeCheckCoverageParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeConceptsParams defines parameters for CtxSchemeConcepts.
 type CtxSchemeConceptsParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme to read. Defaults to the context's primary scheme; a crosswalk's source or target scheme is named here. A key the context does not hold answers 404.
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
@@ -5389,23 +5407,104 @@ type CtxSchemeDescribeConceptParams struct {
 
 	// View The view to name the concept in: a key of the concept's `views`. Omitted, its default view.
 	View *string `form:"view,omitempty" json:"view,omitempty"`
+
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeDiffParams defines parameters for CtxSchemeDiff.
+type CtxSchemeDiffParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeExplainParams defines parameters for CtxSchemeExplain.
+type CtxSchemeExplainParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeFilterConceptsParams defines parameters for CtxSchemeFilterConcepts.
+type CtxSchemeFilterConceptsParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeFormatsParams defines parameters for CtxSchemeFormats.
 type CtxSchemeFormatsParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme to read. Defaults to the context's primary scheme; a crosswalk's source or target scheme is named here. A key the context does not hold answers 404.
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeGrammarParams defines parameters for CtxSchemeGrammar.
 type CtxSchemeGrammarParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme to read. Defaults to the context's primary scheme; a crosswalk's source or target scheme is named here. A key the context does not hold answers 404.
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeLabelPresetsParams defines parameters for CtxSchemeLabelPresets.
+type CtxSchemeLabelPresetsParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeNormalizeParams defines parameters for CtxSchemeNormalize.
+type CtxSchemeNormalizeParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeNoticesParams defines parameters for CtxSchemeNotices.
+type CtxSchemeNoticesParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeProcessParams defines parameters for CtxSchemeProcess.
+type CtxSchemeProcessParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeRenderParams defines parameters for CtxSchemeRender.
+type CtxSchemeRenderParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeScanParams defines parameters for CtxSchemeScan.
+type CtxSchemeScanParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
 // CtxSchemeScopesParams defines parameters for CtxSchemeScopes.
 type CtxSchemeScopesParams struct {
-	// Scheme Context-local key, or unambiguous artifact id, of the scheme to read. Defaults to the context's primary scheme; a crosswalk's source or target scheme is named here. A key the context does not hold answers 404.
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeSuggestParams defines parameters for CtxSchemeSuggest.
+type CtxSchemeSuggestParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeSuggestForCategoriesParams defines parameters for CtxSchemeSuggestForCategories.
+type CtxSchemeSuggestForCategoriesParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeValidateParams defines parameters for CtxSchemeValidate.
+type CtxSchemeValidateParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
+	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
+}
+
+// CtxSchemeViewParams defines parameters for CtxSchemeView.
+type CtxSchemeViewParams struct {
+	// Scheme Context-local key, or unambiguous artifact id, of the scheme the request is answered in. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A selector that names no scheme the context holds answers 404; it never falls back to the primary.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 }
 
@@ -6899,7 +6998,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/aggregate (the `CtxSchemeAggregate` operationId).
-	CtxSchemeAggregateWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeAggregateWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeAggregateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeAggregate Aggregate marking strings in a context
 	//
@@ -6908,7 +7007,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/aggregate (the `CtxSchemeAggregate` operationId).
-	CtxSchemeAggregate(ctx context.Context, ctxID string, version string, body CtxSchemeAggregateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeAggregate(ctx context.Context, ctxID string, version string, params *CtxSchemeAggregateParams, body CtxSchemeAggregateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeApplyPresetWithBody Apply a label preset in a context
 	//
@@ -6917,7 +7016,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset (the `CtxSchemeApplyPreset` operationId).
-	CtxSchemeApplyPresetWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeApplyPresetWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeApplyPresetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeApplyPreset Apply a label preset in a context
 	//
@@ -6926,7 +7025,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset (the `CtxSchemeApplyPreset` operationId).
-	CtxSchemeApplyPreset(ctx context.Context, ctxID string, version string, body CtxSchemeApplyPresetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeApplyPreset(ctx context.Context, ctxID string, version string, params *CtxSchemeApplyPresetParams, body CtxSchemeApplyPresetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeCategories Get the scheme categories in a context
 	//
@@ -6942,7 +7041,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/check-coverage (the `CtxSchemeCheckCoverage` operationId).
-	CtxSchemeCheckCoverageWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeCheckCoverageWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeCheckCoverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeCheckCoverage Check marking coverage in a context
 	//
@@ -6951,7 +7050,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/check-coverage (the `CtxSchemeCheckCoverage` operationId).
-	CtxSchemeCheckCoverage(ctx context.Context, ctxID string, version string, body CtxSchemeCheckCoverageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeCheckCoverage(ctx context.Context, ctxID string, version string, params *CtxSchemeCheckCoverageParams, body CtxSchemeCheckCoverageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeConcepts Get the scheme concepts in a context
 	//
@@ -6974,7 +7073,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/diff (the `CtxSchemeDiff` operationId).
-	CtxSchemeDiffWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeDiffWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeDiffParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeDiff Diff two markings in a context
 	//
@@ -6983,7 +7082,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/diff (the `CtxSchemeDiff` operationId).
-	CtxSchemeDiff(ctx context.Context, ctxID string, version string, body CtxSchemeDiffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeDiff(ctx context.Context, ctxID string, version string, params *CtxSchemeDiffParams, body CtxSchemeDiffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeExplainWithBody Explain how a marking is processed in a context
 	//
@@ -6992,7 +7091,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/explain (the `CtxSchemeExplain` operationId).
-	CtxSchemeExplainWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeExplainWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeExplainParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeExplain Explain how a marking is processed in a context
 	//
@@ -7001,7 +7100,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/explain (the `CtxSchemeExplain` operationId).
-	CtxSchemeExplain(ctx context.Context, ctxID string, version string, body CtxSchemeExplainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeExplain(ctx context.Context, ctxID string, version string, params *CtxSchemeExplainParams, body CtxSchemeExplainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeFilterConceptsWithBody Filter scheme concepts in a context
 	//
@@ -7010,7 +7109,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/filter-concepts (the `CtxSchemeFilterConcepts` operationId).
-	CtxSchemeFilterConceptsWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeFilterConceptsWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeFilterConceptsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeFilterConcepts Filter scheme concepts in a context
 	//
@@ -7019,7 +7118,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/filter-concepts (the `CtxSchemeFilterConcepts` operationId).
-	CtxSchemeFilterConcepts(ctx context.Context, ctxID string, version string, body CtxSchemeFilterConceptsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeFilterConcepts(ctx context.Context, ctxID string, version string, params *CtxSchemeFilterConceptsParams, body CtxSchemeFilterConceptsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeFormats Get the scheme render formats in a context
 	//
@@ -7037,10 +7136,10 @@ type ClientInterface interface {
 
 	// CtxSchemeLabelPresets List the label presets in a context
 	//
-	// Returns the label presets of the context's primary scheme, the scheme apply-preset expands them in, as preset views: id, label, description, and scope. Empty when the scheme declares none. The marking string and tag list stay server-side; expand a preset with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset. The :version segment may be omitted to default to "latest"; the resolved version is returned in the X-EzClassify-Resolved-Version response header.
+	// Returns the label presets of the selected scheme as preset views: id, label, description, and scope. Empty when the scheme declares none. The marking string and tag list stay server-side; expand a preset with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset under the same selector. The :version segment may be omitted to default to "latest"; the resolved version is returned in the X-EzClassify-Resolved-Version response header.
 	//
 	// Corresponds with GET /v1/ctx/{ctxId}/{version}/scheme/label-presets (the `CtxSchemeLabelPresets` operationId).
-	CtxSchemeLabelPresets(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeLabelPresets(ctx context.Context, ctxID string, version string, params *CtxSchemeLabelPresetsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeNormalizeWithBody Normalize a marking in a context
 	//
@@ -7049,7 +7148,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/normalize (the `CtxSchemeNormalize` operationId).
-	CtxSchemeNormalizeWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeNormalizeWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeNormalizeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeNormalize Normalize a marking in a context
 	//
@@ -7058,7 +7157,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/normalize (the `CtxSchemeNormalize` operationId).
-	CtxSchemeNormalize(ctx context.Context, ctxID string, version string, body CtxSchemeNormalizeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeNormalize(ctx context.Context, ctxID string, version string, params *CtxSchemeNormalizeParams, body CtxSchemeNormalizeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeNoticesWithBody Collect notices for assertions in a context
 	//
@@ -7067,7 +7166,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/notices (the `CtxSchemeNotices` operationId).
-	CtxSchemeNoticesWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeNoticesWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeNoticesParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeNotices Collect notices for assertions in a context
 	//
@@ -7076,7 +7175,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/notices (the `CtxSchemeNotices` operationId).
-	CtxSchemeNotices(ctx context.Context, ctxID string, version string, body CtxSchemeNoticesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeNotices(ctx context.Context, ctxID string, version string, params *CtxSchemeNoticesParams, body CtxSchemeNoticesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeProcessWithBody Process a marking in a context
 	//
@@ -7085,7 +7184,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/process (the `CtxSchemeProcess` operationId).
-	CtxSchemeProcessWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeProcessWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeProcessParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeProcess Process a marking in a context
 	//
@@ -7094,7 +7193,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/process (the `CtxSchemeProcess` operationId).
-	CtxSchemeProcess(ctx context.Context, ctxID string, version string, body CtxSchemeProcessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeProcess(ctx context.Context, ctxID string, version string, params *CtxSchemeProcessParams, body CtxSchemeProcessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeRenderWithBody Render assertions in a context
 	//
@@ -7103,7 +7202,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/render (the `CtxSchemeRender` operationId).
-	CtxSchemeRenderWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeRenderWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeRenderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeRender Render assertions in a context
 	//
@@ -7112,7 +7211,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/render (the `CtxSchemeRender` operationId).
-	CtxSchemeRender(ctx context.Context, ctxID string, version string, body CtxSchemeRenderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeRender(ctx context.Context, ctxID string, version string, params *CtxSchemeRenderParams, body CtxSchemeRenderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeScanWithBody Scan text for markings in a context
 	//
@@ -7121,7 +7220,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/scan (the `CtxSchemeScan` operationId).
-	CtxSchemeScanWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeScanWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeScanParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeScan Scan text for markings in a context
 	//
@@ -7130,7 +7229,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/scan (the `CtxSchemeScan` operationId).
-	CtxSchemeScan(ctx context.Context, ctxID string, version string, body CtxSchemeScanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeScan(ctx context.Context, ctxID string, version string, params *CtxSchemeScanParams, body CtxSchemeScanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeScopes Get the scheme scopes in a context
 	//
@@ -7146,7 +7245,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest (the `CtxSchemeSuggest` operationId).
-	CtxSchemeSuggestWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeSuggestWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeSuggest Suggest marking completions in a context
 	//
@@ -7155,7 +7254,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest (the `CtxSchemeSuggest` operationId).
-	CtxSchemeSuggest(ctx context.Context, ctxID string, version string, body CtxSchemeSuggestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeSuggest(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestParams, body CtxSchemeSuggestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeSuggestForCategoriesWithBody Suggest completions for several categories in a context
 	//
@@ -7164,7 +7263,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest-for-categories (the `CtxSchemeSuggestForCategories` operationId).
-	CtxSchemeSuggestForCategoriesWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeSuggestForCategoriesWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeSuggestForCategories Suggest completions for several categories in a context
 	//
@@ -7173,7 +7272,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest-for-categories (the `CtxSchemeSuggestForCategories` operationId).
-	CtxSchemeSuggestForCategories(ctx context.Context, ctxID string, version string, body CtxSchemeSuggestForCategoriesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeSuggestForCategories(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, body CtxSchemeSuggestForCategoriesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeValidateWithBody Validate a marking in a context
 	//
@@ -7182,7 +7281,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/validate (the `CtxSchemeValidate` operationId).
-	CtxSchemeValidateWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeValidateWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeValidate Validate a marking in a context
 	//
@@ -7191,7 +7290,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/validate (the `CtxSchemeValidate` operationId).
-	CtxSchemeValidate(ctx context.Context, ctxID string, version string, body CtxSchemeValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeValidate(ctx context.Context, ctxID string, version string, params *CtxSchemeValidateParams, body CtxSchemeValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeViewWithBody Build scheme structural view in a context
 	//
@@ -7200,7 +7299,7 @@ type ClientInterface interface {
 	// Takes any type of body and a specified content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/view (the `CtxSchemeView` operationId).
-	CtxSchemeViewWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeViewWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeViewParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CtxSchemeView Build scheme structural view in a context
 	//
@@ -7209,7 +7308,7 @@ type ClientInterface interface {
 	// Takes a body of the `application/json` content type.
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/view (the `CtxSchemeView` operationId).
-	CtxSchemeView(ctx context.Context, ctxID string, version string, body CtxSchemeViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CtxSchemeView(ctx context.Context, ctxID string, version string, params *CtxSchemeViewParams, body CtxSchemeViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetHealth Health check
 	//
@@ -7715,8 +7814,8 @@ func (c *Client) CtxSchemeSummary(ctx context.Context, ctxID string, version str
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/aggregate (the `CtxSchemeAggregate` operationId).
-func (c *Client) CtxSchemeAggregateWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeAggregateRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeAggregateWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeAggregateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeAggregateRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7734,8 +7833,8 @@ func (c *Client) CtxSchemeAggregateWithBody(ctx context.Context, ctxID string, v
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/aggregate (the `CtxSchemeAggregate` operationId).
-func (c *Client) CtxSchemeAggregate(ctx context.Context, ctxID string, version string, body CtxSchemeAggregateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeAggregateRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeAggregate(ctx context.Context, ctxID string, version string, params *CtxSchemeAggregateParams, body CtxSchemeAggregateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeAggregateRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7753,8 +7852,8 @@ func (c *Client) CtxSchemeAggregate(ctx context.Context, ctxID string, version s
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset (the `CtxSchemeApplyPreset` operationId).
-func (c *Client) CtxSchemeApplyPresetWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeApplyPresetRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeApplyPresetWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeApplyPresetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeApplyPresetRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7772,8 +7871,8 @@ func (c *Client) CtxSchemeApplyPresetWithBody(ctx context.Context, ctxID string,
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset (the `CtxSchemeApplyPreset` operationId).
-func (c *Client) CtxSchemeApplyPreset(ctx context.Context, ctxID string, version string, body CtxSchemeApplyPresetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeApplyPresetRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeApplyPreset(ctx context.Context, ctxID string, version string, params *CtxSchemeApplyPresetParams, body CtxSchemeApplyPresetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeApplyPresetRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7808,8 +7907,8 @@ func (c *Client) CtxSchemeCategories(ctx context.Context, ctxID string, version 
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/check-coverage (the `CtxSchemeCheckCoverage` operationId).
-func (c *Client) CtxSchemeCheckCoverageWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeCheckCoverageRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeCheckCoverageWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeCheckCoverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeCheckCoverageRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7827,8 +7926,8 @@ func (c *Client) CtxSchemeCheckCoverageWithBody(ctx context.Context, ctxID strin
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/check-coverage (the `CtxSchemeCheckCoverage` operationId).
-func (c *Client) CtxSchemeCheckCoverage(ctx context.Context, ctxID string, version string, body CtxSchemeCheckCoverageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeCheckCoverageRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeCheckCoverage(ctx context.Context, ctxID string, version string, params *CtxSchemeCheckCoverageParams, body CtxSchemeCheckCoverageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeCheckCoverageRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7880,8 +7979,8 @@ func (c *Client) CtxSchemeDescribeConcept(ctx context.Context, ctxID string, ver
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/diff (the `CtxSchemeDiff` operationId).
-func (c *Client) CtxSchemeDiffWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeDiffRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeDiffWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeDiffParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeDiffRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7899,8 +7998,8 @@ func (c *Client) CtxSchemeDiffWithBody(ctx context.Context, ctxID string, versio
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/diff (the `CtxSchemeDiff` operationId).
-func (c *Client) CtxSchemeDiff(ctx context.Context, ctxID string, version string, body CtxSchemeDiffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeDiffRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeDiff(ctx context.Context, ctxID string, version string, params *CtxSchemeDiffParams, body CtxSchemeDiffJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeDiffRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7918,8 +8017,8 @@ func (c *Client) CtxSchemeDiff(ctx context.Context, ctxID string, version string
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/explain (the `CtxSchemeExplain` operationId).
-func (c *Client) CtxSchemeExplainWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeExplainRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeExplainWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeExplainParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeExplainRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7937,8 +8036,8 @@ func (c *Client) CtxSchemeExplainWithBody(ctx context.Context, ctxID string, ver
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/explain (the `CtxSchemeExplain` operationId).
-func (c *Client) CtxSchemeExplain(ctx context.Context, ctxID string, version string, body CtxSchemeExplainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeExplainRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeExplain(ctx context.Context, ctxID string, version string, params *CtxSchemeExplainParams, body CtxSchemeExplainJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeExplainRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7956,8 +8055,8 @@ func (c *Client) CtxSchemeExplain(ctx context.Context, ctxID string, version str
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/filter-concepts (the `CtxSchemeFilterConcepts` operationId).
-func (c *Client) CtxSchemeFilterConceptsWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeFilterConceptsRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeFilterConceptsWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeFilterConceptsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeFilterConceptsRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7975,8 +8074,8 @@ func (c *Client) CtxSchemeFilterConceptsWithBody(ctx context.Context, ctxID stri
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/filter-concepts (the `CtxSchemeFilterConcepts` operationId).
-func (c *Client) CtxSchemeFilterConcepts(ctx context.Context, ctxID string, version string, body CtxSchemeFilterConceptsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeFilterConceptsRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeFilterConcepts(ctx context.Context, ctxID string, version string, params *CtxSchemeFilterConceptsParams, body CtxSchemeFilterConceptsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeFilterConceptsRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8023,11 +8122,11 @@ func (c *Client) CtxSchemeGrammar(ctx context.Context, ctxID string, version str
 
 // CtxSchemeLabelPresets List the label presets in a context
 //
-// Returns the label presets of the context's primary scheme, the scheme apply-preset expands them in, as preset views: id, label, description, and scope. Empty when the scheme declares none. The marking string and tag list stay server-side; expand a preset with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset. The :version segment may be omitted to default to "latest"; the resolved version is returned in the X-EzClassify-Resolved-Version response header.
+// Returns the label presets of the selected scheme as preset views: id, label, description, and scope. Empty when the scheme declares none. The marking string and tag list stay server-side; expand a preset with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset under the same selector. The :version segment may be omitted to default to "latest"; the resolved version is returned in the X-EzClassify-Resolved-Version response header.
 //
 // Corresponds with GET /v1/ctx/{ctxId}/{version}/scheme/label-presets (the `CtxSchemeLabelPresets` operationId).
-func (c *Client) CtxSchemeLabelPresets(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeLabelPresetsRequest(c.Server, ctxID, version)
+func (c *Client) CtxSchemeLabelPresets(ctx context.Context, ctxID string, version string, params *CtxSchemeLabelPresetsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeLabelPresetsRequest(c.Server, ctxID, version, params)
 	if err != nil {
 		return nil, err
 	}
@@ -8045,8 +8144,8 @@ func (c *Client) CtxSchemeLabelPresets(ctx context.Context, ctxID string, versio
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/normalize (the `CtxSchemeNormalize` operationId).
-func (c *Client) CtxSchemeNormalizeWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeNormalizeRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeNormalizeWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeNormalizeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeNormalizeRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8064,8 +8163,8 @@ func (c *Client) CtxSchemeNormalizeWithBody(ctx context.Context, ctxID string, v
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/normalize (the `CtxSchemeNormalize` operationId).
-func (c *Client) CtxSchemeNormalize(ctx context.Context, ctxID string, version string, body CtxSchemeNormalizeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeNormalizeRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeNormalize(ctx context.Context, ctxID string, version string, params *CtxSchemeNormalizeParams, body CtxSchemeNormalizeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeNormalizeRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8083,8 +8182,8 @@ func (c *Client) CtxSchemeNormalize(ctx context.Context, ctxID string, version s
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/notices (the `CtxSchemeNotices` operationId).
-func (c *Client) CtxSchemeNoticesWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeNoticesRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeNoticesWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeNoticesParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeNoticesRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8102,8 +8201,8 @@ func (c *Client) CtxSchemeNoticesWithBody(ctx context.Context, ctxID string, ver
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/notices (the `CtxSchemeNotices` operationId).
-func (c *Client) CtxSchemeNotices(ctx context.Context, ctxID string, version string, body CtxSchemeNoticesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeNoticesRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeNotices(ctx context.Context, ctxID string, version string, params *CtxSchemeNoticesParams, body CtxSchemeNoticesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeNoticesRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8121,8 +8220,8 @@ func (c *Client) CtxSchemeNotices(ctx context.Context, ctxID string, version str
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/process (the `CtxSchemeProcess` operationId).
-func (c *Client) CtxSchemeProcessWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeProcessRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeProcessWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeProcessParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeProcessRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8140,8 +8239,8 @@ func (c *Client) CtxSchemeProcessWithBody(ctx context.Context, ctxID string, ver
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/process (the `CtxSchemeProcess` operationId).
-func (c *Client) CtxSchemeProcess(ctx context.Context, ctxID string, version string, body CtxSchemeProcessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeProcessRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeProcess(ctx context.Context, ctxID string, version string, params *CtxSchemeProcessParams, body CtxSchemeProcessJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeProcessRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8159,8 +8258,8 @@ func (c *Client) CtxSchemeProcess(ctx context.Context, ctxID string, version str
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/render (the `CtxSchemeRender` operationId).
-func (c *Client) CtxSchemeRenderWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeRenderRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeRenderWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeRenderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeRenderRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8178,8 +8277,8 @@ func (c *Client) CtxSchemeRenderWithBody(ctx context.Context, ctxID string, vers
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/render (the `CtxSchemeRender` operationId).
-func (c *Client) CtxSchemeRender(ctx context.Context, ctxID string, version string, body CtxSchemeRenderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeRenderRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeRender(ctx context.Context, ctxID string, version string, params *CtxSchemeRenderParams, body CtxSchemeRenderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeRenderRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8197,8 +8296,8 @@ func (c *Client) CtxSchemeRender(ctx context.Context, ctxID string, version stri
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/scan (the `CtxSchemeScan` operationId).
-func (c *Client) CtxSchemeScanWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeScanRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeScanWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeScanParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeScanRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8216,8 +8315,8 @@ func (c *Client) CtxSchemeScanWithBody(ctx context.Context, ctxID string, versio
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/scan (the `CtxSchemeScan` operationId).
-func (c *Client) CtxSchemeScan(ctx context.Context, ctxID string, version string, body CtxSchemeScanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeScanRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeScan(ctx context.Context, ctxID string, version string, params *CtxSchemeScanParams, body CtxSchemeScanJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeScanRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8252,8 +8351,8 @@ func (c *Client) CtxSchemeScopes(ctx context.Context, ctxID string, version stri
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest (the `CtxSchemeSuggest` operationId).
-func (c *Client) CtxSchemeSuggestWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeSuggestRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeSuggestWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeSuggestRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8271,8 +8370,8 @@ func (c *Client) CtxSchemeSuggestWithBody(ctx context.Context, ctxID string, ver
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest (the `CtxSchemeSuggest` operationId).
-func (c *Client) CtxSchemeSuggest(ctx context.Context, ctxID string, version string, body CtxSchemeSuggestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeSuggestRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeSuggest(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestParams, body CtxSchemeSuggestJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeSuggestRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8290,8 +8389,8 @@ func (c *Client) CtxSchemeSuggest(ctx context.Context, ctxID string, version str
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest-for-categories (the `CtxSchemeSuggestForCategories` operationId).
-func (c *Client) CtxSchemeSuggestForCategoriesWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeSuggestForCategoriesRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeSuggestForCategoriesWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeSuggestForCategoriesRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8309,8 +8408,8 @@ func (c *Client) CtxSchemeSuggestForCategoriesWithBody(ctx context.Context, ctxI
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest-for-categories (the `CtxSchemeSuggestForCategories` operationId).
-func (c *Client) CtxSchemeSuggestForCategories(ctx context.Context, ctxID string, version string, body CtxSchemeSuggestForCategoriesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeSuggestForCategoriesRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeSuggestForCategories(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, body CtxSchemeSuggestForCategoriesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeSuggestForCategoriesRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8328,8 +8427,8 @@ func (c *Client) CtxSchemeSuggestForCategories(ctx context.Context, ctxID string
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/validate (the `CtxSchemeValidate` operationId).
-func (c *Client) CtxSchemeValidateWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeValidateRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeValidateWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeValidateRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8347,8 +8446,8 @@ func (c *Client) CtxSchemeValidateWithBody(ctx context.Context, ctxID string, ve
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/validate (the `CtxSchemeValidate` operationId).
-func (c *Client) CtxSchemeValidate(ctx context.Context, ctxID string, version string, body CtxSchemeValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeValidateRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeValidate(ctx context.Context, ctxID string, version string, params *CtxSchemeValidateParams, body CtxSchemeValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeValidateRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8366,8 +8465,8 @@ func (c *Client) CtxSchemeValidate(ctx context.Context, ctxID string, version st
 // Takes any type of body and a specified content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/view (the `CtxSchemeView` operationId).
-func (c *Client) CtxSchemeViewWithBody(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeViewRequestWithBody(c.Server, ctxID, version, contentType, body)
+func (c *Client) CtxSchemeViewWithBody(ctx context.Context, ctxID string, version string, params *CtxSchemeViewParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeViewRequestWithBody(c.Server, ctxID, version, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8385,8 +8484,8 @@ func (c *Client) CtxSchemeViewWithBody(ctx context.Context, ctxID string, versio
 // Takes a body of the `application/json` content type.
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/view (the `CtxSchemeView` operationId).
-func (c *Client) CtxSchemeView(ctx context.Context, ctxID string, version string, body CtxSchemeViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCtxSchemeViewRequest(c.Server, ctxID, version, body)
+func (c *Client) CtxSchemeView(ctx context.Context, ctxID string, version string, params *CtxSchemeViewParams, body CtxSchemeViewJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxSchemeViewRequest(c.Server, ctxID, version, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9224,18 +9323,18 @@ func NewCtxSchemeSummaryRequest(server string, ctxID string, version string, par
 }
 
 // NewCtxSchemeAggregateRequest calls the generic CtxSchemeAggregate builder with application/json body
-func NewCtxSchemeAggregateRequest(server string, ctxID string, version string, body CtxSchemeAggregateJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeAggregateRequest(server string, ctxID string, version string, params *CtxSchemeAggregateParams, body CtxSchemeAggregateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeAggregateRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeAggregateRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeAggregateRequestWithBody constructs an http.Request for the CtxSchemeAggregate method, with any body, and a specified content type
-func NewCtxSchemeAggregateRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeAggregateRequestWithBody(server string, ctxID string, version string, params *CtxSchemeAggregateParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9267,6 +9366,33 @@ func NewCtxSchemeAggregateRequestWithBody(server string, ctxID string, version s
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -9278,18 +9404,18 @@ func NewCtxSchemeAggregateRequestWithBody(server string, ctxID string, version s
 }
 
 // NewCtxSchemeApplyPresetRequest calls the generic CtxSchemeApplyPreset builder with application/json body
-func NewCtxSchemeApplyPresetRequest(server string, ctxID string, version string, body CtxSchemeApplyPresetJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeApplyPresetRequest(server string, ctxID string, version string, params *CtxSchemeApplyPresetParams, body CtxSchemeApplyPresetJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeApplyPresetRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeApplyPresetRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeApplyPresetRequestWithBody constructs an http.Request for the CtxSchemeApplyPreset method, with any body, and a specified content type
-func NewCtxSchemeApplyPresetRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeApplyPresetRequestWithBody(server string, ctxID string, version string, params *CtxSchemeApplyPresetParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9319,6 +9445,33 @@ func NewCtxSchemeApplyPresetRequestWithBody(server string, ctxID string, version
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
@@ -9400,18 +9553,18 @@ func NewCtxSchemeCategoriesRequest(server string, ctxID string, version string, 
 }
 
 // NewCtxSchemeCheckCoverageRequest calls the generic CtxSchemeCheckCoverage builder with application/json body
-func NewCtxSchemeCheckCoverageRequest(server string, ctxID string, version string, body CtxSchemeCheckCoverageJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeCheckCoverageRequest(server string, ctxID string, version string, params *CtxSchemeCheckCoverageParams, body CtxSchemeCheckCoverageJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeCheckCoverageRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeCheckCoverageRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeCheckCoverageRequestWithBody constructs an http.Request for the CtxSchemeCheckCoverage method, with any body, and a specified content type
-func NewCtxSchemeCheckCoverageRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeCheckCoverageRequestWithBody(server string, ctxID string, version string, params *CtxSchemeCheckCoverageParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9441,6 +9594,33 @@ func NewCtxSchemeCheckCoverageRequestWithBody(server string, ctxID string, versi
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
@@ -9591,6 +9771,18 @@ func NewCtxSchemeDescribeConceptRequest(server string, ctxID string, version str
 
 		}
 
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
 		if encoded := queryValues.Encode(); encoded != "" {
 			rawQueryFragments = append(rawQueryFragments, encoded)
 		}
@@ -9606,18 +9798,18 @@ func NewCtxSchemeDescribeConceptRequest(server string, ctxID string, version str
 }
 
 // NewCtxSchemeDiffRequest calls the generic CtxSchemeDiff builder with application/json body
-func NewCtxSchemeDiffRequest(server string, ctxID string, version string, body CtxSchemeDiffJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeDiffRequest(server string, ctxID string, version string, params *CtxSchemeDiffParams, body CtxSchemeDiffJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeDiffRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeDiffRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeDiffRequestWithBody constructs an http.Request for the CtxSchemeDiff method, with any body, and a specified content type
-func NewCtxSchemeDiffRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeDiffRequestWithBody(server string, ctxID string, version string, params *CtxSchemeDiffParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9649,6 +9841,33 @@ func NewCtxSchemeDiffRequestWithBody(server string, ctxID string, version string
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -9660,18 +9879,18 @@ func NewCtxSchemeDiffRequestWithBody(server string, ctxID string, version string
 }
 
 // NewCtxSchemeExplainRequest calls the generic CtxSchemeExplain builder with application/json body
-func NewCtxSchemeExplainRequest(server string, ctxID string, version string, body CtxSchemeExplainJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeExplainRequest(server string, ctxID string, version string, params *CtxSchemeExplainParams, body CtxSchemeExplainJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeExplainRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeExplainRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeExplainRequestWithBody constructs an http.Request for the CtxSchemeExplain method, with any body, and a specified content type
-func NewCtxSchemeExplainRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeExplainRequestWithBody(server string, ctxID string, version string, params *CtxSchemeExplainParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9703,6 +9922,33 @@ func NewCtxSchemeExplainRequestWithBody(server string, ctxID string, version str
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -9714,18 +9960,18 @@ func NewCtxSchemeExplainRequestWithBody(server string, ctxID string, version str
 }
 
 // NewCtxSchemeFilterConceptsRequest calls the generic CtxSchemeFilterConcepts builder with application/json body
-func NewCtxSchemeFilterConceptsRequest(server string, ctxID string, version string, body CtxSchemeFilterConceptsJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeFilterConceptsRequest(server string, ctxID string, version string, params *CtxSchemeFilterConceptsParams, body CtxSchemeFilterConceptsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeFilterConceptsRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeFilterConceptsRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeFilterConceptsRequestWithBody constructs an http.Request for the CtxSchemeFilterConcepts method, with any body, and a specified content type
-func NewCtxSchemeFilterConceptsRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeFilterConceptsRequestWithBody(server string, ctxID string, version string, params *CtxSchemeFilterConceptsParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9755,6 +10001,33 @@ func NewCtxSchemeFilterConceptsRequestWithBody(server string, ctxID string, vers
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
@@ -9904,7 +10177,7 @@ func NewCtxSchemeGrammarRequest(server string, ctxID string, version string, par
 }
 
 // NewCtxSchemeLabelPresetsRequest constructs an http.Request for the CtxSchemeLabelPresets method
-func NewCtxSchemeLabelPresetsRequest(server string, ctxID string, version string) (*http.Request, error) {
+func NewCtxSchemeLabelPresetsRequest(server string, ctxID string, version string, params *CtxSchemeLabelPresetsParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9936,6 +10209,33 @@ func NewCtxSchemeLabelPresetsRequest(server string, ctxID string, version string
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
@@ -9945,18 +10245,18 @@ func NewCtxSchemeLabelPresetsRequest(server string, ctxID string, version string
 }
 
 // NewCtxSchemeNormalizeRequest calls the generic CtxSchemeNormalize builder with application/json body
-func NewCtxSchemeNormalizeRequest(server string, ctxID string, version string, body CtxSchemeNormalizeJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeNormalizeRequest(server string, ctxID string, version string, params *CtxSchemeNormalizeParams, body CtxSchemeNormalizeJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeNormalizeRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeNormalizeRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeNormalizeRequestWithBody constructs an http.Request for the CtxSchemeNormalize method, with any body, and a specified content type
-func NewCtxSchemeNormalizeRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeNormalizeRequestWithBody(server string, ctxID string, version string, params *CtxSchemeNormalizeParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -9988,6 +10288,33 @@ func NewCtxSchemeNormalizeRequestWithBody(server string, ctxID string, version s
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -9999,18 +10326,18 @@ func NewCtxSchemeNormalizeRequestWithBody(server string, ctxID string, version s
 }
 
 // NewCtxSchemeNoticesRequest calls the generic CtxSchemeNotices builder with application/json body
-func NewCtxSchemeNoticesRequest(server string, ctxID string, version string, body CtxSchemeNoticesJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeNoticesRequest(server string, ctxID string, version string, params *CtxSchemeNoticesParams, body CtxSchemeNoticesJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeNoticesRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeNoticesRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeNoticesRequestWithBody constructs an http.Request for the CtxSchemeNotices method, with any body, and a specified content type
-func NewCtxSchemeNoticesRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeNoticesRequestWithBody(server string, ctxID string, version string, params *CtxSchemeNoticesParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10042,6 +10369,33 @@ func NewCtxSchemeNoticesRequestWithBody(server string, ctxID string, version str
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -10053,18 +10407,18 @@ func NewCtxSchemeNoticesRequestWithBody(server string, ctxID string, version str
 }
 
 // NewCtxSchemeProcessRequest calls the generic CtxSchemeProcess builder with application/json body
-func NewCtxSchemeProcessRequest(server string, ctxID string, version string, body CtxSchemeProcessJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeProcessRequest(server string, ctxID string, version string, params *CtxSchemeProcessParams, body CtxSchemeProcessJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeProcessRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeProcessRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeProcessRequestWithBody constructs an http.Request for the CtxSchemeProcess method, with any body, and a specified content type
-func NewCtxSchemeProcessRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeProcessRequestWithBody(server string, ctxID string, version string, params *CtxSchemeProcessParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10096,6 +10450,33 @@ func NewCtxSchemeProcessRequestWithBody(server string, ctxID string, version str
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -10107,18 +10488,18 @@ func NewCtxSchemeProcessRequestWithBody(server string, ctxID string, version str
 }
 
 // NewCtxSchemeRenderRequest calls the generic CtxSchemeRender builder with application/json body
-func NewCtxSchemeRenderRequest(server string, ctxID string, version string, body CtxSchemeRenderJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeRenderRequest(server string, ctxID string, version string, params *CtxSchemeRenderParams, body CtxSchemeRenderJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeRenderRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeRenderRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeRenderRequestWithBody constructs an http.Request for the CtxSchemeRender method, with any body, and a specified content type
-func NewCtxSchemeRenderRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeRenderRequestWithBody(server string, ctxID string, version string, params *CtxSchemeRenderParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10150,6 +10531,33 @@ func NewCtxSchemeRenderRequestWithBody(server string, ctxID string, version stri
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -10161,18 +10569,18 @@ func NewCtxSchemeRenderRequestWithBody(server string, ctxID string, version stri
 }
 
 // NewCtxSchemeScanRequest calls the generic CtxSchemeScan builder with application/json body
-func NewCtxSchemeScanRequest(server string, ctxID string, version string, body CtxSchemeScanJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeScanRequest(server string, ctxID string, version string, params *CtxSchemeScanParams, body CtxSchemeScanJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeScanRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeScanRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeScanRequestWithBody constructs an http.Request for the CtxSchemeScan method, with any body, and a specified content type
-func NewCtxSchemeScanRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeScanRequestWithBody(server string, ctxID string, version string, params *CtxSchemeScanParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10202,6 +10610,33 @@ func NewCtxSchemeScanRequestWithBody(server string, ctxID string, version string
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
@@ -10283,18 +10718,18 @@ func NewCtxSchemeScopesRequest(server string, ctxID string, version string, para
 }
 
 // NewCtxSchemeSuggestRequest calls the generic CtxSchemeSuggest builder with application/json body
-func NewCtxSchemeSuggestRequest(server string, ctxID string, version string, body CtxSchemeSuggestJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeSuggestRequest(server string, ctxID string, version string, params *CtxSchemeSuggestParams, body CtxSchemeSuggestJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeSuggestRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeSuggestRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeSuggestRequestWithBody constructs an http.Request for the CtxSchemeSuggest method, with any body, and a specified content type
-func NewCtxSchemeSuggestRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeSuggestRequestWithBody(server string, ctxID string, version string, params *CtxSchemeSuggestParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10326,6 +10761,33 @@ func NewCtxSchemeSuggestRequestWithBody(server string, ctxID string, version str
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -10337,18 +10799,18 @@ func NewCtxSchemeSuggestRequestWithBody(server string, ctxID string, version str
 }
 
 // NewCtxSchemeSuggestForCategoriesRequest calls the generic CtxSchemeSuggestForCategories builder with application/json body
-func NewCtxSchemeSuggestForCategoriesRequest(server string, ctxID string, version string, body CtxSchemeSuggestForCategoriesJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeSuggestForCategoriesRequest(server string, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, body CtxSchemeSuggestForCategoriesJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeSuggestForCategoriesRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeSuggestForCategoriesRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeSuggestForCategoriesRequestWithBody constructs an http.Request for the CtxSchemeSuggestForCategories method, with any body, and a specified content type
-func NewCtxSchemeSuggestForCategoriesRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeSuggestForCategoriesRequestWithBody(server string, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10380,6 +10842,33 @@ func NewCtxSchemeSuggestForCategoriesRequestWithBody(server string, ctxID string
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -10391,18 +10880,18 @@ func NewCtxSchemeSuggestForCategoriesRequestWithBody(server string, ctxID string
 }
 
 // NewCtxSchemeValidateRequest calls the generic CtxSchemeValidate builder with application/json body
-func NewCtxSchemeValidateRequest(server string, ctxID string, version string, body CtxSchemeValidateJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeValidateRequest(server string, ctxID string, version string, params *CtxSchemeValidateParams, body CtxSchemeValidateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeValidateRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeValidateRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeValidateRequestWithBody constructs an http.Request for the CtxSchemeValidate method, with any body, and a specified content type
-func NewCtxSchemeValidateRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeValidateRequestWithBody(server string, ctxID string, version string, params *CtxSchemeValidateParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10434,6 +10923,33 @@ func NewCtxSchemeValidateRequestWithBody(server string, ctxID string, version st
 		return nil, err
 	}
 
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
@@ -10445,18 +10961,18 @@ func NewCtxSchemeValidateRequestWithBody(server string, ctxID string, version st
 }
 
 // NewCtxSchemeViewRequest calls the generic CtxSchemeView builder with application/json body
-func NewCtxSchemeViewRequest(server string, ctxID string, version string, body CtxSchemeViewJSONRequestBody) (*http.Request, error) {
+func NewCtxSchemeViewRequest(server string, ctxID string, version string, params *CtxSchemeViewParams, body CtxSchemeViewJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCtxSchemeViewRequestWithBody(server, ctxID, version, "application/json", bodyReader)
+	return NewCtxSchemeViewRequestWithBody(server, ctxID, version, params, "application/json", bodyReader)
 }
 
 // NewCtxSchemeViewRequestWithBody constructs an http.Request for the CtxSchemeView method, with any body, and a specified content type
-func NewCtxSchemeViewRequestWithBody(server string, ctxID string, version string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCtxSchemeViewRequestWithBody(server string, ctxID string, version string, params *CtxSchemeViewParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -10486,6 +11002,33 @@ func NewCtxSchemeViewRequestWithBody(server string, ctxID string, version string
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Scheme != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "scheme", *params.Scheme, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
@@ -10837,7 +11380,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/aggregate (the `CtxSchemeAggregate` operationId).
-	CtxSchemeAggregateWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeAggregateHTTP, error)
+	CtxSchemeAggregateWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeAggregateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeAggregateHTTP, error)
 
 	// CtxSchemeAggregateWithResponse Aggregate marking strings in a context
 	//
@@ -10846,7 +11389,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/aggregate (the `CtxSchemeAggregate` operationId).
-	CtxSchemeAggregateWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeAggregateJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeAggregateHTTP, error)
+	CtxSchemeAggregateWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeAggregateParams, body CtxSchemeAggregateJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeAggregateHTTP, error)
 
 	// CtxSchemeApplyPresetWithBodyWithResponse Apply a label preset in a context
 	//
@@ -10855,7 +11398,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset (the `CtxSchemeApplyPreset` operationId).
-	CtxSchemeApplyPresetWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeApplyPresetHTTP, error)
+	CtxSchemeApplyPresetWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeApplyPresetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeApplyPresetHTTP, error)
 
 	// CtxSchemeApplyPresetWithResponse Apply a label preset in a context
 	//
@@ -10864,7 +11407,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset (the `CtxSchemeApplyPreset` operationId).
-	CtxSchemeApplyPresetWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeApplyPresetJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeApplyPresetHTTP, error)
+	CtxSchemeApplyPresetWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeApplyPresetParams, body CtxSchemeApplyPresetJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeApplyPresetHTTP, error)
 
 	// CtxSchemeCategoriesWithResponse Get the scheme categories in a context
 	//
@@ -10882,7 +11425,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/check-coverage (the `CtxSchemeCheckCoverage` operationId).
-	CtxSchemeCheckCoverageWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeCheckCoverageHTTP, error)
+	CtxSchemeCheckCoverageWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeCheckCoverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeCheckCoverageHTTP, error)
 
 	// CtxSchemeCheckCoverageWithResponse Check marking coverage in a context
 	//
@@ -10891,7 +11434,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/check-coverage (the `CtxSchemeCheckCoverage` operationId).
-	CtxSchemeCheckCoverageWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeCheckCoverageJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeCheckCoverageHTTP, error)
+	CtxSchemeCheckCoverageWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeCheckCoverageParams, body CtxSchemeCheckCoverageJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeCheckCoverageHTTP, error)
 
 	// CtxSchemeConceptsWithResponse Get the scheme concepts in a context
 	//
@@ -10918,7 +11461,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/diff (the `CtxSchemeDiff` operationId).
-	CtxSchemeDiffWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeDiffHTTP, error)
+	CtxSchemeDiffWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeDiffParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeDiffHTTP, error)
 
 	// CtxSchemeDiffWithResponse Diff two markings in a context
 	//
@@ -10927,7 +11470,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/diff (the `CtxSchemeDiff` operationId).
-	CtxSchemeDiffWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeDiffJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeDiffHTTP, error)
+	CtxSchemeDiffWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeDiffParams, body CtxSchemeDiffJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeDiffHTTP, error)
 
 	// CtxSchemeExplainWithBodyWithResponse Explain how a marking is processed in a context
 	//
@@ -10936,7 +11479,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/explain (the `CtxSchemeExplain` operationId).
-	CtxSchemeExplainWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeExplainHTTP, error)
+	CtxSchemeExplainWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeExplainParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeExplainHTTP, error)
 
 	// CtxSchemeExplainWithResponse Explain how a marking is processed in a context
 	//
@@ -10945,7 +11488,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/explain (the `CtxSchemeExplain` operationId).
-	CtxSchemeExplainWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeExplainJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeExplainHTTP, error)
+	CtxSchemeExplainWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeExplainParams, body CtxSchemeExplainJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeExplainHTTP, error)
 
 	// CtxSchemeFilterConceptsWithBodyWithResponse Filter scheme concepts in a context
 	//
@@ -10954,7 +11497,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/filter-concepts (the `CtxSchemeFilterConcepts` operationId).
-	CtxSchemeFilterConceptsWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeFilterConceptsHTTP, error)
+	CtxSchemeFilterConceptsWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeFilterConceptsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeFilterConceptsHTTP, error)
 
 	// CtxSchemeFilterConceptsWithResponse Filter scheme concepts in a context
 	//
@@ -10963,7 +11506,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/filter-concepts (the `CtxSchemeFilterConcepts` operationId).
-	CtxSchemeFilterConceptsWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeFilterConceptsJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeFilterConceptsHTTP, error)
+	CtxSchemeFilterConceptsWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeFilterConceptsParams, body CtxSchemeFilterConceptsJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeFilterConceptsHTTP, error)
 
 	// CtxSchemeFormatsWithResponse Get the scheme render formats in a context
 	//
@@ -10985,12 +11528,12 @@ type ClientWithResponsesInterface interface {
 
 	// CtxSchemeLabelPresetsWithResponse List the label presets in a context
 	//
-	// Returns the label presets of the context's primary scheme, the scheme apply-preset expands them in, as preset views: id, label, description, and scope. Empty when the scheme declares none. The marking string and tag list stay server-side; expand a preset with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset. The :version segment may be omitted to default to "latest"; the resolved version is returned in the X-EzClassify-Resolved-Version response header.
+	// Returns the label presets of the selected scheme as preset views: id, label, description, and scope. Empty when the scheme declares none. The marking string and tag list stay server-side; expand a preset with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset under the same selector. The :version segment may be omitted to default to "latest"; the resolved version is returned in the X-EzClassify-Resolved-Version response header.
 	//
 	// Returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with GET /v1/ctx/{ctxId}/{version}/scheme/label-presets (the `CtxSchemeLabelPresets` operationId).
-	CtxSchemeLabelPresetsWithResponse(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*CtxSchemeLabelPresetsHTTP, error)
+	CtxSchemeLabelPresetsWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeLabelPresetsParams, reqEditors ...RequestEditorFn) (*CtxSchemeLabelPresetsHTTP, error)
 
 	// CtxSchemeNormalizeWithBodyWithResponse Normalize a marking in a context
 	//
@@ -10999,7 +11542,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/normalize (the `CtxSchemeNormalize` operationId).
-	CtxSchemeNormalizeWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeNormalizeHTTP, error)
+	CtxSchemeNormalizeWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeNormalizeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeNormalizeHTTP, error)
 
 	// CtxSchemeNormalizeWithResponse Normalize a marking in a context
 	//
@@ -11008,7 +11551,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/normalize (the `CtxSchemeNormalize` operationId).
-	CtxSchemeNormalizeWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeNormalizeJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeNormalizeHTTP, error)
+	CtxSchemeNormalizeWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeNormalizeParams, body CtxSchemeNormalizeJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeNormalizeHTTP, error)
 
 	// CtxSchemeNoticesWithBodyWithResponse Collect notices for assertions in a context
 	//
@@ -11017,7 +11560,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/notices (the `CtxSchemeNotices` operationId).
-	CtxSchemeNoticesWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeNoticesHTTP, error)
+	CtxSchemeNoticesWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeNoticesParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeNoticesHTTP, error)
 
 	// CtxSchemeNoticesWithResponse Collect notices for assertions in a context
 	//
@@ -11026,7 +11569,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/notices (the `CtxSchemeNotices` operationId).
-	CtxSchemeNoticesWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeNoticesJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeNoticesHTTP, error)
+	CtxSchemeNoticesWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeNoticesParams, body CtxSchemeNoticesJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeNoticesHTTP, error)
 
 	// CtxSchemeProcessWithBodyWithResponse Process a marking in a context
 	//
@@ -11035,7 +11578,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/process (the `CtxSchemeProcess` operationId).
-	CtxSchemeProcessWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeProcessHTTP, error)
+	CtxSchemeProcessWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeProcessParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeProcessHTTP, error)
 
 	// CtxSchemeProcessWithResponse Process a marking in a context
 	//
@@ -11044,7 +11587,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/process (the `CtxSchemeProcess` operationId).
-	CtxSchemeProcessWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeProcessJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeProcessHTTP, error)
+	CtxSchemeProcessWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeProcessParams, body CtxSchemeProcessJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeProcessHTTP, error)
 
 	// CtxSchemeRenderWithBodyWithResponse Render assertions in a context
 	//
@@ -11053,7 +11596,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/render (the `CtxSchemeRender` operationId).
-	CtxSchemeRenderWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeRenderHTTP, error)
+	CtxSchemeRenderWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeRenderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeRenderHTTP, error)
 
 	// CtxSchemeRenderWithResponse Render assertions in a context
 	//
@@ -11062,7 +11605,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/render (the `CtxSchemeRender` operationId).
-	CtxSchemeRenderWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeRenderJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeRenderHTTP, error)
+	CtxSchemeRenderWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeRenderParams, body CtxSchemeRenderJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeRenderHTTP, error)
 
 	// CtxSchemeScanWithBodyWithResponse Scan text for markings in a context
 	//
@@ -11071,7 +11614,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/scan (the `CtxSchemeScan` operationId).
-	CtxSchemeScanWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeScanHTTP, error)
+	CtxSchemeScanWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeScanParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeScanHTTP, error)
 
 	// CtxSchemeScanWithResponse Scan text for markings in a context
 	//
@@ -11080,7 +11623,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/scan (the `CtxSchemeScan` operationId).
-	CtxSchemeScanWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeScanJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeScanHTTP, error)
+	CtxSchemeScanWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeScanParams, body CtxSchemeScanJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeScanHTTP, error)
 
 	// CtxSchemeScopesWithResponse Get the scheme scopes in a context
 	//
@@ -11098,7 +11641,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest (the `CtxSchemeSuggest` operationId).
-	CtxSchemeSuggestWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestHTTP, error)
+	CtxSchemeSuggestWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestHTTP, error)
 
 	// CtxSchemeSuggestWithResponse Suggest marking completions in a context
 	//
@@ -11107,7 +11650,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest (the `CtxSchemeSuggest` operationId).
-	CtxSchemeSuggestWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeSuggestJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestHTTP, error)
+	CtxSchemeSuggestWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestParams, body CtxSchemeSuggestJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestHTTP, error)
 
 	// CtxSchemeSuggestForCategoriesWithBodyWithResponse Suggest completions for several categories in a context
 	//
@@ -11116,7 +11659,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest-for-categories (the `CtxSchemeSuggestForCategories` operationId).
-	CtxSchemeSuggestForCategoriesWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestForCategoriesHTTP, error)
+	CtxSchemeSuggestForCategoriesWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestForCategoriesHTTP, error)
 
 	// CtxSchemeSuggestForCategoriesWithResponse Suggest completions for several categories in a context
 	//
@@ -11125,7 +11668,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest-for-categories (the `CtxSchemeSuggestForCategories` operationId).
-	CtxSchemeSuggestForCategoriesWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeSuggestForCategoriesJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestForCategoriesHTTP, error)
+	CtxSchemeSuggestForCategoriesWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, body CtxSchemeSuggestForCategoriesJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestForCategoriesHTTP, error)
 
 	// CtxSchemeValidateWithBodyWithResponse Validate a marking in a context
 	//
@@ -11134,7 +11677,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/validate (the `CtxSchemeValidate` operationId).
-	CtxSchemeValidateWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeValidateHTTP, error)
+	CtxSchemeValidateWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeValidateHTTP, error)
 
 	// CtxSchemeValidateWithResponse Validate a marking in a context
 	//
@@ -11143,7 +11686,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/validate (the `CtxSchemeValidate` operationId).
-	CtxSchemeValidateWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeValidateHTTP, error)
+	CtxSchemeValidateWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeValidateParams, body CtxSchemeValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeValidateHTTP, error)
 
 	// CtxSchemeViewWithBodyWithResponse Build scheme structural view in a context
 	//
@@ -11152,7 +11695,7 @@ type ClientWithResponsesInterface interface {
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/view (the `CtxSchemeView` operationId).
-	CtxSchemeViewWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeViewHTTP, error)
+	CtxSchemeViewWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeViewParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeViewHTTP, error)
 
 	// CtxSchemeViewWithResponse Build scheme structural view in a context
 	//
@@ -11161,7 +11704,7 @@ type ClientWithResponsesInterface interface {
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
 	// Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/view (the `CtxSchemeView` operationId).
-	CtxSchemeViewWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeViewJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeViewHTTP, error)
+	CtxSchemeViewWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeViewParams, body CtxSchemeViewJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeViewHTTP, error)
 
 	// GetHealthWithResponse Health check
 	//
@@ -15047,8 +15590,8 @@ func (c *ClientWithResponses) CtxSchemeSummaryWithResponse(ctx context.Context, 
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/aggregate (the `CtxSchemeAggregate` operationId).
-func (c *ClientWithResponses) CtxSchemeAggregateWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeAggregateHTTP, error) {
-	rsp, err := c.CtxSchemeAggregateWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeAggregateWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeAggregateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeAggregateHTTP, error) {
+	rsp, err := c.CtxSchemeAggregateWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15062,8 +15605,8 @@ func (c *ClientWithResponses) CtxSchemeAggregateWithBodyWithResponse(ctx context
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/aggregate (the `CtxSchemeAggregate` operationId).
-func (c *ClientWithResponses) CtxSchemeAggregateWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeAggregateJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeAggregateHTTP, error) {
-	rsp, err := c.CtxSchemeAggregate(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeAggregateWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeAggregateParams, body CtxSchemeAggregateJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeAggregateHTTP, error) {
+	rsp, err := c.CtxSchemeAggregate(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15077,8 +15620,8 @@ func (c *ClientWithResponses) CtxSchemeAggregateWithResponse(ctx context.Context
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset (the `CtxSchemeApplyPreset` operationId).
-func (c *ClientWithResponses) CtxSchemeApplyPresetWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeApplyPresetHTTP, error) {
-	rsp, err := c.CtxSchemeApplyPresetWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeApplyPresetWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeApplyPresetParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeApplyPresetHTTP, error) {
+	rsp, err := c.CtxSchemeApplyPresetWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15092,8 +15635,8 @@ func (c *ClientWithResponses) CtxSchemeApplyPresetWithBodyWithResponse(ctx conte
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset (the `CtxSchemeApplyPreset` operationId).
-func (c *ClientWithResponses) CtxSchemeApplyPresetWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeApplyPresetJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeApplyPresetHTTP, error) {
-	rsp, err := c.CtxSchemeApplyPreset(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeApplyPresetWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeApplyPresetParams, body CtxSchemeApplyPresetJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeApplyPresetHTTP, error) {
+	rsp, err := c.CtxSchemeApplyPreset(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15122,8 +15665,8 @@ func (c *ClientWithResponses) CtxSchemeCategoriesWithResponse(ctx context.Contex
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/check-coverage (the `CtxSchemeCheckCoverage` operationId).
-func (c *ClientWithResponses) CtxSchemeCheckCoverageWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeCheckCoverageHTTP, error) {
-	rsp, err := c.CtxSchemeCheckCoverageWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeCheckCoverageWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeCheckCoverageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeCheckCoverageHTTP, error) {
+	rsp, err := c.CtxSchemeCheckCoverageWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15137,8 +15680,8 @@ func (c *ClientWithResponses) CtxSchemeCheckCoverageWithBodyWithResponse(ctx con
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/check-coverage (the `CtxSchemeCheckCoverage` operationId).
-func (c *ClientWithResponses) CtxSchemeCheckCoverageWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeCheckCoverageJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeCheckCoverageHTTP, error) {
-	rsp, err := c.CtxSchemeCheckCoverage(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeCheckCoverageWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeCheckCoverageParams, body CtxSchemeCheckCoverageJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeCheckCoverageHTTP, error) {
+	rsp, err := c.CtxSchemeCheckCoverage(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15182,8 +15725,8 @@ func (c *ClientWithResponses) CtxSchemeDescribeConceptWithResponse(ctx context.C
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/diff (the `CtxSchemeDiff` operationId).
-func (c *ClientWithResponses) CtxSchemeDiffWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeDiffHTTP, error) {
-	rsp, err := c.CtxSchemeDiffWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeDiffWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeDiffParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeDiffHTTP, error) {
+	rsp, err := c.CtxSchemeDiffWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15197,8 +15740,8 @@ func (c *ClientWithResponses) CtxSchemeDiffWithBodyWithResponse(ctx context.Cont
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/diff (the `CtxSchemeDiff` operationId).
-func (c *ClientWithResponses) CtxSchemeDiffWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeDiffJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeDiffHTTP, error) {
-	rsp, err := c.CtxSchemeDiff(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeDiffWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeDiffParams, body CtxSchemeDiffJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeDiffHTTP, error) {
+	rsp, err := c.CtxSchemeDiff(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15212,8 +15755,8 @@ func (c *ClientWithResponses) CtxSchemeDiffWithResponse(ctx context.Context, ctx
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/explain (the `CtxSchemeExplain` operationId).
-func (c *ClientWithResponses) CtxSchemeExplainWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeExplainHTTP, error) {
-	rsp, err := c.CtxSchemeExplainWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeExplainWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeExplainParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeExplainHTTP, error) {
+	rsp, err := c.CtxSchemeExplainWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15227,8 +15770,8 @@ func (c *ClientWithResponses) CtxSchemeExplainWithBodyWithResponse(ctx context.C
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/explain (the `CtxSchemeExplain` operationId).
-func (c *ClientWithResponses) CtxSchemeExplainWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeExplainJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeExplainHTTP, error) {
-	rsp, err := c.CtxSchemeExplain(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeExplainWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeExplainParams, body CtxSchemeExplainJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeExplainHTTP, error) {
+	rsp, err := c.CtxSchemeExplain(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15242,8 +15785,8 @@ func (c *ClientWithResponses) CtxSchemeExplainWithResponse(ctx context.Context, 
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/filter-concepts (the `CtxSchemeFilterConcepts` operationId).
-func (c *ClientWithResponses) CtxSchemeFilterConceptsWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeFilterConceptsHTTP, error) {
-	rsp, err := c.CtxSchemeFilterConceptsWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeFilterConceptsWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeFilterConceptsParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeFilterConceptsHTTP, error) {
+	rsp, err := c.CtxSchemeFilterConceptsWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15257,8 +15800,8 @@ func (c *ClientWithResponses) CtxSchemeFilterConceptsWithBodyWithResponse(ctx co
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/filter-concepts (the `CtxSchemeFilterConcepts` operationId).
-func (c *ClientWithResponses) CtxSchemeFilterConceptsWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeFilterConceptsJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeFilterConceptsHTTP, error) {
-	rsp, err := c.CtxSchemeFilterConcepts(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeFilterConceptsWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeFilterConceptsParams, body CtxSchemeFilterConceptsJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeFilterConceptsHTTP, error) {
+	rsp, err := c.CtxSchemeFilterConcepts(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15297,13 +15840,13 @@ func (c *ClientWithResponses) CtxSchemeGrammarWithResponse(ctx context.Context, 
 
 // CtxSchemeLabelPresetsWithResponse List the label presets in a context
 //
-// Returns the label presets of the context's primary scheme, the scheme apply-preset expands them in, as preset views: id, label, description, and scope. Empty when the scheme declares none. The marking string and tag list stay server-side; expand a preset with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset. The :version segment may be omitted to default to "latest"; the resolved version is returned in the X-EzClassify-Resolved-Version response header.
+// Returns the label presets of the selected scheme as preset views: id, label, description, and scope. Empty when the scheme declares none. The marking string and tag list stay server-side; expand a preset with POST /v1/ctx/{ctxId}/{version}/scheme/apply-preset under the same selector. The :version segment may be omitted to default to "latest"; the resolved version is returned in the X-EzClassify-Resolved-Version response header.
 //
 // Returns a wrapper object for the known response body format(s).
 //
 // Corresponds with GET /v1/ctx/{ctxId}/{version}/scheme/label-presets (the `CtxSchemeLabelPresets` operationId).
-func (c *ClientWithResponses) CtxSchemeLabelPresetsWithResponse(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*CtxSchemeLabelPresetsHTTP, error) {
-	rsp, err := c.CtxSchemeLabelPresets(ctx, ctxID, version, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeLabelPresetsWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeLabelPresetsParams, reqEditors ...RequestEditorFn) (*CtxSchemeLabelPresetsHTTP, error) {
+	rsp, err := c.CtxSchemeLabelPresets(ctx, ctxID, version, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15317,8 +15860,8 @@ func (c *ClientWithResponses) CtxSchemeLabelPresetsWithResponse(ctx context.Cont
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/normalize (the `CtxSchemeNormalize` operationId).
-func (c *ClientWithResponses) CtxSchemeNormalizeWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeNormalizeHTTP, error) {
-	rsp, err := c.CtxSchemeNormalizeWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeNormalizeWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeNormalizeParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeNormalizeHTTP, error) {
+	rsp, err := c.CtxSchemeNormalizeWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15332,8 +15875,8 @@ func (c *ClientWithResponses) CtxSchemeNormalizeWithBodyWithResponse(ctx context
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/normalize (the `CtxSchemeNormalize` operationId).
-func (c *ClientWithResponses) CtxSchemeNormalizeWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeNormalizeJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeNormalizeHTTP, error) {
-	rsp, err := c.CtxSchemeNormalize(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeNormalizeWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeNormalizeParams, body CtxSchemeNormalizeJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeNormalizeHTTP, error) {
+	rsp, err := c.CtxSchemeNormalize(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15347,8 +15890,8 @@ func (c *ClientWithResponses) CtxSchemeNormalizeWithResponse(ctx context.Context
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/notices (the `CtxSchemeNotices` operationId).
-func (c *ClientWithResponses) CtxSchemeNoticesWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeNoticesHTTP, error) {
-	rsp, err := c.CtxSchemeNoticesWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeNoticesWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeNoticesParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeNoticesHTTP, error) {
+	rsp, err := c.CtxSchemeNoticesWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15362,8 +15905,8 @@ func (c *ClientWithResponses) CtxSchemeNoticesWithBodyWithResponse(ctx context.C
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/notices (the `CtxSchemeNotices` operationId).
-func (c *ClientWithResponses) CtxSchemeNoticesWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeNoticesJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeNoticesHTTP, error) {
-	rsp, err := c.CtxSchemeNotices(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeNoticesWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeNoticesParams, body CtxSchemeNoticesJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeNoticesHTTP, error) {
+	rsp, err := c.CtxSchemeNotices(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15377,8 +15920,8 @@ func (c *ClientWithResponses) CtxSchemeNoticesWithResponse(ctx context.Context, 
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/process (the `CtxSchemeProcess` operationId).
-func (c *ClientWithResponses) CtxSchemeProcessWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeProcessHTTP, error) {
-	rsp, err := c.CtxSchemeProcessWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeProcessWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeProcessParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeProcessHTTP, error) {
+	rsp, err := c.CtxSchemeProcessWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15392,8 +15935,8 @@ func (c *ClientWithResponses) CtxSchemeProcessWithBodyWithResponse(ctx context.C
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/process (the `CtxSchemeProcess` operationId).
-func (c *ClientWithResponses) CtxSchemeProcessWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeProcessJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeProcessHTTP, error) {
-	rsp, err := c.CtxSchemeProcess(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeProcessWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeProcessParams, body CtxSchemeProcessJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeProcessHTTP, error) {
+	rsp, err := c.CtxSchemeProcess(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15407,8 +15950,8 @@ func (c *ClientWithResponses) CtxSchemeProcessWithResponse(ctx context.Context, 
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/render (the `CtxSchemeRender` operationId).
-func (c *ClientWithResponses) CtxSchemeRenderWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeRenderHTTP, error) {
-	rsp, err := c.CtxSchemeRenderWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeRenderWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeRenderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeRenderHTTP, error) {
+	rsp, err := c.CtxSchemeRenderWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15422,8 +15965,8 @@ func (c *ClientWithResponses) CtxSchemeRenderWithBodyWithResponse(ctx context.Co
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/render (the `CtxSchemeRender` operationId).
-func (c *ClientWithResponses) CtxSchemeRenderWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeRenderJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeRenderHTTP, error) {
-	rsp, err := c.CtxSchemeRender(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeRenderWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeRenderParams, body CtxSchemeRenderJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeRenderHTTP, error) {
+	rsp, err := c.CtxSchemeRender(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15437,8 +15980,8 @@ func (c *ClientWithResponses) CtxSchemeRenderWithResponse(ctx context.Context, c
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/scan (the `CtxSchemeScan` operationId).
-func (c *ClientWithResponses) CtxSchemeScanWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeScanHTTP, error) {
-	rsp, err := c.CtxSchemeScanWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeScanWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeScanParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeScanHTTP, error) {
+	rsp, err := c.CtxSchemeScanWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15452,8 +15995,8 @@ func (c *ClientWithResponses) CtxSchemeScanWithBodyWithResponse(ctx context.Cont
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/scan (the `CtxSchemeScan` operationId).
-func (c *ClientWithResponses) CtxSchemeScanWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeScanJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeScanHTTP, error) {
-	rsp, err := c.CtxSchemeScan(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeScanWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeScanParams, body CtxSchemeScanJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeScanHTTP, error) {
+	rsp, err := c.CtxSchemeScan(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15482,8 +16025,8 @@ func (c *ClientWithResponses) CtxSchemeScopesWithResponse(ctx context.Context, c
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest (the `CtxSchemeSuggest` operationId).
-func (c *ClientWithResponses) CtxSchemeSuggestWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestHTTP, error) {
-	rsp, err := c.CtxSchemeSuggestWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeSuggestWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestHTTP, error) {
+	rsp, err := c.CtxSchemeSuggestWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15497,8 +16040,8 @@ func (c *ClientWithResponses) CtxSchemeSuggestWithBodyWithResponse(ctx context.C
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest (the `CtxSchemeSuggest` operationId).
-func (c *ClientWithResponses) CtxSchemeSuggestWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeSuggestJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestHTTP, error) {
-	rsp, err := c.CtxSchemeSuggest(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeSuggestWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestParams, body CtxSchemeSuggestJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestHTTP, error) {
+	rsp, err := c.CtxSchemeSuggest(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15512,8 +16055,8 @@ func (c *ClientWithResponses) CtxSchemeSuggestWithResponse(ctx context.Context, 
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest-for-categories (the `CtxSchemeSuggestForCategories` operationId).
-func (c *ClientWithResponses) CtxSchemeSuggestForCategoriesWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestForCategoriesHTTP, error) {
-	rsp, err := c.CtxSchemeSuggestForCategoriesWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeSuggestForCategoriesWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestForCategoriesHTTP, error) {
+	rsp, err := c.CtxSchemeSuggestForCategoriesWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15527,8 +16070,8 @@ func (c *ClientWithResponses) CtxSchemeSuggestForCategoriesWithBodyWithResponse(
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/suggest-for-categories (the `CtxSchemeSuggestForCategories` operationId).
-func (c *ClientWithResponses) CtxSchemeSuggestForCategoriesWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeSuggestForCategoriesJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestForCategoriesHTTP, error) {
-	rsp, err := c.CtxSchemeSuggestForCategories(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeSuggestForCategoriesWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeSuggestForCategoriesParams, body CtxSchemeSuggestForCategoriesJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeSuggestForCategoriesHTTP, error) {
+	rsp, err := c.CtxSchemeSuggestForCategories(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15542,8 +16085,8 @@ func (c *ClientWithResponses) CtxSchemeSuggestForCategoriesWithResponse(ctx cont
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/validate (the `CtxSchemeValidate` operationId).
-func (c *ClientWithResponses) CtxSchemeValidateWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeValidateHTTP, error) {
-	rsp, err := c.CtxSchemeValidateWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeValidateWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeValidateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeValidateHTTP, error) {
+	rsp, err := c.CtxSchemeValidateWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15557,8 +16100,8 @@ func (c *ClientWithResponses) CtxSchemeValidateWithBodyWithResponse(ctx context.
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/validate (the `CtxSchemeValidate` operationId).
-func (c *ClientWithResponses) CtxSchemeValidateWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeValidateHTTP, error) {
-	rsp, err := c.CtxSchemeValidate(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeValidateWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeValidateParams, body CtxSchemeValidateJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeValidateHTTP, error) {
+	rsp, err := c.CtxSchemeValidate(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15572,8 +16115,8 @@ func (c *ClientWithResponses) CtxSchemeValidateWithResponse(ctx context.Context,
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/view (the `CtxSchemeView` operationId).
-func (c *ClientWithResponses) CtxSchemeViewWithBodyWithResponse(ctx context.Context, ctxID string, version string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeViewHTTP, error) {
-	rsp, err := c.CtxSchemeViewWithBody(ctx, ctxID, version, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeViewWithBodyWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeViewParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CtxSchemeViewHTTP, error) {
+	rsp, err := c.CtxSchemeViewWithBody(ctx, ctxID, version, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -15587,8 +16130,8 @@ func (c *ClientWithResponses) CtxSchemeViewWithBodyWithResponse(ctx context.Cont
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
 // Corresponds with POST /v1/ctx/{ctxId}/{version}/scheme/view (the `CtxSchemeView` operationId).
-func (c *ClientWithResponses) CtxSchemeViewWithResponse(ctx context.Context, ctxID string, version string, body CtxSchemeViewJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeViewHTTP, error) {
-	rsp, err := c.CtxSchemeView(ctx, ctxID, version, body, reqEditors...)
+func (c *ClientWithResponses) CtxSchemeViewWithResponse(ctx context.Context, ctxID string, version string, params *CtxSchemeViewParams, body CtxSchemeViewJSONRequestBody, reqEditors ...RequestEditorFn) (*CtxSchemeViewHTTP, error) {
+	rsp, err := c.CtxSchemeView(ctx, ctxID, version, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
