@@ -527,7 +527,7 @@ func TestContextCacheClearsOnDenialShapedNotFoundOnly(t *testing.T) {
 			before := processCalls.Load()
 			status.Store(http.StatusNotFound)
 			body.Store(refusal.body)
-			if _, err := cx.Scheme.Concepts(ctx, nil); err == nil {
+			if _, err := cx.Scheme.Concepts(ctx); err == nil {
 				t.Fatal("a 404 returned no error")
 			}
 			process()

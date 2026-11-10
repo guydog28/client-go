@@ -188,7 +188,7 @@ Optional fields in generated request structs are pointers, hence `&input` and `&
 
 ## Caching
 
-A repeated identical call to the same Context handle does not go over the wire twice. The cache belongs to the handle (`cx`), holds up to 500 results, and is keyed by operation, Context binding and the whole request body. Every field of the request is part of the key, so two `Process` calls that name different `Outputs` or `SuggestFor` are two entries, and `Explain` never answers from a `Process` entry for the same request. A field left nil and a field never set are the same request.
+A repeated identical call to the same Context handle does not go over the wire twice. The cache belongs to the handle (`cx`), holds up to 500 results, and is keyed by operation, Context binding, the scheme a [scheme view](#a-contexts-other-schemes) addresses, and the whole request body. Every field of the request is part of the key, so two `Process` calls that name different `Outputs` or `SuggestFor` are two entries, and `Explain` never answers from a `Process` entry for the same request. A field left nil and a field never set are the same request.
 
 These calls are cached: `Scheme.ApplyPreset`, `Process`, `Validate`, `Explain`, `Suggest`, `SuggestForCategories`, `Aggregate`, `Scan`, `Render`, `Normalize`, `DescribeConcept`, `Diff`, `Access.Rules`, and `Crosswalk.Describe`. Everything else reaches the server on every call: the guide operations, `CheckCoverage`, `FilterConcepts`, `Notices`, the scheme views and resources (`Summary`, `Concepts`, `Categories`, `Formats`, `Grammar`, `Scopes`, `LabelPresets`), `Describe`, and the composed document, access and crosswalk operations (`Document.Audit`, `Access.DescribeRequirements`, `Crosswalk.Translate`). The generated `Ctx*WithResponse` methods are direct wire methods and never use the cache. The same behavior holds in every EzClassify client; the [cache contract](https://github.com/ezclassify/contracts/blob/main/libs/conformance/cache/v1/CACHE-SEMANTICS.md) states it, and every client runs the same executable plans against it.
 
@@ -301,7 +301,7 @@ Context and credential refusals retain the binding error contract.
 
 ## Scheme views and presets
 
-`cx.Scheme.Categories`, `Concepts`, and `Formats` return the views a local engine's scheme view carries: `CategoryView`, `ConceptView`, and `FormatView`, which holds a format's resolved layout and its syntax. `cx.Scheme.LabelPresets` returns `LabelPresetView` entries for the Context's primary scheme, the scheme `ApplyPreset` expands them in, so it takes no scheme selector. `ApplyPreset` takes the preset id and the `OutputFormat` to write the expanded marking in, and answers what `Validate` answers:
+`cx.Scheme.Categories`, `Concepts`, and `Formats` return the views a local engine's scheme view carries: `CategoryView`, `ConceptView`, and `FormatView`, which holds a format's resolved layout and its syntax. `cx.Scheme.LabelPresets` returns `LabelPresetView` entries for the scheme, the one `ApplyPreset` expands them in. `ApplyPreset` takes the preset id and the `OutputFormat` to write the expanded marking in, and answers what `Validate` answers:
 
 ```go
 presets, err := cx.Scheme.LabelPresets(ctx)
@@ -318,6 +318,27 @@ if len(*presets) > 0 {
 ```
 
 `Scopes` returns the declared scopes in declaration order, an empty slice when the scheme declares none.
+
+### A Context's other schemes
+
+`cx.Scheme` is the Context's primary scheme. A Context can hold more, such as the source and target of a crosswalk, and `cx.SchemeView(selector)` returns the same operations for one of them. The selector is the scheme's Context-local key or its unambiguous artifact id; `Describe` lists every scheme the Context holds with the `Selector` that addresses it. Every call through the view, the operations and the reads alike, sends the selector as `?scheme=`:
+
+```go
+description, err := cx.Describe(ctx)
+if err != nil {
+	log.Fatal(err)
+}
+for _, held := range description.Schemes[1:] {
+	other := cx.SchemeView(held.Selector)
+	res, err := other.Process(ctx, ezclassify.CtxSchemeProcessRequest{Input: "INTERNAL"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(held.Selector, res.Result.Rendered)
+}
+```
+
+The same selector returns the same view, and a view shares the handle's binding and cache, with its results filed under its scheme. The server resolves the selector on every call: one the Context does not hold is answered 404 and returned as an error, never answered in the primary scheme. An empty selector panics.
 
 ## Errors and rate limits
 

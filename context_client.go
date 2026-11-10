@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -34,6 +35,13 @@ const latestVersion = "latest"
 //	cx := ezclassify.Connect("http://localhost:3000", "my-ctx", "1.0")
 //	res, err := cx.Scheme.Process(ctx, ezclassify.CtxSchemeProcessRequest{Input: "MARKING"})
 //
+// Scheme addresses the Context's primary scheme. A Context that holds more
+// than one scheme, such as the source and target of a crosswalk, reaches each
+// other scheme through [EzClassifyContext.SchemeView]:
+//
+//	other := cx.SchemeView("other-key")
+//	res, err = other.Process(ctx, ezclassify.CtxSchemeProcessRequest{Input: "MARKING"})
+//
 // An EzClassifyContext is safe for concurrent use; the resolved version is tracked
 // behind a mutex.
 //
@@ -52,7 +60,11 @@ type EzClassifyContext struct {
 	resolvedVersion string
 	cache           *responseCache
 
-	// Scheme groups marking-scheme operations for the bound context.
+	viewsMu sync.Mutex
+	views   map[string]*CtxScheme
+
+	// Scheme groups marking-scheme operations for the bound context's primary
+	// scheme. [EzClassifyContext.SchemeView] reaches the other schemes it holds.
 	Scheme *CtxScheme
 	// Guide groups guide operations for the bound context.
 	Guide *CtxGuide
@@ -100,7 +112,7 @@ func ConnectWith(client *Client, contextID, version string) *EzClassifyContext {
 		panic("ezclassify: access-decision caching requires a concrete context version")
 	}
 	cx := &EzClassifyContext{client: client, id: contextID, version: version, cache: newResponseCache(defaultResponseCacheEntries)}
-	cx.Scheme = &CtxScheme{cx}
+	cx.Scheme = &CtxScheme{cx: cx}
 	cx.Guide = &CtxGuide{cx}
 	cx.Access = &CtxAccess{cx}
 	cx.Document = &CtxDocument{cx}
@@ -110,6 +122,42 @@ func ConnectWith(client *Client, contextID, version string) *EzClassifyContext {
 
 // ID returns the context identifier this handle is bound to.
 func (cx *EzClassifyContext) ID() string { return cx.id }
+
+// SchemeView returns the scheme operations for one scheme this Context holds,
+// named by selector: its context-local key or its unambiguous artifact id, the
+// value [ContextDescription] lists as each scheme's Selector. Every call
+// through the view, operation and read alike, sends the selector as the
+// request's scheme query parameter, so the server answers it in that scheme.
+// [EzClassifyContext.Scheme] stays the view of the primary scheme and sends
+// none.
+//
+// The server resolves the selector on each call. A selector the Context does
+// not hold is answered 404 and returned as an error; the call never falls back
+// to the primary scheme.
+//
+// The same selector always returns the same view. A view shares this handle's
+// binding, resolved version and response cache, and its cached results are
+// filed under its selector, so one scheme's answer is never served for
+// another. A view is safe for concurrent use.
+//
+// An empty selector is a programmer error, so SchemeView panics rather than
+// deferring the failure into the first operation.
+func (cx *EzClassifyContext) SchemeView(selector string) *CtxScheme {
+	if selector == "" {
+		panic("ezclassify: scheme selector must not be empty")
+	}
+	cx.viewsMu.Lock()
+	defer cx.viewsMu.Unlock()
+	if view, ok := cx.views[selector]; ok {
+		return view
+	}
+	if cx.views == nil {
+		cx.views = make(map[string]*CtxScheme)
+	}
+	view := &CtxScheme{cx: cx, selector: &selector}
+	cx.views[selector] = view
+	return view
+}
 
 // Version returns the version segment used in request paths: a concrete
 // version, or "latest" when the binding leaves the choice to the server.
@@ -420,19 +468,29 @@ func answersEveryCategory(categoryIDs []string) func([]byte) bool {
 // cachedDo runs a cached Context operation. A response that fails [do]'s check
 // for required members is an error, so it is never filed.
 func cachedDo[T any](cx *EzClassifyContext, ctx context.Context, op string, body any, call func(context.Context) (callResult[T], error)) (*T, error) {
-	return cachedDoAccepting(cx, ctx, op, body, func([]byte) bool { return true }, call)
+	return cachedDoAccepting(cx, ctx, op, "", body, acceptEveryAnswer, call)
 }
+
+// cachedSchemeDo is [cachedDo] for an operation of a scheme view, filed under
+// the view's scheme.
+func cachedSchemeDo[T any](s *CtxScheme, ctx context.Context, op string, body any, call func(context.Context) (callResult[T], error)) (*T, error) {
+	return cachedDoAccepting(s.cx, ctx, op, s.cacheScope(), body, acceptEveryAnswer, call)
+}
+
+// acceptEveryAnswer files every well-formed answer.
+func acceptEveryAnswer([]byte) bool { return true }
 
 // cachedDoAccepting is [cachedDo] for an operation that decides for itself
 // which well-formed answers are complete enough to file. The key is the
-// operation, the binding and the whole request body, so every field that
-// changes the answer is part of it.
+// operation, the binding, the scope (the scheme a view addresses, empty for
+// everything else) and the whole request body, so every input that changes the
+// answer is part of it.
 //
 // The cache holds the validated response bytes, not the decoded value. Every
 // caller, including the ones that joined an in-flight request, decodes its own
 // *T, so nothing a caller does to its result reaches another caller or a later
 // cached read.
-func cachedDoAccepting[T any](cx *EzClassifyContext, ctx context.Context, op string, body any, cacheable func([]byte) bool, call func(context.Context) (callResult[T], error)) (*T, error) {
+func cachedDoAccepting[T any](cx *EzClassifyContext, ctx context.Context, op, scope string, body any, cacheable func([]byte) bool, call func(context.Context) (callResult[T], error)) (*T, error) {
 	if cx.client.cacheConfig.disableResponseCache {
 		return do(cx, ctx, op, call)
 	}
@@ -447,7 +505,7 @@ func cachedDoAccepting[T any](cx *EzClassifyContext, ctx context.Context, op str
 	case "scheme.describeConcept", "access.rules", "crosswalk.describe":
 		ttl = time.Hour
 	}
-	key := op + "|ctx:" + cx.id + "@" + cx.version + "|" + string(serialized)
+	key := op + "|ctx:" + cx.id + "@" + cx.version + scope + "|" + string(serialized)
 	value, err := cx.cache.load(ctx, key, ttl, cx.version != latestVersion, func(shared context.Context) (any, bool, error) {
 		var responseBody []byte
 		_, callErr := do(cx, shared, op, func(wireCtx context.Context) (callResult[T], error) {
@@ -482,16 +540,32 @@ func rejectInvalidText(op, text string) error {
 	return nil
 }
 
-// CtxScheme groups marking-scheme operations bound to an [EzClassifyContext].
-type CtxScheme struct{ cx *EzClassifyContext }
+// CtxScheme groups marking-scheme operations bound to one scheme of an
+// [EzClassifyContext]: the primary scheme for [EzClassifyContext.Scheme], or
+// the scheme a selector names for [EzClassifyContext.SchemeView].
+type CtxScheme struct {
+	cx *EzClassifyContext
+	// selector names the scheme this view addresses; nil is the primary, and
+	// sends no scheme query parameter.
+	selector *string
+}
 
-// Summary returns high-level metadata for the context's composed scheme: id,
+// cacheScope is the part of a cache key that names the scheme this view
+// addresses. The selector is quoted so no selector can run into the request
+// body that follows it in the key.
+func (s *CtxScheme) cacheScope() string {
+	if s.selector == nil {
+		return ""
+	}
+	return "|scheme:" + strconv.Quote(*s.selector)
+}
+
+// Summary returns high-level metadata for this view's scheme: id,
 // version, name, description, presentation configuration, default render
-// format, and scope label. Pass nil for scheme to read the context's primary
-// scheme, or a context-local key to name another one it holds.
-func (s *CtxScheme) Summary(ctx context.Context, scheme *string) (*SchemeSummary, error) {
+// format, and scope label.
+func (s *CtxScheme) Summary(ctx context.Context) (*SchemeSummary, error) {
 	return do(s.cx, ctx, "scheme.summary", func(wireCtx context.Context) (callResult[SchemeSummary], error) {
-		r, err := s.cx.client.CtxSchemeSummaryWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeSummaryParams{Scheme: scheme})
+		r, err := s.cx.client.CtxSchemeSummaryWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeSummaryParams{Scheme: s.selector})
 		if err != nil {
 			return callResult[SchemeSummary]{}, err
 		}
@@ -499,12 +573,10 @@ func (s *CtxScheme) Summary(ctx context.Context, scheme *string) (*SchemeSummary
 	})
 }
 
-// Categories returns the categories declared by the context's composed scheme.
-// Pass nil for scheme to read the context's primary scheme, or a context-local
-// key to name another one it holds.
-func (s *CtxScheme) Categories(ctx context.Context, scheme *string) (*[]CategoryView, error) {
+// Categories returns the categories declared by this view's scheme.
+func (s *CtxScheme) Categories(ctx context.Context) (*[]CategoryView, error) {
 	return do(s.cx, ctx, "scheme.categories", func(wireCtx context.Context) (callResult[[]CategoryView], error) {
-		r, err := s.cx.client.CtxSchemeCategoriesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeCategoriesParams{Scheme: scheme})
+		r, err := s.cx.client.CtxSchemeCategoriesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeCategoriesParams{Scheme: s.selector})
 		if err != nil {
 			return callResult[[]CategoryView]{}, err
 		}
@@ -512,12 +584,10 @@ func (s *CtxScheme) Categories(ctx context.Context, scheme *string) (*[]Category
 	})
 }
 
-// Concepts returns the concepts declared by the context's composed scheme.
-// Pass nil for scheme to read the context's primary scheme, or a context-local
-// key to name another one it holds.
-func (s *CtxScheme) Concepts(ctx context.Context, scheme *string) (*[]ConceptView, error) {
+// Concepts returns the concepts declared by this view's scheme.
+func (s *CtxScheme) Concepts(ctx context.Context) (*[]ConceptView, error) {
 	return do(s.cx, ctx, "scheme.concepts", func(wireCtx context.Context) (callResult[[]ConceptView], error) {
-		r, err := s.cx.client.CtxSchemeConceptsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeConceptsParams{Scheme: scheme})
+		r, err := s.cx.client.CtxSchemeConceptsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeConceptsParams{Scheme: s.selector})
 		if err != nil {
 			return callResult[[]ConceptView]{}, err
 		}
@@ -525,12 +595,10 @@ func (s *CtxScheme) Concepts(ctx context.Context, scheme *string) (*[]ConceptVie
 	})
 }
 
-// Formats returns the render formats the context's composed scheme supports.
-// Pass nil for scheme to read the context's primary scheme, or a context-local
-// key to name another one it holds.
-func (s *CtxScheme) Formats(ctx context.Context, scheme *string) (*[]FormatView, error) {
+// Formats returns the render formats this view's scheme supports.
+func (s *CtxScheme) Formats(ctx context.Context) (*[]FormatView, error) {
 	return do(s.cx, ctx, "scheme.formats", func(wireCtx context.Context) (callResult[[]FormatView], error) {
-		r, err := s.cx.client.CtxSchemeFormatsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeFormatsParams{Scheme: scheme})
+		r, err := s.cx.client.CtxSchemeFormatsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeFormatsParams{Scheme: s.selector})
 		if err != nil {
 			return callResult[[]FormatView]{}, err
 		}
@@ -538,12 +606,10 @@ func (s *CtxScheme) Formats(ctx context.Context, scheme *string) (*[]FormatView,
 	})
 }
 
-// Grammar returns the parse grammar of the context's composed scheme. Pass nil
-// for scheme to read the context's primary scheme, or a context-local key to
-// name another one it holds.
-func (s *CtxScheme) Grammar(ctx context.Context, scheme *string) (*SchemeGrammar, error) {
+// Grammar returns the parse grammar of this view's scheme.
+func (s *CtxScheme) Grammar(ctx context.Context) (*SchemeGrammar, error) {
 	return do(s.cx, ctx, "scheme.grammar", func(wireCtx context.Context) (callResult[SchemeGrammar], error) {
-		r, err := s.cx.client.CtxSchemeGrammarWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeGrammarParams{Scheme: scheme})
+		r, err := s.cx.client.CtxSchemeGrammarWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeGrammarParams{Scheme: s.selector})
 		if err != nil {
 			return callResult[SchemeGrammar]{}, err
 		}
@@ -551,13 +617,13 @@ func (s *CtxScheme) Grammar(ctx context.Context, scheme *string) (*SchemeGrammar
 	})
 }
 
-// LabelPresets lists the label presets declared by the context's primary
-// scheme, the scheme [CtxScheme.ApplyPreset] expands them in. The list is empty
+// LabelPresets lists the label presets declared by this view's scheme, the
+// scheme [CtxScheme.ApplyPreset] expands them in. The list is empty
 // when the scheme declares none. The preset marking strings stay server-side,
 // so ApplyPreset is the way to order one.
 func (s *CtxScheme) LabelPresets(ctx context.Context) (*[]LabelPresetView, error) {
 	return do(s.cx, ctx, "scheme.labelPresets", func(wireCtx context.Context) (callResult[[]LabelPresetView], error) {
-		r, err := s.cx.client.CtxSchemeLabelPresetsWithResponse(wireCtx, s.cx.id, s.cx.version)
+		r, err := s.cx.client.CtxSchemeLabelPresetsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeLabelPresetsParams{Scheme: s.selector})
 		if err != nil {
 			return callResult[[]LabelPresetView]{}, err
 		}
@@ -565,12 +631,10 @@ func (s *CtxScheme) LabelPresets(ctx context.Context) (*[]LabelPresetView, error
 	})
 }
 
-// Scopes returns the scopes declared by the context's composed scheme. Pass nil
-// for scheme to read the context's primary scheme, or a context-local key to
-// name another one it holds.
-func (s *CtxScheme) Scopes(ctx context.Context, scheme *string) (*[]SchemeScope, error) {
+// Scopes returns the scopes declared by this view's scheme.
+func (s *CtxScheme) Scopes(ctx context.Context) (*[]SchemeScope, error) {
 	return do(s.cx, ctx, "scheme.scopes", func(wireCtx context.Context) (callResult[[]SchemeScope], error) {
-		r, err := s.cx.client.CtxSchemeScopesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeScopesParams{Scheme: scheme})
+		r, err := s.cx.client.CtxSchemeScopesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeScopesParams{Scheme: s.selector})
 		if err != nil {
 			return callResult[[]SchemeScope]{}, err
 		}
@@ -578,14 +642,13 @@ func (s *CtxScheme) Scopes(ctx context.Context, scheme *string) (*[]SchemeScope,
 	})
 }
 
-// ApplyPreset expands the named label preset against the context's composed
-// scheme and returns what [CtxScheme.Validate] answers for the marking it
-// produces, in the format the request's OutputFormat names or the scheme's
-// default. The preset comes from the context's primary scheme; a preset id it
-// does not declare answers 404.
+// ApplyPreset expands the named label preset in this view's scheme and returns
+// what [CtxScheme.Validate] answers for the marking it produces, in the format
+// the request's OutputFormat names or the scheme's default. A preset id the
+// scheme does not declare answers 404.
 func (s *CtxScheme) ApplyPreset(ctx context.Context, req ApplyPresetRequest) (*ContextSchemeValidateResult, error) {
-	return cachedDo(s.cx, ctx, "scheme.applyPreset", req, func(wireCtx context.Context) (callResult[ContextSchemeValidateResult], error) {
-		r, err := s.cx.client.CtxSchemeApplyPresetWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.applyPreset", req, func(wireCtx context.Context) (callResult[ContextSchemeValidateResult], error) {
+		r, err := s.cx.client.CtxSchemeApplyPresetWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeApplyPresetParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeValidateResult]{}, err
 		}
@@ -601,8 +664,8 @@ func (s *CtxScheme) ApplyPreset(ctx context.Context, req ApplyPresetRequest) (*C
 // SuggestFor. Renders is empty unless Outputs names something, and
 // SuggestionsFor is nil unless SuggestFor does.
 func (s *CtxScheme) Process(ctx context.Context, req CtxSchemeProcessRequest) (*ContextSchemeProcessResult, error) {
-	return cachedDo(s.cx, ctx, "scheme.process", req, func(wireCtx context.Context) (callResult[ContextSchemeProcessResult], error) {
-		r, err := s.cx.client.CtxSchemeProcessWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.process", req, func(wireCtx context.Context) (callResult[ContextSchemeProcessResult], error) {
+		r, err := s.cx.client.CtxSchemeProcessWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeProcessParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeProcessResult]{}, err
 		}
@@ -621,8 +684,8 @@ func (s *CtxScheme) Validate(ctx context.Context, req CtxSchemeValidateRequest) 
 	if err := exclusiveInputError("scheme.validate", req.Input != nil, req.Assertions != nil, req.InputFormat); err != nil {
 		return nil, err
 	}
-	return cachedDo(s.cx, ctx, "scheme.validate", req, func(wireCtx context.Context) (callResult[ContextSchemeValidateResult], error) {
-		r, err := s.cx.client.CtxSchemeValidateWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.validate", req, func(wireCtx context.Context) (callResult[ContextSchemeValidateResult], error) {
+		r, err := s.cx.client.CtxSchemeValidateWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeValidateParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeValidateResult]{}, err
 		}
@@ -636,8 +699,8 @@ func (s *CtxScheme) Validate(ctx context.Context, req CtxSchemeValidateRequest) 
 // that only add to a process result. Explain and Process keep separate cache
 // entries even for the same request.
 func (s *CtxScheme) Explain(ctx context.Context, req CtxSchemeExplainRequest) (*ContextSchemeExplainResult, error) {
-	return cachedDo(s.cx, ctx, "scheme.explain", req, func(wireCtx context.Context) (callResult[ContextSchemeExplainResult], error) {
-		r, err := s.cx.client.CtxSchemeExplainWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.explain", req, func(wireCtx context.Context) (callResult[ContextSchemeExplainResult], error) {
+		r, err := s.cx.client.CtxSchemeExplainWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeExplainParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeExplainResult]{}, err
 		}
@@ -656,8 +719,8 @@ func (s *CtxScheme) Suggest(ctx context.Context, req CtxSchemeSuggestRequest) (*
 	if err := exclusiveInputError("scheme.suggest", req.Input != nil, req.Assertions != nil, req.InputFormat); err != nil {
 		return nil, err
 	}
-	return cachedDo(s.cx, ctx, "scheme.suggest", req, func(wireCtx context.Context) (callResult[ContextSchemeSuggestResult], error) {
-		r, err := s.cx.client.CtxSchemeSuggestWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.suggest", req, func(wireCtx context.Context) (callResult[ContextSchemeSuggestResult], error) {
+		r, err := s.cx.client.CtxSchemeSuggestWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeSuggestParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeSuggestResult]{}, err
 		}
@@ -672,8 +735,8 @@ func (s *CtxScheme) Suggest(ctx context.Context, req CtxSchemeSuggestRequest) (*
 // answer that leaves out a requested category is returned to the caller but
 // not cached, so the next call asks the server again.
 func (s *CtxScheme) SuggestForCategories(ctx context.Context, req CtxSchemeSuggestForCategoriesRequest) (*ContextSchemeSuggestForCategoriesResult, error) {
-	return cachedDoAccepting(s.cx, ctx, "scheme.suggestForCategories", req, answersEveryCategory(req.CategoryIds), func(wireCtx context.Context) (callResult[ContextSchemeSuggestForCategoriesResult], error) {
-		r, err := s.cx.client.CtxSchemeSuggestForCategoriesWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedDoAccepting(s.cx, ctx, "scheme.suggestForCategories", s.cacheScope(), req, answersEveryCategory(req.CategoryIds), func(wireCtx context.Context) (callResult[ContextSchemeSuggestForCategoriesResult], error) {
+		r, err := s.cx.client.CtxSchemeSuggestForCategoriesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeSuggestForCategoriesParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeSuggestForCategoriesResult]{}, err
 		}
@@ -691,8 +754,8 @@ func (s *CtxScheme) Aggregate(ctx context.Context, req CtxSchemeAggregateRequest
 	if err := exclusiveInputError("scheme.aggregate", req.Inputs != nil, req.AssertionSets != nil, req.InputFormat); err != nil {
 		return nil, err
 	}
-	return cachedDo(s.cx, ctx, "scheme.aggregate", req, func(wireCtx context.Context) (callResult[ContextSchemeAggregateResult], error) {
-		r, err := s.cx.client.CtxSchemeAggregateWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.aggregate", req, func(wireCtx context.Context) (callResult[ContextSchemeAggregateResult], error) {
+		r, err := s.cx.client.CtxSchemeAggregateWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeAggregateParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeAggregateResult]{}, err
 		}
@@ -709,8 +772,8 @@ func (s *CtxScheme) Scan(ctx context.Context, req CtxSchemeScanRequest) (*Contex
 	if err := rejectInvalidText("scheme.scan", req.Text); err != nil {
 		return nil, err
 	}
-	return cachedDo(s.cx, ctx, "scheme.scan", req, func(wireCtx context.Context) (callResult[ContextSchemeScanResult], error) {
-		r, err := s.cx.client.CtxSchemeScanWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.scan", req, func(wireCtx context.Context) (callResult[ContextSchemeScanResult], error) {
+		r, err := s.cx.client.CtxSchemeScanWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeScanParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeScanResult]{}, err
 		}
@@ -720,8 +783,8 @@ func (s *CtxScheme) Scan(ctx context.Context, req CtxSchemeScanRequest) (*Contex
 
 // Render turns assertions into a marking string.
 func (s *CtxScheme) Render(ctx context.Context, req CtxSchemeRenderRequest) (*ContextSchemeRenderResult, error) {
-	return cachedDo(s.cx, ctx, "scheme.render", req, func(wireCtx context.Context) (callResult[ContextSchemeRenderResult], error) {
-		r, err := s.cx.client.CtxSchemeRenderWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.render", req, func(wireCtx context.Context) (callResult[ContextSchemeRenderResult], error) {
+		r, err := s.cx.client.CtxSchemeRenderWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeRenderParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeRenderResult]{}, err
 		}
@@ -731,8 +794,8 @@ func (s *CtxScheme) Render(ctx context.Context, req CtxSchemeRenderRequest) (*Co
 
 // Normalize returns the canonical normalized form of a marking.
 func (s *CtxScheme) Normalize(ctx context.Context, req CtxSchemeNormalizeRequest) (*ContextSchemeNormalizeResult, error) {
-	return cachedDo(s.cx, ctx, "scheme.normalize", req, func(wireCtx context.Context) (callResult[ContextSchemeNormalizeResult], error) {
-		r, err := s.cx.client.CtxSchemeNormalizeWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.normalize", req, func(wireCtx context.Context) (callResult[ContextSchemeNormalizeResult], error) {
+		r, err := s.cx.client.CtxSchemeNormalizeWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeNormalizeParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeNormalizeResult]{}, err
 		}
@@ -743,7 +806,7 @@ func (s *CtxScheme) Normalize(ctx context.Context, req CtxSchemeNormalizeRequest
 // CheckCoverage reports whether a set of child markings is covered by a parent.
 func (s *CtxScheme) CheckCoverage(ctx context.Context, req CtxSchemeCheckCoverageRequest) (*ContextSchemeCoverageResult, error) {
 	return do(s.cx, ctx, "scheme.checkCoverage", func(wireCtx context.Context) (callResult[ContextSchemeCoverageResult], error) {
-		r, err := s.cx.client.CtxSchemeCheckCoverageWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+		r, err := s.cx.client.CtxSchemeCheckCoverageWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeCheckCoverageParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeCoverageResult]{}, err
 		}
@@ -755,11 +818,12 @@ func (s *CtxScheme) CheckCoverage(ctx context.Context, req CtxSchemeCheckCoverag
 // rules. view optionally selects the concept property used for the display
 // name; pass nil for the default.
 func (s *CtxScheme) DescribeConcept(ctx context.Context, conceptID, categoryID string, view *string) (*ContextSchemeConceptDescriptionResult, error) {
-	return cachedDo(s.cx, ctx, "scheme.describeConcept", map[string]any{"conceptId": conceptID, "categoryId": categoryID, "view": view}, func(wireCtx context.Context) (callResult[ContextSchemeConceptDescriptionResult], error) {
+	return cachedSchemeDo(s, ctx, "scheme.describeConcept", map[string]any{"conceptId": conceptID, "categoryId": categoryID, "view": view}, func(wireCtx context.Context) (callResult[ContextSchemeConceptDescriptionResult], error) {
 		params := &api.CtxSchemeDescribeConceptParams{
 			ConceptID:  conceptID,
 			CategoryID: categoryID,
 			View:       view,
+			Scheme:     s.selector,
 		}
 		r, err := s.cx.client.CtxSchemeDescribeConceptWithResponse(wireCtx, s.cx.id, s.cx.version, params)
 		if err != nil {
@@ -771,8 +835,8 @@ func (s *CtxScheme) DescribeConcept(ctx context.Context, conceptID, categoryID s
 
 // Diff compares two marking strings.
 func (s *CtxScheme) Diff(ctx context.Context, req CtxSchemeDiffRequest) (*ContextSchemeDiffResult, error) {
-	return cachedDo(s.cx, ctx, "scheme.diff", req, func(wireCtx context.Context) (callResult[ContextSchemeDiffResult], error) {
-		r, err := s.cx.client.CtxSchemeDiffWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+	return cachedSchemeDo(s, ctx, "scheme.diff", req, func(wireCtx context.Context) (callResult[ContextSchemeDiffResult], error) {
+		r, err := s.cx.client.CtxSchemeDiffWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeDiffParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeDiffResult]{}, err
 		}
@@ -780,10 +844,10 @@ func (s *CtxScheme) Diff(ctx context.Context, req CtxSchemeDiffRequest) (*Contex
 	})
 }
 
-// FilterConcepts filters the context's concepts by a text query.
+// FilterConcepts filters this view's scheme's concepts by a text query.
 func (s *CtxScheme) FilterConcepts(ctx context.Context, req CtxSchemeFilterConceptsRequest) (*ContextSchemeFilterConceptsResult, error) {
 	return do(s.cx, ctx, "scheme.filterConcepts", func(wireCtx context.Context) (callResult[ContextSchemeFilterConceptsResult], error) {
-		r, err := s.cx.client.CtxSchemeFilterConceptsWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+		r, err := s.cx.client.CtxSchemeFilterConceptsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeFilterConceptsParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeFilterConceptsResult]{}, err
 		}
@@ -798,7 +862,7 @@ func (s *CtxScheme) FilterConcepts(ctx context.Context, req CtxSchemeFilterConce
 // call.
 func (s *CtxScheme) Notices(ctx context.Context, req CtxSchemeNoticesRequest) (*ContextSchemeNoticesResult, error) {
 	return do(s.cx, ctx, "scheme.notices", func(wireCtx context.Context) (callResult[ContextSchemeNoticesResult], error) {
-		r, err := s.cx.client.CtxSchemeNoticesWithResponse(wireCtx, s.cx.id, s.cx.version, req)
+		r, err := s.cx.client.CtxSchemeNoticesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeNoticesParams{Scheme: s.selector}, req)
 		if err != nil {
 			return callResult[ContextSchemeNoticesResult]{}, err
 		}
@@ -806,10 +870,10 @@ func (s *CtxScheme) Notices(ctx context.Context, req CtxSchemeNoticesRequest) (*
 	})
 }
 
-// View returns a render-ready structural view of the context's composed scheme.
+// View returns a render-ready structural view of this view's scheme.
 func (s *CtxScheme) View(ctx context.Context) (*ContextSchemeViewResult, error) {
 	return do(s.cx, ctx, "scheme.view", func(wireCtx context.Context) (callResult[ContextSchemeViewResult], error) {
-		r, err := s.cx.client.CtxSchemeViewWithResponse(wireCtx, s.cx.id, s.cx.version, CtxSchemeViewRequest{})
+		r, err := s.cx.client.CtxSchemeViewWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeViewParams{Scheme: s.selector}, CtxSchemeViewRequest{})
 		if err != nil {
 			return callResult[ContextSchemeViewResult]{}, err
 		}

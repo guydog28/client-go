@@ -673,7 +673,7 @@ func TestContextLabelPresetsWithResponse(t *testing.T) {
 	}))
 	t.Cleanup(srv.Close)
 	c := ezclassify.New(srv.URL)
-	resp, err := c.CtxSchemeLabelPresetsWithResponse(context.Background(), "cedar-valley-protection", "latest")
+	resp, err := c.CtxSchemeLabelPresetsWithResponse(context.Background(), "cedar-valley-protection", "latest", nil)
 	if err != nil {
 		t.Fatalf("CtxSchemeLabelPresetsWithResponse: %v", err)
 	}
@@ -700,7 +700,7 @@ func TestSchemeSummaryCarriesTheDocumentsOwnMarking(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			srv, _ := ctxServer(t, "1.0.0", map[string]string{"/scheme": tc.body})
-			summary, err := ezclassify.Connect(srv.URL, "c", "1.0.0").Scheme.Summary(context.Background(), nil)
+			summary, err := ezclassify.Connect(srv.URL, "c", "1.0.0").Scheme.Summary(context.Background())
 			if err != nil {
 				t.Fatalf("Summary: %v", err)
 			}

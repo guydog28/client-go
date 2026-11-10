@@ -133,35 +133,35 @@ var readCases = []readCase{
 		return cx.Resolve(ctx)
 	}},
 	{"scheme.summary", "get", requestRoutePrefix + "scheme", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Summary(ctx, ptr("acme"))
+		_, err := cx.SchemeView("acme").Summary(ctx)
 		return err
 	}},
 	{"scheme.concepts", "get", requestRoutePrefix + "scheme/concepts", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Concepts(ctx, ptr("acme"))
+		_, err := cx.SchemeView("acme").Concepts(ctx)
 		return err
 	}},
 	{"scheme.categories", "get", requestRoutePrefix + "scheme/categories", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Categories(ctx, ptr("acme"))
+		_, err := cx.SchemeView("acme").Categories(ctx)
 		return err
 	}},
 	{"scheme.formats", "get", requestRoutePrefix + "scheme/formats", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Formats(ctx, ptr("acme"))
+		_, err := cx.SchemeView("acme").Formats(ctx)
 		return err
 	}},
 	{"scheme.grammar", "get", requestRoutePrefix + "scheme/grammar", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Grammar(ctx, ptr("acme"))
+		_, err := cx.SchemeView("acme").Grammar(ctx)
 		return err
 	}},
 	{"scheme.scopes", "get", requestRoutePrefix + "scheme/scopes", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Scopes(ctx, ptr("acme"))
+		_, err := cx.SchemeView("acme").Scopes(ctx)
 		return err
 	}},
 	{"scheme.labelPresets", "get", requestRoutePrefix + "scheme/label-presets", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.LabelPresets(ctx)
+		_, err := cx.SchemeView("acme").LabelPresets(ctx)
 		return err
 	}},
 	{"scheme.describeConcept", "get", requestRoutePrefix + "scheme/describe-concept", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.DescribeConcept(ctx, "HIGH", "level", ptr("short"))
+		_, err := cx.SchemeView("acme").DescribeConcept(ctx, "HIGH", "level", ptr("short"))
 		return err
 	}},
 	{"access.rules", "get", requestRoutePrefix + "access/rules", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {

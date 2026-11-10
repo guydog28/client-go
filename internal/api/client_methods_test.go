@@ -58,7 +58,7 @@ func TestEndpointRoutes(t *testing.T) {
 		{"SchemeFormats", "GET", base + "/scheme/formats", func() error { _, e := c.CtxSchemeFormatsWithResponse(ctx, ctxID, version, nil); return e }},
 		{"SchemeGrammar", "GET", base + "/scheme/grammar", func() error { _, e := c.CtxSchemeGrammarWithResponse(ctx, ctxID, version, nil); return e }},
 		{"SchemeScopes", "GET", base + "/scheme/scopes", func() error { _, e := c.CtxSchemeScopesWithResponse(ctx, ctxID, version, nil); return e }},
-		{"SchemePresets", "GET", base + "/scheme/label-presets", func() error { _, e := c.CtxSchemeLabelPresetsWithResponse(ctx, ctxID, version); return e }},
+		{"SchemePresets", "GET", base + "/scheme/label-presets", func() error { _, e := c.CtxSchemeLabelPresetsWithResponse(ctx, ctxID, version, nil); return e }},
 		{"DescribeConcept", "GET", base + "/scheme/describe-concept", func() error {
 			_, e := c.CtxSchemeDescribeConceptWithResponse(ctx, ctxID, version, &CtxSchemeDescribeConceptParams{ConceptID: "c", CategoryID: "cat"})
 			return e
@@ -104,59 +104,59 @@ func TestEndpointRoutes(t *testing.T) {
 			return e
 		}},
 		{"SchemeProcess", "POST", base + "/scheme/process", func() error {
-			_, e := c.CtxSchemeProcessWithResponse(ctx, ctxID, version, CtxSchemeProcessJSONRequestBody{})
+			_, e := c.CtxSchemeProcessWithResponse(ctx, ctxID, version, nil, CtxSchemeProcessJSONRequestBody{})
 			return e
 		}},
 		{"SchemeValidate", "POST", base + "/scheme/validate", func() error {
-			_, e := c.CtxSchemeValidateWithResponse(ctx, ctxID, version, CtxSchemeValidateJSONRequestBody{})
+			_, e := c.CtxSchemeValidateWithResponse(ctx, ctxID, version, nil, CtxSchemeValidateJSONRequestBody{})
 			return e
 		}},
 		{"SchemeNormalize", "POST", base + "/scheme/normalize", func() error {
-			_, e := c.CtxSchemeNormalizeWithResponse(ctx, ctxID, version, CtxSchemeNormalizeJSONRequestBody{})
+			_, e := c.CtxSchemeNormalizeWithResponse(ctx, ctxID, version, nil, CtxSchemeNormalizeJSONRequestBody{})
 			return e
 		}},
 		{"SchemeRender", "POST", base + "/scheme/render", func() error {
-			_, e := c.CtxSchemeRenderWithResponse(ctx, ctxID, version, CtxSchemeRenderJSONRequestBody{})
+			_, e := c.CtxSchemeRenderWithResponse(ctx, ctxID, version, nil, CtxSchemeRenderJSONRequestBody{})
 			return e
 		}},
 		{"SchemeDiff", "POST", base + "/scheme/diff", func() error {
-			_, e := c.CtxSchemeDiffWithResponse(ctx, ctxID, version, CtxSchemeDiffJSONRequestBody{})
+			_, e := c.CtxSchemeDiffWithResponse(ctx, ctxID, version, nil, CtxSchemeDiffJSONRequestBody{})
 			return e
 		}},
 		{"SchemeView", "POST", base + "/scheme/view", func() error {
-			_, e := c.CtxSchemeViewWithResponse(ctx, ctxID, version, CtxSchemeViewJSONRequestBody{})
+			_, e := c.CtxSchemeViewWithResponse(ctx, ctxID, version, nil, CtxSchemeViewJSONRequestBody{})
 			return e
 		}},
 		{"SchemeNotices", "POST", base + "/scheme/notices", func() error {
-			_, e := c.CtxSchemeNoticesWithResponse(ctx, ctxID, version, CtxSchemeNoticesJSONRequestBody{})
+			_, e := c.CtxSchemeNoticesWithResponse(ctx, ctxID, version, nil, CtxSchemeNoticesJSONRequestBody{})
 			return e
 		}},
 		{"SchemeFilter", "POST", base + "/scheme/filter-concepts", func() error {
-			_, e := c.CtxSchemeFilterConceptsWithResponse(ctx, ctxID, version, CtxSchemeFilterConceptsJSONRequestBody{})
+			_, e := c.CtxSchemeFilterConceptsWithResponse(ctx, ctxID, version, nil, CtxSchemeFilterConceptsJSONRequestBody{})
 			return e
 		}},
 		{"SchemeScan", "POST", base + "/scheme/scan", func() error {
-			_, e := c.CtxSchemeScanWithResponse(ctx, ctxID, version, CtxSchemeScanJSONRequestBody{})
+			_, e := c.CtxSchemeScanWithResponse(ctx, ctxID, version, nil, CtxSchemeScanJSONRequestBody{})
 			return e
 		}},
 		{"SchemeAggregate", "POST", base + "/scheme/aggregate", func() error {
-			_, e := c.CtxSchemeAggregateWithResponse(ctx, ctxID, version, CtxSchemeAggregateJSONRequestBody{})
+			_, e := c.CtxSchemeAggregateWithResponse(ctx, ctxID, version, nil, CtxSchemeAggregateJSONRequestBody{})
 			return e
 		}},
 		{"SchemeSuggest", "POST", base + "/scheme/suggest", func() error {
-			_, e := c.CtxSchemeSuggestWithResponse(ctx, ctxID, version, CtxSchemeSuggestJSONRequestBody{})
+			_, e := c.CtxSchemeSuggestWithResponse(ctx, ctxID, version, nil, CtxSchemeSuggestJSONRequestBody{})
 			return e
 		}},
 		{"SchemeSuggestForCategories", "POST", base + "/scheme/suggest-for-categories", func() error {
-			_, e := c.CtxSchemeSuggestForCategoriesWithResponse(ctx, ctxID, version, CtxSchemeSuggestForCategoriesJSONRequestBody{})
+			_, e := c.CtxSchemeSuggestForCategoriesWithResponse(ctx, ctxID, version, nil, CtxSchemeSuggestForCategoriesJSONRequestBody{})
 			return e
 		}},
 		{"SchemeExplain", "POST", base + "/scheme/explain", func() error {
-			_, e := c.CtxSchemeExplainWithResponse(ctx, ctxID, version, CtxSchemeExplainJSONRequestBody{})
+			_, e := c.CtxSchemeExplainWithResponse(ctx, ctxID, version, nil, CtxSchemeExplainJSONRequestBody{})
 			return e
 		}},
 		{"SchemeCoverage", "POST", base + "/scheme/check-coverage", func() error {
-			_, e := c.CtxSchemeCheckCoverageWithResponse(ctx, ctxID, version, CtxSchemeCheckCoverageJSONRequestBody{})
+			_, e := c.CtxSchemeCheckCoverageWithResponse(ctx, ctxID, version, nil, CtxSchemeCheckCoverageJSONRequestBody{})
 			return e
 		}},
 	}

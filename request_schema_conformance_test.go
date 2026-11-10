@@ -507,7 +507,7 @@ type requestCase struct {
 // halves of aggregate, get their own case.
 var requestCases = []requestCase{
 	{"scheme.process", "scheme/process", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Process(ctx, ezclassify.CtxSchemeProcessRequest{
+		_, err := cx.SchemeView("acme").Process(ctx, ezclassify.CtxSchemeProcessRequest{
 			Input:        "H//A",
 			InputFormat:  ptr("marking/portion"),
 			OutputFormat: ptr("marking/banner"),
@@ -521,7 +521,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.explain", "scheme/explain", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Explain(ctx, ezclassify.CtxSchemeExplainRequest{
+		_, err := cx.SchemeView("acme").Explain(ctx, ezclassify.CtxSchemeExplainRequest{
 			Input:        "H//A",
 			InputFormat:  ptr("marking/portion"),
 			OutputFormat: ptr("marking/banner"),
@@ -535,7 +535,7 @@ var requestCases = []requestCase{
 	// The server takes the marking as text or as facts, never both, so each
 	// gets a case.
 	{"scheme.validate-text", "scheme/validate", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Validate(ctx, ezclassify.CtxSchemeValidateRequest{
+		_, err := cx.SchemeView("acme").Validate(ctx, ezclassify.CtxSchemeValidateRequest{
 			Input:        ptr("H//A"),
 			InputFormat:  ptr("marking/portion"),
 			OutputFormat: ptr("marking/banner"),
@@ -546,7 +546,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.validate-assertions", "scheme/validate", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Validate(ctx, ezclassify.CtxSchemeValidateRequest{
+		_, err := cx.SchemeView("acme").Validate(ctx, ezclassify.CtxSchemeValidateRequest{
 			Assertions:   &[]ezclassify.Assertion{caseLevel},
 			OutputFormat: ptr("marking/banner"),
 			Surface:      ptr("portion"),
@@ -556,7 +556,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.suggest", "scheme/suggest", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Suggest(ctx, ezclassify.CtxSchemeSuggestRequest{
+		_, err := cx.SchemeView("acme").Suggest(ctx, ezclassify.CtxSchemeSuggestRequest{
 			Input:        ptr("H//"),
 			InputFormat:  ptr("portion"),
 			OutputFormat: ptr("banner"),
@@ -567,7 +567,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.suggest-facts", "scheme/suggest", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Suggest(ctx, ezclassify.CtxSchemeSuggestRequest{
+		_, err := cx.SchemeView("acme").Suggest(ctx, ezclassify.CtxSchemeSuggestRequest{
 			Assertions:   &[]ezclassify.Assertion{caseLevel},
 			OutputFormat: ptr("banner"),
 			Surface:      ptr("portion"),
@@ -577,7 +577,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.suggest-for-categories", "scheme/suggest-for-categories", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.SuggestForCategories(ctx, ezclassify.CtxSchemeSuggestForCategoriesRequest{
+		_, err := cx.SchemeView("acme").SuggestForCategories(ctx, ezclassify.CtxSchemeSuggestForCategoriesRequest{
 			Assertions:   []ezclassify.Assertion{caseLevel},
 			CategoryIds:  []string{"level", "audience"},
 			OutputFormat: ptr("banner"),
@@ -586,7 +586,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.aggregate", "scheme/aggregate", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Aggregate(ctx, ezclassify.CtxSchemeAggregateRequest{
+		_, err := cx.SchemeView("acme").Aggregate(ctx, ezclassify.CtxSchemeAggregateRequest{
 			Inputs:       &[]string{"H", "L"},
 			InputFormat:  ptr("portion"),
 			OutputFormat: ptr("banner"),
@@ -596,7 +596,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.aggregate-assertions", "scheme/aggregate", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Aggregate(ctx, ezclassify.CtxSchemeAggregateRequest{
+		_, err := cx.SchemeView("acme").Aggregate(ctx, ezclassify.CtxSchemeAggregateRequest{
 			AssertionSets: &[][]ezclassify.Assertion{{caseLevel}},
 			OutputFormat:  ptr("banner"),
 			Surface:       ptr("portion"),
@@ -605,7 +605,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.scan", "scheme/scan", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Scan(ctx, ezclassify.CtxSchemeScanRequest{
+		_, err := cx.SchemeView("acme").Scan(ctx, ezclassify.CtxSchemeScanRequest{
 			Text:         "text H text",
 			InputFormat:  ptr("portion"),
 			OutputFormat: ptr("banner"),
@@ -613,7 +613,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.render", "scheme/render", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Render(ctx, ezclassify.CtxSchemeRenderRequest{
+		_, err := cx.SchemeView("acme").Render(ctx, ezclassify.CtxSchemeRenderRequest{
 			Assertions:   []ezclassify.Assertion{caseLevel},
 			OutputFormat: ptr("banner"),
 			Preservation: ptr(ezclassify.RenderPreservationFull),
@@ -621,7 +621,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.normalize", "scheme/normalize", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Normalize(ctx, ezclassify.CtxSchemeNormalizeRequest{
+		_, err := cx.SchemeView("acme").Normalize(ctx, ezclassify.CtxSchemeNormalizeRequest{
 			Input:        "h",
 			InputFormat:  ptr("portion"),
 			OutputFormat: ptr("banner"),
@@ -629,7 +629,7 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.check-coverage", "scheme/check-coverage", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.CheckCoverage(ctx, ezclassify.CtxSchemeCheckCoverageRequest{
+		_, err := cx.SchemeView("acme").CheckCoverage(ctx, ezclassify.CtxSchemeCheckCoverageRequest{
 			Children:     []string{"L"},
 			Parent:       "H",
 			InputFormat:  ptr("portion"),
@@ -638,23 +638,23 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"scheme.diff", "scheme/diff", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Diff(ctx, ezclassify.CtxSchemeDiffRequest{A: "H", B: "L", InputFormat: ptr("portion")})
+		_, err := cx.SchemeView("acme").Diff(ctx, ezclassify.CtxSchemeDiffRequest{A: "H", B: "L", InputFormat: ptr("portion")})
 		return err
 	}},
 	{"scheme.filter-concepts", "scheme/filter-concepts", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.FilterConcepts(ctx, ezclassify.CtxSchemeFilterConceptsRequest{Query: "hi"})
+		_, err := cx.SchemeView("acme").FilterConcepts(ctx, ezclassify.CtxSchemeFilterConceptsRequest{Query: "hi"})
 		return err
 	}},
 	{"scheme.notices", "scheme/notices", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.Notices(ctx, ezclassify.CtxSchemeNoticesRequest{Assertions: []ezclassify.Assertion{caseLevel}})
+		_, err := cx.SchemeView("acme").Notices(ctx, ezclassify.CtxSchemeNoticesRequest{Assertions: []ezclassify.Assertion{caseLevel}})
 		return err
 	}},
 	{"scheme.view", "scheme/view", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.View(ctx)
+		_, err := cx.SchemeView("acme").View(ctx)
 		return err
 	}},
 	{"scheme.apply-preset", "scheme/apply-preset", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Scheme.ApplyPreset(ctx, ezclassify.ApplyPresetRequest{PresetID: "default-label", OutputFormat: ptr("banner")})
+		_, err := cx.SchemeView("acme").ApplyPreset(ctx, ezclassify.ApplyPresetRequest{PresetID: "default-label", OutputFormat: ptr("banner")})
 		return err
 	}},
 	{"guide.scan", "guide/scan", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {

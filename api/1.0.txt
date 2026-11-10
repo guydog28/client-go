@@ -113,25 +113,25 @@ ezclassify, method (*CtxGuide) Scan(context.Context, CtxGuideScanRequest) (*Cont
 ezclassify, method (*CtxGuide) View(context.Context, *string) (*ContextGuideViewResult, error)
 ezclassify, method (*CtxScheme) Aggregate(context.Context, CtxSchemeAggregateRequest) (*ContextSchemeAggregateResult, error)
 ezclassify, method (*CtxScheme) ApplyPreset(context.Context, ApplyPresetRequest) (*ContextSchemeValidateResult, error)
-ezclassify, method (*CtxScheme) Categories(context.Context, *string) (*[]CategoryView, error)
+ezclassify, method (*CtxScheme) Categories(context.Context) (*[]CategoryView, error)
 ezclassify, method (*CtxScheme) CheckCoverage(context.Context, CtxSchemeCheckCoverageRequest) (*ContextSchemeCoverageResult, error)
-ezclassify, method (*CtxScheme) Concepts(context.Context, *string) (*[]ConceptView, error)
+ezclassify, method (*CtxScheme) Concepts(context.Context) (*[]ConceptView, error)
 ezclassify, method (*CtxScheme) DescribeConcept(context.Context, string, string, *string) (*ContextSchemeConceptDescriptionResult, error)
 ezclassify, method (*CtxScheme) Diff(context.Context, CtxSchemeDiffRequest) (*ContextSchemeDiffResult, error)
 ezclassify, method (*CtxScheme) Explain(context.Context, CtxSchemeExplainRequest) (*ContextSchemeExplainResult, error)
 ezclassify, method (*CtxScheme) FilterConcepts(context.Context, CtxSchemeFilterConceptsRequest) (*ContextSchemeFilterConceptsResult, error)
-ezclassify, method (*CtxScheme) Formats(context.Context, *string) (*[]FormatView, error)
-ezclassify, method (*CtxScheme) Grammar(context.Context, *string) (*SchemeGrammar, error)
+ezclassify, method (*CtxScheme) Formats(context.Context) (*[]FormatView, error)
+ezclassify, method (*CtxScheme) Grammar(context.Context) (*SchemeGrammar, error)
 ezclassify, method (*CtxScheme) LabelPresets(context.Context) (*[]LabelPresetView, error)
 ezclassify, method (*CtxScheme) Normalize(context.Context, CtxSchemeNormalizeRequest) (*ContextSchemeNormalizeResult, error)
 ezclassify, method (*CtxScheme) Notices(context.Context, CtxSchemeNoticesRequest) (*ContextSchemeNoticesResult, error)
 ezclassify, method (*CtxScheme) Process(context.Context, CtxSchemeProcessRequest) (*ContextSchemeProcessResult, error)
 ezclassify, method (*CtxScheme) Render(context.Context, CtxSchemeRenderRequest) (*ContextSchemeRenderResult, error)
 ezclassify, method (*CtxScheme) Scan(context.Context, CtxSchemeScanRequest) (*ContextSchemeScanResult, error)
-ezclassify, method (*CtxScheme) Scopes(context.Context, *string) (*[]SchemeScope, error)
+ezclassify, method (*CtxScheme) Scopes(context.Context) (*[]SchemeScope, error)
 ezclassify, method (*CtxScheme) Suggest(context.Context, CtxSchemeSuggestRequest) (*ContextSchemeSuggestResult, error)
 ezclassify, method (*CtxScheme) SuggestForCategories(context.Context, CtxSchemeSuggestForCategoriesRequest) (*ContextSchemeSuggestForCategoriesResult, error)
-ezclassify, method (*CtxScheme) Summary(context.Context, *string) (*SchemeSummary, error)
+ezclassify, method (*CtxScheme) Summary(context.Context) (*SchemeSummary, error)
 ezclassify, method (*CtxScheme) Validate(context.Context, CtxSchemeValidateRequest) (*ContextSchemeValidateResult, error)
 ezclassify, method (*CtxScheme) View(context.Context) (*ContextSchemeViewResult, error)
 ezclassify, method (*EzClassifyContext) ClearCache()
@@ -139,6 +139,7 @@ ezclassify, method (*EzClassifyContext) Describe(context.Context) (*ContextDescr
 ezclassify, method (*EzClassifyContext) ID() string
 ezclassify, method (*EzClassifyContext) Resolve(context.Context) error
 ezclassify, method (*EzClassifyContext) ResolvedVersion() string
+ezclassify, method (*EzClassifyContext) SchemeView(string) *CtxScheme
 ezclassify, method (*EzClassifyContext) Version() string
 ezclassify, method (*InvalidInputError) Error() string
 ezclassify, method (*MalformedResponseError) Error() string

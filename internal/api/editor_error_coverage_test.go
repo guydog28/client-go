@@ -28,7 +28,7 @@ func TestRequestEditorErrors(t *testing.T) {
 		t.Fatal("CtxList accepted failing editor")
 	}
 	if _, err := c.CtxSchemeProcessWithResponse(
-		context.Background(), "ctx", "latest", CtxSchemeProcessJSONRequestBody{}, editor,
+		context.Background(), "ctx", "latest", nil, CtxSchemeProcessJSONRequestBody{}, editor,
 	); err == nil {
 		t.Fatal("CtxSchemeProcess accepted failing editor")
 	}

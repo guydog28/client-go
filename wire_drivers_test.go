@@ -234,11 +234,15 @@ func runWireDriver(ctx context.Context, c *ez.Client, r wireCase) (interface{}, 
 
 // driveWire sends the case's recorded request through the public method of the
 // Context handle that the case's operation names. u is the parsed recorded
-// path, whose query carries the arguments of the GET operations. Passing the
+// path, whose query carries the arguments of the GET operations and the
+// scheme selector of every scheme operation. Passing the
 // handle in lets the cache plans reuse one handle, and so one cache, across
 // calls.
 func driveWire(ctx context.Context, h *ez.EzClassifyContext, r wireCase, u *url.URL) (interface{}, error) {
-	scheme := wireOptionalQuery(u, "scheme")
+	scheme := h.Scheme
+	if selector := wireOptionalQuery(u, "scheme"); selector != nil {
+		scheme = h.SchemeView(*selector)
+	}
 	switch r.Operation {
 	case "ctxDescribe":
 		description, e := h.Describe(ctx)
@@ -250,57 +254,57 @@ func driveWire(ctx context.Context, h *ez.EzClassifyContext, r wireCase, u *url.
 		}
 		return description, nil
 	case "ctxSchemeSummary":
-		return h.Scheme.Summary(ctx, scheme)
+		return scheme.Summary(ctx)
 	case "ctxSchemeConcepts":
-		return h.Scheme.Concepts(ctx, scheme)
+		return scheme.Concepts(ctx)
 	case "ctxSchemeCategories":
-		return h.Scheme.Categories(ctx, scheme)
+		return scheme.Categories(ctx)
 	case "ctxSchemeFormats":
-		return h.Scheme.Formats(ctx, scheme)
+		return scheme.Formats(ctx)
 	case "ctxSchemeGrammar":
-		return h.Scheme.Grammar(ctx, scheme)
+		return scheme.Grammar(ctx)
 	case "ctxSchemeScopes":
-		return h.Scheme.Scopes(ctx, scheme)
+		return scheme.Scopes(ctx)
 	case "ctxSchemeLabelPresets":
-		return h.Scheme.LabelPresets(ctx)
+		return scheme.LabelPresets(ctx)
 	case "ctxSchemeDescribeConcept":
-		return h.Scheme.DescribeConcept(ctx, u.Query().Get("conceptId"), u.Query().Get("categoryId"), wireOptionalQuery(u, "view"))
+		return scheme.DescribeConcept(ctx, u.Query().Get("conceptId"), u.Query().Get("categoryId"), wireOptionalQuery(u, "view"))
 	case "ctxAccessRules":
 		return h.Access.Rules(ctx)
 	case "ctxCrosswalkDescribe":
 		return h.Crosswalk.Describe(ctx)
 	case "ctxSchemeView":
-		return h.Scheme.View(ctx)
+		return scheme.View(ctx)
 	case "ctxSchemeProcess":
-		return wireCall[ez.CtxSchemeProcessRequest](r.Request.Body, func(v ez.CtxSchemeProcessRequest) (interface{}, error) { return h.Scheme.Process(ctx, v) })
+		return wireCall[ez.CtxSchemeProcessRequest](r.Request.Body, func(v ez.CtxSchemeProcessRequest) (interface{}, error) { return scheme.Process(ctx, v) })
 	case "ctxSchemeValidate":
-		return wireCall[ez.CtxSchemeValidateRequest](r.Request.Body, func(v ez.CtxSchemeValidateRequest) (interface{}, error) { return h.Scheme.Validate(ctx, v) })
+		return wireCall[ez.CtxSchemeValidateRequest](r.Request.Body, func(v ez.CtxSchemeValidateRequest) (interface{}, error) { return scheme.Validate(ctx, v) })
 	case "ctxSchemeApplyPreset":
-		return wireCall[ez.ApplyPresetRequest](r.Request.Body, func(v ez.ApplyPresetRequest) (interface{}, error) { return h.Scheme.ApplyPreset(ctx, v) })
+		return wireCall[ez.ApplyPresetRequest](r.Request.Body, func(v ez.ApplyPresetRequest) (interface{}, error) { return scheme.ApplyPreset(ctx, v) })
 	case "ctxSchemeExplain":
-		return wireCall[ez.CtxSchemeExplainRequest](r.Request.Body, func(v ez.CtxSchemeExplainRequest) (interface{}, error) { return h.Scheme.Explain(ctx, v) })
+		return wireCall[ez.CtxSchemeExplainRequest](r.Request.Body, func(v ez.CtxSchemeExplainRequest) (interface{}, error) { return scheme.Explain(ctx, v) })
 	case "ctxSchemeNormalize":
-		return wireCall[ez.CtxSchemeNormalizeRequest](r.Request.Body, func(v ez.CtxSchemeNormalizeRequest) (interface{}, error) { return h.Scheme.Normalize(ctx, v) })
+		return wireCall[ez.CtxSchemeNormalizeRequest](r.Request.Body, func(v ez.CtxSchemeNormalizeRequest) (interface{}, error) { return scheme.Normalize(ctx, v) })
 	case "ctxSchemeRender":
-		return wireCall[ez.CtxSchemeRenderRequest](r.Request.Body, func(v ez.CtxSchemeRenderRequest) (interface{}, error) { return h.Scheme.Render(ctx, v) })
+		return wireCall[ez.CtxSchemeRenderRequest](r.Request.Body, func(v ez.CtxSchemeRenderRequest) (interface{}, error) { return scheme.Render(ctx, v) })
 	case "ctxSchemeDiff":
-		return wireCall[ez.CtxSchemeDiffRequest](r.Request.Body, func(v ez.CtxSchemeDiffRequest) (interface{}, error) { return h.Scheme.Diff(ctx, v) })
+		return wireCall[ez.CtxSchemeDiffRequest](r.Request.Body, func(v ez.CtxSchemeDiffRequest) (interface{}, error) { return scheme.Diff(ctx, v) })
 	case "ctxSchemeNotices":
-		return wireCall[ez.CtxSchemeNoticesRequest](r.Request.Body, func(v ez.CtxSchemeNoticesRequest) (interface{}, error) { return h.Scheme.Notices(ctx, v) })
+		return wireCall[ez.CtxSchemeNoticesRequest](r.Request.Body, func(v ez.CtxSchemeNoticesRequest) (interface{}, error) { return scheme.Notices(ctx, v) })
 	case "ctxSchemeFilterConcepts":
-		return wireCall[ez.CtxSchemeFilterConceptsRequest](r.Request.Body, func(v ez.CtxSchemeFilterConceptsRequest) (interface{}, error) { return h.Scheme.FilterConcepts(ctx, v) })
+		return wireCall[ez.CtxSchemeFilterConceptsRequest](r.Request.Body, func(v ez.CtxSchemeFilterConceptsRequest) (interface{}, error) { return scheme.FilterConcepts(ctx, v) })
 	case "ctxSchemeScan":
-		return wireCall[ez.CtxSchemeScanRequest](r.Request.Body, func(v ez.CtxSchemeScanRequest) (interface{}, error) { return h.Scheme.Scan(ctx, v) })
+		return wireCall[ez.CtxSchemeScanRequest](r.Request.Body, func(v ez.CtxSchemeScanRequest) (interface{}, error) { return scheme.Scan(ctx, v) })
 	case "ctxSchemeAggregate":
-		return wireCall[ez.CtxSchemeAggregateRequest](r.Request.Body, func(v ez.CtxSchemeAggregateRequest) (interface{}, error) { return h.Scheme.Aggregate(ctx, v) })
+		return wireCall[ez.CtxSchemeAggregateRequest](r.Request.Body, func(v ez.CtxSchemeAggregateRequest) (interface{}, error) { return scheme.Aggregate(ctx, v) })
 	case "ctxSchemeSuggest":
-		return wireCall[ez.CtxSchemeSuggestRequest](r.Request.Body, func(v ez.CtxSchemeSuggestRequest) (interface{}, error) { return h.Scheme.Suggest(ctx, v) })
+		return wireCall[ez.CtxSchemeSuggestRequest](r.Request.Body, func(v ez.CtxSchemeSuggestRequest) (interface{}, error) { return scheme.Suggest(ctx, v) })
 	case "ctxSchemeSuggestForCategories":
 		return wireCall[ez.CtxSchemeSuggestForCategoriesRequest](r.Request.Body, func(v ez.CtxSchemeSuggestForCategoriesRequest) (interface{}, error) {
-			return h.Scheme.SuggestForCategories(ctx, v)
+			return scheme.SuggestForCategories(ctx, v)
 		})
 	case "ctxSchemeCheckCoverage":
-		return wireCall[ez.CtxSchemeCheckCoverageRequest](r.Request.Body, func(v ez.CtxSchemeCheckCoverageRequest) (interface{}, error) { return h.Scheme.CheckCoverage(ctx, v) })
+		return wireCall[ez.CtxSchemeCheckCoverageRequest](r.Request.Body, func(v ez.CtxSchemeCheckCoverageRequest) (interface{}, error) { return scheme.CheckCoverage(ctx, v) })
 	case "ctxAccessCheck":
 		return wireCall[ez.CtxAccessCheckRequest](r.Request.Body, func(v ez.CtxAccessCheckRequest) (interface{}, error) { return h.Access.Check(ctx, v) })
 	case "ctxAccessDescribeRule":
