@@ -685,6 +685,32 @@ func TestContextLabelPresetsWithResponse(t *testing.T) {
 	}
 }
 
+// TestSchemeSummaryCarriesTheDocumentsOwnMarking pins the scheme document's own
+// whole marking on the summary: present as the document writes it, and nil
+// when the document declares none.
+func TestSchemeSummaryCarriesTheDocumentsOwnMarking(t *testing.T) {
+	const plain = `"id":"levels","version":"1.0.0","name":"Levels","description":"d","referenceSurfaceLabel":{"singular":"Handbook","plural":"Handbooks"}`
+	for _, tc := range []struct {
+		name string
+		body string
+		want *string
+	}{
+		{"marked", `{` + plain + `,"marking":"HIGH"}`, ptr("HIGH")},
+		{"unmarked", `{` + plain + `}`, nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			srv, _ := ctxServer(t, "1.0.0", map[string]string{"/scheme": tc.body})
+			summary, err := ezclassify.Connect(srv.URL, "c", "1.0.0").Scheme.Summary(context.Background(), nil)
+			if err != nil {
+				t.Fatalf("Summary: %v", err)
+			}
+			if (summary.Marking == nil) != (tc.want == nil) || (tc.want != nil && *summary.Marking != *tc.want) {
+				t.Fatalf("Summary marking = %v, want %v", summary.Marking, tc.want)
+			}
+		})
+	}
+}
+
 // TestContextSchemeScopesWithResponse covers the Context-bound scopes wire
 // surface. The response is an ordered array of scope
 // entries, not a map, because a selector offers scopes in declaration order

@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@5d390282d1e39c62d2e0d1a1b588e37e30e1261206e8f0e5a829b5ebb0e019f5 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@65cd29d9216ffb5f587d8bae8c7861666430ef1a5145d74b9c320927ee4f44b1 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -4684,6 +4684,9 @@ type SchemeSummary struct {
 
 	// ID Scheme identifier from the scheme metadata.
 	ID string `json:"id"`
+
+	// Marking The scheme document's own overall marking, exactly as its `scheme.marking` writes it. Display only: never interpreted. Omitted when the document declares none.
+	Marking *string `json:"marking,omitempty"`
 
 	// Name Display name from the scheme metadata.
 	Name string `json:"name"`
