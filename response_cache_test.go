@@ -155,7 +155,7 @@ func TestContextAccessDecisionAuditDefault(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[],"sources":[]},"operationLimitations":[],"result":{"granted":false,"rules":[]}}`)
+		_, _ = io.WriteString(w, `{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[],"sources":[]},"operationLimitations":[],"result":{"granted":false,"rules":[],"warnings":[]}}`)
 	}))
 	t.Cleanup(srv.Close)
 	req := ezclassify.CtxAccessCheckRequest{}

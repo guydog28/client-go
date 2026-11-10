@@ -4,13 +4,19 @@
 // same way.
 package subsetmatch
 
-import "reflect"
+import (
+	"reflect"
+	"strconv"
+)
 
 // Match reports whether every key in expected is equal in actual.  Objects
 // are compared key-by-key (actual may carry extra keys); arrays are matched
 // element-by-element and actual may have more elements.  An expected key
 // with a null value also matches a key absent from actual, because a missing
-// key reads as nil; null does not pin key existence.  This mirrors the Node
+// key reads as nil; null does not pin key existence.  An expected object
+// read against an actual array addresses it as a JavaScript lookup does: a
+// canonical decimal key names an element and "length" is the element count,
+// so a plan can pin an array's exact length.  This mirrors the Node
 // reference matcher, so all SDKs assert the same way.  Both values are
 // expected to be the output of json.Unmarshal into interface{} (nil, bool,
 // float64, string, []interface{}, map[string]interface{}).
@@ -45,6 +51,14 @@ func Match(actual, expected interface{}) bool {
 		}
 		return true
 	case map[string]interface{}:
+		if a, ok := actual.([]interface{}); ok {
+			for k, ev := range e {
+				if !Match(arrayMember(a, k), ev) {
+					return false
+				}
+			}
+			return true
+		}
 		a, ok := actual.(map[string]interface{})
 		if !ok {
 			return false
@@ -59,4 +73,18 @@ func Match(actual, expected interface{}) bool {
 	// Unreachable for json.Unmarshal output; kept for hand-built expected
 	// values (e.g. untyped ints in Go test literals) so those still compare.
 	return reflect.DeepEqual(actual, expected)
+}
+
+// arrayMember reads key from a as a JavaScript property lookup on an array
+// would: "length" is the element count, a canonical decimal index within
+// bounds is that element, and any other key is absent (nil).
+func arrayMember(a []interface{}, key string) interface{} {
+	if key == "length" {
+		return float64(len(a))
+	}
+	i, err := strconv.Atoi(key)
+	if err != nil || i < 0 || i >= len(a) || strconv.Itoa(i) != key {
+		return nil
+	}
+	return a[i]
 }

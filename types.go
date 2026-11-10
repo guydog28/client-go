@@ -56,6 +56,7 @@ type (
 	ScanResponseBody            = api.ScanResponseBody
 	ScanLimits                  = api.ScanLimits
 	ScanStatus                  = api.ScanStatus
+	UnreadMark                  = api.UnreadMark
 	NormalizeResponse           = api.NormalizeResponse
 
 	GuideScanResult     = api.GuideScanResult
@@ -253,11 +254,13 @@ const (
 	ArtifactKindLayer   = api.ArtifactKindLayer
 	ArtifactKindScheme  = api.ArtifactKindScheme
 
-	GuideCompilationStatusDeterminedInsufficient = api.GuideCompilationStatusDeterminedInsufficient
-	GuideCompilationStatusDeterminedSufficient   = api.GuideCompilationStatusDeterminedSufficient
-	GuideCompilationStatusNoFindings             = api.GuideCompilationStatusNoFindings
-	GuideCompilationStatusNotEvaluated           = api.GuideCompilationStatusNotEvaluated
-	GuideCompilationStatusPendingDetermination   = api.GuideCompilationStatusPendingDetermination
+	// The generator drops the type-name prefix on these members because no
+	// other enum claims their names; the exported names keep it.
+	GuideCompilationStatusDeterminedInsufficient = api.DeterminedInsufficient
+	GuideCompilationStatusDeterminedSufficient   = api.DeterminedSufficient
+	GuideCompilationStatusNoFindings             = api.NoFindings
+	GuideCompilationStatusNotEvaluated           = api.NotEvaluated
+	GuideCompilationStatusPendingDetermination   = api.PendingDetermination
 
 	GuideFactKindAcceptedFinding  = api.AcceptedFinding
 	GuideFactKindManualSelection  = api.ManualSelection
