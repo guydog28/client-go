@@ -444,7 +444,7 @@ func cachedDoAccepting[T any](cx *EzClassifyContext, ctx context.Context, op str
 	switch op {
 	case "scheme.scan":
 		ttl = 2 * time.Minute
-	case "scheme.describeConcept", "access.rules":
+	case "scheme.describeConcept", "access.rules", "crosswalk.describe":
 		ttl = time.Hour
 	}
 	key := op + "|ctx:" + cx.id + "@" + cx.version + "|" + string(serialized)
@@ -836,7 +836,11 @@ func (g *CtxGuide) Scan(ctx context.Context, req CtxGuideScanRequest) (*ContextG
 	})
 }
 
-// Evaluate evaluates a guide with the given rule selection.
+// Evaluate evaluates selected guide rules in one of two forms: GuideID with
+// SelectedRuleIds evaluates that one guide, and Selections rolls up rules
+// selected from several guides. Each selection names the guide that holds its
+// rule, so two guides that use the same rule id hold two rules. The server
+// refuses a request that is not exactly one of the two forms.
 func (g *CtxGuide) Evaluate(ctx context.Context, req CtxGuideEvaluateRequest) (*ContextGuideEvaluationResult, error) {
 	return do(g.cx, ctx, "guide.evaluate", func(wireCtx context.Context) (callResult[ContextGuideEvaluationResult], error) {
 		r, err := g.cx.client.CtxGuideEvaluateWithResponse(wireCtx, g.cx.id, g.cx.version, req)
@@ -937,6 +941,21 @@ func (a *CtxAccess) Rules(ctx context.Context) (*AccessRulesResponse, error) {
 
 // CtxCrosswalk groups crosswalk operations bound to an [EzClassifyContext].
 type CtxCrosswalk struct{ cx *EzClassifyContext }
+
+// Describe lists every crosswalk the Context holds, in declaration order: its
+// source and target as the scheme selectors the Context description lists,
+// and the mappings and selections a translation applies. The list is empty
+// when the Context declares none. The answer goes through the response cache
+// like [CtxAccess.Rules].
+func (c *CtxCrosswalk) Describe(ctx context.Context) (*CrosswalkInventory, error) {
+	return cachedDo(c.cx, ctx, "crosswalk.describe", nil, func(wireCtx context.Context) (callResult[CrosswalkInventory], error) {
+		r, err := c.cx.client.CtxCrosswalkDescribeWithResponse(wireCtx, c.cx.id, c.cx.version)
+		if err != nil {
+			return callResult[CrosswalkInventory]{}, err
+		}
+		return callResult[CrosswalkInventory]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
+	})
+}
 
 // Translate applies the named directional crosswalk to a source marking and
 // reports the treatment of every source assertion: what carried, what needs

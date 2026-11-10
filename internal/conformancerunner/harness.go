@@ -171,11 +171,15 @@ func buildPlanBody(method string, args []interface{}, fixture interface{}, guide
 			"assertions":     rawArg(0),
 			"userAttributes": rawArg(1),
 		}, nil
-	case "evaluateGuide", "evaluateMany":
-		// evaluateMany over the plan's single-guide fixtures is equivalent to a
-		// single-guide evaluate, so both fold onto the ctx guide/evaluate route
-		// (the same fold the client runner uses). The guide is bound to the
-		// context; the body carries only the guide id and the selected rules.
+	case "evaluateMany":
+		// The plan's selections already name each rule's guide, so they go out
+		// as they are.
+		return ctxBase + "/guide/evaluate", map[string]interface{}{
+			"selections": rawArg(0),
+		}, nil
+	case "evaluateGuide":
+		// The guide is bound to the context; the body carries only the guide
+		// id and the selected rules.
 		gf := guideFixture
 		if gf == "" {
 			if s, ok := fixture.(string); ok {

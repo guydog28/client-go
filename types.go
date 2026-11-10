@@ -122,8 +122,11 @@ type (
 	SchemeGrammar       = api.SchemeGrammar
 	SchemeScope         = api.SchemeScope
 	AccessRulesResponse = api.CtxAccessRulesResponseBody
-	ApplyPresetRequest  = api.ApplyPresetRequest
-	ProcessingContext   = api.ProcessingContext
+	// CrosswalkInventory is the answer of [CtxCrosswalk.Describe]: every
+	// crosswalk the Context holds, in declaration order.
+	CrosswalkInventory = api.CtxCrosswalkDescribeResponseBody
+	ApplyPresetRequest = api.ApplyPresetRequest
+	ProcessingContext  = api.ProcessingContext
 
 	Warning = api.Warning
 
@@ -131,6 +134,7 @@ type (
 	ContextAccessRequirementsResult         = api.ContextAccessRequirementsResult
 	ContextAccessRuleDescriptionResult      = api.ContextAccessRuleDescriptionResult
 	ContextCrosswalkTranslationResult       = api.ContextCrosswalkTranslationResult
+	ContextCrosswalkDescriptor              = api.ContextCrosswalkDescriptor
 	ContextDocumentAuditResult              = api.ContextDocumentAuditResult
 	ContextGuideEvaluationResult            = api.ContextGuideEvaluationResult
 	ContextGuideFilterRulesResult           = api.ContextGuideFilterRulesResult
@@ -305,6 +309,7 @@ type (
 	CtxDocumentAuditRequest              = api.CtxDocumentAuditJSONRequestBody
 	CtxGuideScanRequest                  = api.CtxGuideScanJSONRequestBody
 	CtxGuideEvaluateRequest              = api.CtxGuideEvaluateJSONRequestBody
+	GuideRuleSelection                   = api.GuideRuleSelection
 	CtxGuideFilterRulesRequest           = api.CtxGuideFilterRulesJSONRequestBody
 	CtxGuideDescribeRuleRequest          = api.CtxGuideDescribeRuleJSONRequestBody
 	CtxGuideViewRequest                  = api.CtxGuideViewJSONRequestBody

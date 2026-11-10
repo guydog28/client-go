@@ -662,11 +662,11 @@ var requestCases = []requestCase{
 		return err
 	}},
 	{"guide.evaluate", "guide/evaluate", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{GuideID: ptr("g1"), SelectedRuleIds: []string{"r1"}})
+		_, err := cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{GuideID: ptr("g1"), SelectedRuleIds: &[]string{"r1"}})
 		return err
 	}},
 	{"guide.evaluateMany", "guide/evaluate", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{AllGuides: ptr(true), SelectedRuleIds: []string{"r1"}})
+		_, err := cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{Selections: &[]ezclassify.GuideRuleSelection{{GuideID: "g1", RuleID: "r1"}}})
 		return err
 	}},
 	{"guide.filter-rules", "guide/filter-rules", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {

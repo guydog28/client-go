@@ -352,19 +352,19 @@ func TestGuideOps(t *testing.T) {
 	assertNoSchemeID(t, last())
 
 	guideID := "g1"
-	ev, err := cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{GuideID: &guideID, SelectedRuleIds: []string{"r1"}})
+	ev, err := cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{GuideID: &guideID, SelectedRuleIds: &[]string{"r1"}})
 	if err != nil || ev.Result.AggregatedMarking != "H" {
 		t.Fatalf("Guide.Evaluate: %+v err=%v", ev, err)
 	}
 	assertPath(t, last(), "/v1/ctx/c/1.0.0/guide/evaluate")
 	assertNoSchemeID(t, last())
-	allGuides := true
-	ev, err = cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{AllGuides: &allGuides, SelectedRuleIds: []string{"r2"}})
+	selections := []ezclassify.GuideRuleSelection{{GuideID: "g1", RuleID: "r2"}, {GuideID: "g2", RuleID: "r2"}}
+	ev, err = cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{Selections: &selections})
 	if err != nil || ev.Result.AggregatedMarking != "H" {
-		t.Fatalf("Guide.Evaluate all guides: %+v err=%v", ev, err)
+		t.Fatalf("Guide.Evaluate selections: %+v err=%v", ev, err)
 	}
-	if got := last().body; !strings.Contains(got, `"allGuides":true`) || !strings.Contains(got, `"selectedRuleIds":["r2"]`) || strings.Contains(got, `"guideId"`) {
-		t.Fatalf("aggregate guide request body = %s", got)
+	if got := last().body; got != `{"selections":[{"guideId":"g1","ruleId":"r2"},{"guideId":"g2","ruleId":"r2"}]}` {
+		t.Fatalf("guide selections request body = %s", got)
 	}
 
 	fr, err := cx.Guide.FilterRules(ctx, ezclassify.CtxGuideFilterRulesRequest{Query: "sec"})

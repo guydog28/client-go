@@ -103,6 +103,7 @@ ezclassify, method (*CtxAccess) Check(context.Context, CtxAccessCheckRequest) (*
 ezclassify, method (*CtxAccess) DescribeRequirements(context.Context, CtxAccessDescribeRequirementsRequest) (*ContextAccessRequirementsResult, error)
 ezclassify, method (*CtxAccess) DescribeRule(context.Context, CtxAccessDescribeRuleRequest) (*ContextAccessRuleDescriptionResult, error)
 ezclassify, method (*CtxAccess) Rules(context.Context) (*AccessRulesResponse, error)
+ezclassify, method (*CtxCrosswalk) Describe(context.Context) (*CrosswalkInventory, error)
 ezclassify, method (*CtxCrosswalk) Translate(context.Context, CtxCrosswalkTranslateRequest) (*ContextCrosswalkTranslationResult, error)
 ezclassify, method (*CtxDocument) Audit(context.Context, CtxDocumentAuditRequest) (*ContextDocumentAuditResult, error)
 ezclassify, method (*CtxGuide) DescribeRule(context.Context, CtxGuideDescribeRuleRequest) (*ContextGuideRuleDescriptionResult, error)
@@ -178,6 +179,7 @@ ezclassify, type ContentEvidenceSpan = api.ContentEvidenceSpan
 ezclassify, type ContextAccessDecisionResult = api.ContextAccessDecisionResult
 ezclassify, type ContextAccessRequirementsResult = api.ContextAccessRequirementsResult
 ezclassify, type ContextAccessRuleDescriptionResult = api.ContextAccessRuleDescriptionResult
+ezclassify, type ContextCrosswalkDescriptor = api.ContextCrosswalkDescriptor
 ezclassify, type ContextCrosswalkTranslationResult = api.ContextCrosswalkTranslationResult
 ezclassify, type ContextDescription = api.CtxDescribeResponseBody
 ezclassify, type ContextDocumentAuditResult = api.ContextDocumentAuditResult
@@ -208,6 +210,7 @@ ezclassify, type ContextSchemeValidateResult = api.ContextSchemeValidateResult
 ezclassify, type ContextSchemeViewResult = api.ContextSchemeViewResult
 ezclassify, type ContextVersionsResponse = api.CtxVersionsResponseBody
 ezclassify, type CoverageReport = api.CheckCoverageResult
+ezclassify, type CrosswalkInventory = api.CtxCrosswalkDescribeResponseBody
 ezclassify, type CtxAccess struct
 ezclassify, type CtxAccessCheckRequest = api.CtxAccessCheckJSONRequestBody
 ezclassify, type CtxAccessDescribeRequirementsRequest = api.CtxAccessDescribeRequirementsJSONRequestBody
@@ -272,6 +275,7 @@ ezclassify, type GuideFactReference = api.GuideFactReference
 ezclassify, type GuideFindingDecision = api.GuideFindingDecision
 ezclassify, type GuideFindingDetermination = api.GuideFindingDetermination
 ezclassify, type GuideNomination = api.GuideNomination
+ezclassify, type GuideRuleSelection = api.GuideRuleSelection
 ezclassify, type GuideScanResult = api.GuideScanResult
 ezclassify, type GuideScopeCoverage = api.GuideScopeCoverage
 ezclassify, type GuideUnitEvaluation = api.GuideUnitEvaluation

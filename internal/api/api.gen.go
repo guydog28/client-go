@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@65cd29d9216ffb5f587d8bae8c7861666430ef1a5145d74b9c320927ee4f44b1 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@57bd298b71064b4752d7661b92399cad7797705a4ff840283306c4ce10c39de8 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -219,6 +219,24 @@ func (e CrosswalkDisposition) Valid() bool {
 	case Omit:
 		return true
 	case Review:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CrosswalkSelectionStrategy.
+const (
+	FirstMatch  CrosswalkSelectionStrategy = "first-match"
+	MostMatches CrosswalkSelectionStrategy = "most-matches"
+)
+
+// Valid indicates whether the value is a known member of the CrosswalkSelectionStrategy enum.
+func (e CrosswalkSelectionStrategy) Valid() bool {
+	switch e {
+	case FirstMatch:
+		return true
+	case MostMatches:
 		return true
 	default:
 		return false
@@ -1131,9 +1149,9 @@ type AccessRuleResult struct {
 	Skipped bool `json:"skipped"`
 }
 
-// AggregateResult Output of SchemeEngine.aggregate(): the combined marking produced from multiple portion inputs. By design aggregate always produces the proper aggregate: fixes are applied, never proposed. Every field it shares with `ValidateResult` means what it means there, `valid` included. It differs in that:
+// AggregateResult Output of SchemeEngine.aggregate(): the combined marking produced from several input markings, always a whole. By design aggregate always produces the proper rollup: fixes are applied, never proposed. Every field it shares with `ValidateResult` means what it means there, `valid` included. It differs in that:
 //
-// - There is no `inputWasValid` (input is N portions, not a single string)
+// - There is no `inputWasValid` (input is N markings, not a single string)
 // - `proposedFixes` is always empty (aggregate applies what it can)
 type AggregateResult struct {
 	// AppliedFixes The changes the rollup made to reach the combined marking.
@@ -1813,6 +1831,92 @@ type ContextAccessRuleDescriptionResult struct {
 	Result AccessRuleDescription `json:"result"`
 }
 
+// ContextCrosswalkCandidate One candidate of a cross-field decision a Context's crosswalk applies.
+//
+// A candidate document may leave its disposition out to mean `carry`. The description always states it, so a reader never applies that default itself.
+type ContextCrosswalkCandidate struct {
+	// Authority Authority behind the candidate decision, when one exists.
+	Authority *string `json:"authority,omitempty"`
+
+	// Citation Citation supporting the candidate decision.
+	Citation *string `json:"citation,omitempty"`
+
+	// Disposition Decision a reviewed crosswalk makes for one source assertion.
+	Disposition CrosswalkDisposition `json:"disposition"`
+
+	// Guidance Operator guidance for the candidate decision.
+	Guidance *string `json:"guidance,omitempty"`
+
+	// ID Stable candidate identifier within its selection.
+	ID string `json:"id"`
+
+	// Mappings Per-assertion mappings activated when this candidate is selected.
+	Mappings *[]CrosswalkMapping `json:"mappings,omitempty"`
+
+	// Reason Human-readable basis for selecting and applying this candidate.
+	Reason string `json:"reason"`
+
+	// Score Assertions counted by a `most-matches` selection.
+	Score *[]AssertionReference `json:"score,omitempty"`
+
+	// Sources Source assertions covered when this candidate is selected.
+	Sources *[]AssertionReference `json:"sources,omitempty"`
+
+	// Targets Targets emitted once when this candidate is selected.
+	Targets *[]CrosswalkTarget `json:"targets,omitempty"`
+
+	// When Boolean test over source assertions used to choose a crosswalk candidate.
+	When *CrosswalkSelectionCondition `json:"when,omitempty"`
+}
+
+// ContextCrosswalkDescriptor One crosswalk a Context holds, with the reviewed decisions it applies.
+//
+// Read it as a sentence: this Context translates markings from the scheme `source` selects to the scheme `target` selects with crosswalk `id` at `version`, and these are its mappings and selections.
+//
+// `source` and `target` are scheme selectors, the `selector` values `describeSchemes` reports, not scheme ids. A view bound to one of the Context's schemes finds the crosswalk that reads from it by comparing selectors. The mappings and selections are the effective set after any crosswalk layer the Context stacks, which is the set a translation applies.
+type ContextCrosswalkDescriptor struct {
+	// Citation Primary citation for the crosswalk, when it declares one.
+	Citation *string `json:"citation,omitempty"`
+
+	// Guidance General usage and review guidance, when the crosswalk declares it.
+	Guidance *string `json:"guidance,omitempty"`
+
+	// ID Crosswalk id, from the crosswalk document; what `translate` takes.
+	ID string `json:"id"`
+
+	// Mappings How each source assertion translates, in declared order.
+	Mappings []CrosswalkMapping `json:"mappings"`
+
+	// Name Human-readable crosswalk name.
+	Name string `json:"name"`
+
+	// Selections Cross-field decisions, in declared order. Empty when there are none.
+	Selections []ContextCrosswalkSelection `json:"selections"`
+
+	// Source Selector of the scheme this crosswalk translates from.
+	Source string `json:"source"`
+
+	// Target Selector of the scheme this crosswalk translates to.
+	Target string `json:"target"`
+
+	// Version Concrete crosswalk version that answers in this Context.
+	Version string `json:"version"`
+}
+
+// ContextCrosswalkSelection One cross-field decision a Context's crosswalk applies.
+//
+// The document form of a selection, with every candidate's treatment written out.
+type ContextCrosswalkSelection struct {
+	// Candidates Candidates in declared order; order breaks ties, a fallback is last.
+	Candidates []ContextCrosswalkCandidate `json:"candidates"`
+
+	// ID Selection id, as reviewed.
+	ID string `json:"id"`
+
+	// Strategy Strategy for choosing one candidate from a reviewed cross-field decision.
+	Strategy CrosswalkSelectionStrategy `json:"strategy"`
+}
+
 // ContextCrosswalkTranslationResult Context envelope returned by a directional crosswalk translation.
 type ContextCrosswalkTranslationResult struct {
 	// OperationLimitations Limitations applying to the operation as a whole.
@@ -1949,9 +2053,9 @@ type ContextSchemeAggregateResult struct {
 	// ResponseProjection Describes the explicit projection applied after full evaluation.
 	ResponseProjection *DocumentResponseProjection `json:"responseProjection,omitempty"`
 
-	// Result Output of SchemeEngine.aggregate(): the combined marking produced from multiple portion inputs. By design aggregate always produces the proper aggregate: fixes are applied, never proposed. Every field it shares with `ValidateResult` means what it means there, `valid` included. It differs in that:
+	// Result Output of SchemeEngine.aggregate(): the combined marking produced from several input markings, always a whole. By design aggregate always produces the proper rollup: fixes are applied, never proposed. Every field it shares with `ValidateResult` means what it means there, `valid` included. It differs in that:
 	//
-	// - There is no `inputWasValid` (input is N portions, not a single string)
+	// - There is no `inputWasValid` (input is N markings, not a single string)
 	// - `proposedFixes` is always empty (aggregate applies what it can)
 	Result AggregateResult `json:"result"`
 }
@@ -2325,6 +2429,33 @@ type CrosswalkForbiddenTranslationResult struct {
 	TargetScheme ArtifactReference `json:"targetScheme"`
 }
 
+// CrosswalkMapping Reviewed treatment of one source assertion in a directional crosswalk.
+type CrosswalkMapping struct {
+	// Authority Authority or reviewed source behind the mapping, when one exists.
+	Authority *string `json:"authority,omitempty"`
+
+	// Citation Citation supporting this mapping decision.
+	Citation *string `json:"citation,omitempty"`
+
+	// Disposition Decision a reviewed crosswalk makes for one source assertion.
+	Disposition CrosswalkDisposition `json:"disposition"`
+
+	// Guidance Operator guidance for applying or reviewing this mapping.
+	Guidance *string `json:"guidance,omitempty"`
+
+	// ID Stable identifier for audit and review.
+	ID string `json:"id"`
+
+	// Reason Human-readable basis for the decision.
+	Reason string `json:"reason"`
+
+	// Source Compact reference to an assertion without engine-production metadata.
+	Source AssertionReference `json:"source"`
+
+	// Targets Target assertions. `carry` mappings emit these automatically; `review` mappings expose them only as proposals. `omit` and `forbid` mappings have no targets.
+	Targets *[]CrosswalkTarget `json:"targets,omitempty"`
+}
+
 // CrosswalkMappingForbidMatch A per-assertion mapping that prohibited a crosswalk translation.
 type CrosswalkMappingForbidMatch struct {
 	// Authority Authority copied from the mapping, when declared.
@@ -2384,6 +2515,18 @@ type CrosswalkOutcome_Disposition struct {
 	union json.RawMessage
 }
 
+// CrosswalkSelectionCondition Boolean test over source assertions used to choose a crosswalk candidate.
+type CrosswalkSelectionCondition struct {
+	// All Every referenced assertion must be present.
+	All *[]AssertionReference `json:"all,omitempty"`
+
+	// Any At least one referenced assertion must be present.
+	Any *[]AssertionReference `json:"any,omitempty"`
+
+	// None None of the referenced assertions may be present.
+	None *[]AssertionReference `json:"none,omitempty"`
+}
+
 // CrosswalkSelectionForbidMatch A selected cross-field candidate that prohibited a crosswalk translation.
 type CrosswalkSelectionForbidMatch struct {
 	// Authority Authority copied from the candidate, when declared.
@@ -2437,6 +2580,9 @@ type CrosswalkSelectionOutcome struct {
 	// Targets Targets emitted for `carry`, or proposed for `review`.
 	Targets []CrosswalkTarget `json:"targets"`
 }
+
+// CrosswalkSelectionStrategy Strategy for choosing one candidate from a reviewed cross-field decision.
+type CrosswalkSelectionStrategy string
 
 // CrosswalkTarget One target assertion a crosswalk can emit or propose.
 type CrosswalkTarget struct {
@@ -2511,6 +2657,14 @@ type CtxComponentDescriptor struct {
 	Version string `json:"version"`
 }
 
+// CtxCrosswalkDescribeResponseBody Response body for GET /v1/ctx/{ctxId}/{version?}/crosswalk/describe: every crosswalk the context holds.
+//
+// A dedicated read rather than a member of the context description, because a crosswalk's reviewed mappings run to tens of kilobytes and every client reads the description when it connects, translating or not.
+type CtxCrosswalkDescribeResponseBody struct {
+	// Crosswalks Every crosswalk in the context, in declaration order.
+	Crosswalks []ContextCrosswalkDescriptor `json:"crosswalks"`
+}
+
 // CtxCrosswalkTranslateRequestBody POST /v1/ctx/{ctxId}/{version?}/crosswalk/translate. The adapter takes the SOURCE as one field holding either a marking string or its parsed assertions; the wire splits that into the same two fields `CtxAccessCheckRequestBody` uses for its target, because a field that is a string or an array is a shape the MCP catalog builder refuses to describe as a tool input. Exactly one of `marking` and `assertions` is required: neither is a request with no source, both is two sources with no rule for which one the crosswalk reads, and either is a 400.
 type CtxCrosswalkTranslateRequestBody struct {
 	// Assertions SOURCE as structured assertions, for callers that already hold the parsed form. Provide this OR `marking`, never both.
@@ -2528,7 +2682,7 @@ type CtxDescribeResponseBody struct {
 	// Access Component reference echoed in a `CtxDescribeResponseBody`.
 	Access *CtxComponentDescriptor `json:"access,omitempty"`
 
-	// Crosswalks Crosswalk components in declaration order, or omitted when the context declares none. A crosswalk the context follows at `latest` reports here the concrete version that answered.
+	// Crosswalks Crosswalk components in declaration order, or omitted when the context declares none. A crosswalk the context follows at `latest` reports here the concrete version that answered. This is provenance; the source and target schemes and the reviewed mappings are on `crosswalk/describe`.
 	Crosswalks *[]CtxComponentDescriptor `json:"crosswalks,omitempty"`
 
 	// Description Optional human-readable description copied from the declaration.
@@ -2574,15 +2728,17 @@ type CtxGuideDescribeRuleRequestBody struct {
 }
 
 // CtxGuideEvaluateRequestBody POST /v1/ctx/{ctxId}/{version?}/guide/evaluate
+//
+// Two forms, exactly one per request: `guideId` with `selectedRuleIds` evaluates one guide, and `selections` rolls up a selection that spans guides. Any other combination is a 400. The rule is stated here rather than as a root `oneOf`, which would make every generated SDK model this request as a union of two request types.
 type CtxGuideEvaluateRequestBody struct {
-	// AllGuides Evaluate and combine every loaded guide through the context's scheme.
-	AllGuides *bool `json:"allGuides,omitempty"`
-
-	// GuideID ID of one guide within the context. Supply this or `allGuides: true`.
+	// GuideID ID of the one guide to evaluate, with `selectedRuleIds`. Refused with `selections`.
 	GuideID *string `json:"guideId,omitempty"`
 
-	// SelectedRuleIds Rule IDs the user selected (checked) in the guide wizard.
-	SelectedRuleIds []string `json:"selectedRuleIds"`
+	// SelectedRuleIds IDs of the rules selected in the guide `guideId` names. Required with `guideId`, refused with `selections`.
+	SelectedRuleIds *[]string `json:"selectedRuleIds,omitempty"`
+
+	// Selections The selected rules, each named by its guide, rolled up across guides: each guide evaluates the rules selected from it, and the outcomes are rolled up per target scheme. No guide overrides or depends on another, so every selected rule's outcome counts. Refused with `guideId` or `selectedRuleIds`.
+	Selections *[]GuideRuleSelection `json:"selections,omitempty"`
 }
 
 // CtxGuideFilterRulesRequestBody POST /v1/ctx/{ctxId}/{version?}/guide/filter-rules
@@ -2620,7 +2776,9 @@ type CtxSchemeAggregateRequestBody struct {
 	// AssertionSets Already-parsed assertion sets to aggregate, one inner array per marking. Skips the string-parse stage; the rest of the aggregate pipeline runs identically to `inputs`. Transports marking state losslessly (scope-only assertions and capture values survive). Mutually exclusive with `inputs`.
 	AssertionSets *[][]Assertion `json:"assertionSets,omitempty"`
 
-	// Context Caller-supplied context describing the role of a marking being processed. No context (or role='whole') means an overall/document-level marking. role='part' means a portion/paragraph that belongs to another marking.
+	// Context Caller-supplied context naming the role the marking being read plays. No context, or `role: 'whole'`, means a whole: a marking that stands for everything it covers. `role: 'part'` means a part that belongs to a whole, named in `partOf` when it is known.
+	//
+	// On a rollup the context names the contributors' role, never the rollup's: the rollup is always a whole. So no context rolls wholes up into an aggregate, and `{ role: 'part', partOf }` rolls a whole's parts up. See `SchemeEngineAdapter.aggregate`.
 	Context *ProcessingContext `json:"context,omitempty"`
 
 	// InputFormat The format the strings in `inputs` are written in. For a scheme that declares `render.surfaces`, the view they are read as, or one of its forms, as the scheme document's `render.surfaces` defines them. Omitted or empty, recognition works it out. Refused with `assertionSets`, which carries no text to read.
@@ -2632,7 +2790,7 @@ type CtxSchemeAggregateRequestBody struct {
 	// OutputFormat The format the combined marking is rendered in. Omitted or empty, the scheme's default format. It selects output only. For a scheme that declares `render.surfaces`, an output as the scheme document's `render.surfaces` defines it.
 	OutputFormat *string `json:"outputFormat,omitempty"`
 
-	// Surface Validation surface of the rollup, using the scheme's scope ids. Names what the combined marking is, not what any one contributor was. Omitted, the rollup is a whole marking and every required category belonging to the marking as a whole must be covered by the combined result, which is the whole-document case: a portion that omits one is not faulted for it. Given a scope id, the inputs are fragments of that one surface and only the required categories that surface owns are demanded of the rollup.
+	// Surface Validation surface of the rollup, using the scheme's scope ids. Names what the combined marking is, not what any one contributor was. Omitted, the rollup is a whole marking and every required category belonging to the marking as a whole must be covered by the combined result: a contributor that omits one is not faulted for it. Given a scope id, the inputs are fragments of that one surface and only the required categories that surface owns are demanded of the rollup.
 	Surface *string `json:"surface,omitempty"`
 }
 
@@ -2672,7 +2830,9 @@ type CtxSchemeExplainRequestBody struct {
 	// Assertions The facts already chosen, settled together with what `input` states as one marking.
 	Assertions *[]Assertion `json:"assertions,omitempty"`
 
-	// Context Caller-supplied context describing the role of a marking being processed. No context (or role='whole') means an overall/document-level marking. role='part' means a portion/paragraph that belongs to another marking.
+	// Context Caller-supplied context naming the role the marking being read plays. No context, or `role: 'whole'`, means a whole: a marking that stands for everything it covers. `role: 'part'` means a part that belongs to a whole, named in `partOf` when it is known.
+	//
+	// On a rollup the context names the contributors' role, never the rollup's: the rollup is always a whole. So no context rolls wholes up into an aggregate, and `{ role: 'part', partOf }` rolls a whole's parts up. See `SchemeEngineAdapter.aggregate`.
 	Context *ProcessingContext `json:"context,omitempty"`
 
 	// Input The marking text, as typed.
@@ -2724,7 +2884,9 @@ type CtxSchemeProcessRequestBody struct {
 	// Assertions The facts already chosen, settled together with what `input` states as one marking.
 	Assertions *[]Assertion `json:"assertions,omitempty"`
 
-	// Context Caller-supplied context describing the role of a marking being processed. No context (or role='whole') means an overall/document-level marking. role='part' means a portion/paragraph that belongs to another marking.
+	// Context Caller-supplied context naming the role the marking being read plays. No context, or `role: 'whole'`, means a whole: a marking that stands for everything it covers. `role: 'part'` means a part that belongs to a whole, named in `partOf` when it is known.
+	//
+	// On a rollup the context names the contributors' role, never the rollup's: the rollup is always a whole. So no context rolls wholes up into an aggregate, and `{ role: 'part', partOf }` rolls a whole's parts up. See `SchemeEngineAdapter.aggregate`.
 	Context *ProcessingContext `json:"context,omitempty"`
 
 	// Input The marking text, as typed.
@@ -2829,7 +2991,9 @@ type CtxSchemeValidateRequestBody struct {
 	// Assertions The marking as facts as stated: what a document or an author states, before any engine settled them. Never the `assertions` of an earlier result, which are settled already and can read valid where the text they came from did not. Provide this or `input`, never both.
 	Assertions *[]Assertion `json:"assertions,omitempty"`
 
-	// Context Caller-supplied context describing the role of a marking being processed. No context (or role='whole') means an overall/document-level marking. role='part' means a portion/paragraph that belongs to another marking.
+	// Context Caller-supplied context naming the role the marking being read plays. No context, or `role: 'whole'`, means a whole: a marking that stands for everything it covers. `role: 'part'` means a part that belongs to a whole, named in `partOf` when it is known.
+	//
+	// On a rollup the context names the contributors' role, never the rollup's: the rollup is always a whole. So no context rolls wholes up into an aggregate, and `{ role: 'part', partOf }` rolls a whole's parts up. See `SchemeEngineAdapter.aggregate`.
 	Context *ProcessingContext `json:"context,omitempty"`
 
 	// Input The marking as text. Provide this or `assertions`, never both.
@@ -3563,6 +3727,17 @@ type GuideRuleOutcome struct {
 	Rendered *string `json:"rendered,omitempty"`
 }
 
+// GuideRuleSelection One selected rule, named by the guide that holds it.
+//
+// Guides in a Context are independent, so two of them may use the same rule id. A selection names the guide as well as the rule, and the two pairs are two rules.
+type GuideRuleSelection struct {
+	// GuideID Id of the guide that holds the rule.
+	GuideID string `json:"guideId"`
+
+	// RuleID Id of the rule within that guide.
+	RuleID string `json:"ruleId"`
+}
+
 // GuideRuleView Item row rendered by the Guidebook / GuideChecklist (one per rule in a guide).
 type GuideRuleView struct {
 	// DependsOn Rule ids this compound rule references.
@@ -4105,7 +4280,9 @@ type ProcessResult struct {
 	Warnings []Warning `json:"warnings"`
 }
 
-// ProcessingContext Caller-supplied context describing the role of a marking being processed. No context (or role='whole') means an overall/document-level marking. role='part' means a portion/paragraph that belongs to another marking.
+// ProcessingContext Caller-supplied context naming the role the marking being read plays. No context, or `role: 'whole'`, means a whole: a marking that stands for everything it covers. `role: 'part'` means a part that belongs to a whole, named in `partOf` when it is known.
+//
+// On a rollup the context names the contributors' role, never the rollup's: the rollup is always a whole. So no context rolls wholes up into an aggregate, and `{ role: 'part', partOf }` rolls a whole's parts up. See `SchemeEngineAdapter.aggregate`.
 type ProcessingContext struct {
 	// PartOf The whole marking this is part of (when role='part').
 	//
@@ -4123,7 +4300,7 @@ type ProcessingContext struct {
 	// - A whole that reads but is invalid, or does not read, is not verified. The part is still read and judged by its own rules but is not compared with the whole, so it never carries `_exceeds_whole`. It always carries the `_whole_unverified` notice.
 	// - With no whole given, the part is judged by its own rules alone. It carries the `_whole_unverified` notice only when one of its rules was left unresolved.
 	//
-	// Without a verified whole, what needs the whole is left open instead of guessed: a rule condition with `target: 'context'` is unresolved, so its rule never fires, as `RuleConditionTarget` describes.
+	// Without a verified whole, what needs the whole is left open instead of guessed: a rule condition with `target: 'context'` is unresolved, so its rule never fires, as `RuleConditionTarget` describes. A stand-in is the exception, because it is shorthand for the whole's values and means nothing without them: a part that leaves a category to a concept that declares `stands_for_whole` carries a `_stand_in_requires_whole` error naming it.
 	PartOf *struct {
 		// Assertions Pre-resolved assertions of the whole marking (populated by the engine)
 		Assertions *[]Assertion `json:"assertions,omitempty"`
@@ -4407,7 +4584,7 @@ type RuleCondition struct {
 	// Target Assertion set a rule condition is evaluated against.
 	//
 	// - `'self'` (default): the assertions currently under evaluation.
-	// - `'context'`: the assertions of the whole marking this one is part of. Such a condition has an answer only when the part has a verified whole, one that reads and is valid. Without one (no whole given, a whole that does not read, or a whole that reads but is invalid) the condition is unresolved, and so is any `all`, `any` or `none` around it whose answer depends on it. A rule whose `when` is unresolved never fires, changes no value, reports no error and offers no fix; a check rule (`require`, `require_any`, `restrict`, `forbid`, `exclusive`, `cardinality`) that the marking already meets still passes, and any other unresolved rule gives the part the `_whole_unverified` notice.
+	// - `'context'`: the assertions of the whole marking this one is part of. Such a condition has an answer only when the part has a verified whole, one that reads and is valid. Without one (no whole given, a whole that does not read, or a whole that reads but is invalid) the condition is unresolved, and so is any `all`, `any` or `none` around it whose answer depends on it. A rule whose `when` is unresolved never fires, changes no value, reports no error and offers no fix; a check rule (`require`, `require_any`, `restrict`, `forbid`, `exclusive`, `cardinality`) that the marking already meets still passes, and any other unresolved rule gives the part the `_whole_unverified` notice. A part's stand-in for its whole's values is not left open this way: without a verified whole it is a `_stand_in_requires_whole` error. See `ProcessingContext.partOf`.
 	// - `'contributors'`: each contributing assertion set that went into an aggregate, evaluated separately. The condition holds only when EVERY contributor satisfies it, and it is never satisfied outside aggregation, where there are no contributors to inspect. Use it to describe what must be true of every part of a document, which the merged set can no longer answer once the parts have been collapsed into one.
 	Target *RuleConditionTarget `json:"target,omitempty"`
 
@@ -4429,7 +4606,7 @@ type RuleCondition_Value struct {
 // RuleConditionTarget Assertion set a rule condition is evaluated against.
 //
 // - `'self'` (default): the assertions currently under evaluation.
-// - `'context'`: the assertions of the whole marking this one is part of. Such a condition has an answer only when the part has a verified whole, one that reads and is valid. Without one (no whole given, a whole that does not read, or a whole that reads but is invalid) the condition is unresolved, and so is any `all`, `any` or `none` around it whose answer depends on it. A rule whose `when` is unresolved never fires, changes no value, reports no error and offers no fix; a check rule (`require`, `require_any`, `restrict`, `forbid`, `exclusive`, `cardinality`) that the marking already meets still passes, and any other unresolved rule gives the part the `_whole_unverified` notice.
+// - `'context'`: the assertions of the whole marking this one is part of. Such a condition has an answer only when the part has a verified whole, one that reads and is valid. Without one (no whole given, a whole that does not read, or a whole that reads but is invalid) the condition is unresolved, and so is any `all`, `any` or `none` around it whose answer depends on it. A rule whose `when` is unresolved never fires, changes no value, reports no error and offers no fix; a check rule (`require`, `require_any`, `restrict`, `forbid`, `exclusive`, `cardinality`) that the marking already meets still passes, and any other unresolved rule gives the part the `_whole_unverified` notice. A part's stand-in for its whole's values is not left open this way: without a verified whole it is a `_stand_in_requires_whole` error. See `ProcessingContext.partOf`.
 // - `'contributors'`: each contributing assertion set that went into an aggregate, evaluated separately. The condition holds only when EVERY contributor satisfies it, and it is never satisfied outside aggregation, where there are no contributors to inspect. Use it to describe what must be true of every part of a document, which the merged set can no longer answer once the parts have been collapsed into one.
 type RuleConditionTarget string
 
@@ -5076,6 +5253,8 @@ type ValidateResult struct {
 // Two of the ids the engine keeps for itself are for a fact a caller hands in that cannot be settled as given: `_missing_assertion_value`, a concept that takes a value handed in with none, and `_invalid_assertion_value`, a value the concept's encoding cannot read. Each is an error on the result, not a refused request: the fact is left out of the settled marking and named in `affectedConcepts`.
 //
 // Another, `_exceeds_whole`, is a part that carries more than the whole it is read in: the whole does not cover a value the part holds, carries one the part does not allow, or, in a category a rollup pipeline resolves, would change if rolled up with the part. It is given only for a part that is valid on its own, read in a whole that reads and is valid. `affectedConcepts` names every finding, and no fix answers it. See `ProcessingContext.partOf`.
+//
+// And `_stand_in_requires_whole` is a part that leaves a category to a stand-in, a concept that declares `stands_for_whole`, with no verified whole to take the values from. `affectedConcepts` names the stand-in and `categoryId` its category.
 type ValidationError struct {
 	// AffectedConcepts Concept IDs involved in this validation failure.
 	AffectedConcepts *[]string `json:"affectedConcepts,omitempty"`
@@ -6573,6 +6752,13 @@ type ClientInterface interface {
 	// Corresponds with GET /v1/ctx/{ctxId}/{version}/access/rules (the `CtxAccessRules` operationId).
 	CtxAccessRules(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CtxCrosswalkDescribe Describe every crosswalk in a context
+	//
+	// Returns every crosswalk the context holds, in declaration order: its id and the concrete version that answers, its name, guidance and citation, the source and target schemes as the selectors the context description lists under `schemes`, and the mappings and selections a translation applies, each with its disposition and reason. A context that declares no crosswalk answers with an empty list. The :version segment may be omitted to default to "latest".
+	//
+	// Corresponds with GET /v1/ctx/{ctxId}/{version}/crosswalk/describe (the `CtxCrosswalkDescribe` operationId).
+	CtxCrosswalkDescribe(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CtxCrosswalkTranslateWithBody Translate a marking through a crosswalk in a context
 	//
 	// Applies the named directional crosswalk to a SOURCE and returns the treatment of every source assertion: what was carried, what needs review, and what no mapping covers. A prohibition stops the translation before target processing and the response says which one. The source is either a rendered `marking` string or its structured `assertions` form: send exactly one of the two, because a request with neither has no source and a request with both has two. The :version segment may be omitted to default to "latest".
@@ -6629,7 +6815,7 @@ type ClientInterface interface {
 
 	// CtxGuideEvaluateWithBody Evaluate selected guide rules in a context
 	//
-	// Supply exactly one of guideId or allGuides: true. A named guide is evaluated alone. allGuides combines every loaded guide in load order through the context's composed scheme, with the later guide owning duplicate rule IDs. Returns the engine's structured evaluation result.
+	// Send `guideId` with `selectedRuleIds` to evaluate that one guide, or `selections` to roll up rules selected from several guides. Each selection names its guide, so two guides that use the same rule ID hold two rules. Each guide evaluates its own selected rules, with its own dependencies and overrides, and the outcomes are rolled up per target scheme. No guide overrides or depends on another. Returns the engine's structured evaluation result.
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -6638,7 +6824,7 @@ type ClientInterface interface {
 
 	// CtxGuideEvaluate Evaluate selected guide rules in a context
 	//
-	// Supply exactly one of guideId or allGuides: true. A named guide is evaluated alone. allGuides combines every loaded guide in load order through the context's composed scheme, with the later guide owning duplicate rule IDs. Returns the engine's structured evaluation result.
+	// Send `guideId` with `selectedRuleIds` to evaluate that one guide, or `selections` to roll up rules selected from several guides. Each selection names its guide, so two guides that use the same rule ID hold two rules. Each guide evaluates its own selected rules, with its own dependencies and overrides, and the outcomes are rolled up per target scheme. No guide overrides or depends on another. Returns the engine's structured evaluation result.
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -6708,7 +6894,7 @@ type ClientInterface interface {
 
 	// CtxSchemeAggregateWithBody Aggregate marking strings in a context
 	//
-	// Combines part markings into a single aggregate marking using the context's composed scheme aggregation rules. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
+	// Rolls markings up into the one whole marking that covers them, using the context's composed scheme rollup rules. With no `context` the inputs are read as wholes, as in an aggregate such as the documents in a folder; `context` names the role the inputs are read in, and `{ role: 'part', partOf }` reads each as a part of that whole, as in a whole's parts rollup. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
 	//
 	// Takes any type of body and a specified content type.
 	//
@@ -6717,7 +6903,7 @@ type ClientInterface interface {
 
 	// CtxSchemeAggregate Aggregate marking strings in a context
 	//
-	// Combines part markings into a single aggregate marking using the context's composed scheme aggregation rules. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
+	// Rolls markings up into the one whole marking that covers them, using the context's composed scheme rollup rules. With no `context` the inputs are read as wholes, as in an aggregate such as the documents in a folder; `context` names the role the inputs are read in, and `{ role: 'part', partOf }` reads each as a part of that whole, as in a whole's parts rollup. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
 	//
 	// Takes a body of the `application/json` content type.
 	//
@@ -7222,6 +7408,23 @@ func (c *Client) CtxAccessRules(ctx context.Context, ctxID string, version strin
 	return c.Client.Do(req)
 }
 
+// CtxCrosswalkDescribe Describe every crosswalk in a context
+//
+// Returns every crosswalk the context holds, in declaration order: its id and the concrete version that answers, its name, guidance and citation, the source and target schemes as the selectors the context description lists under `schemes`, and the mappings and selections a translation applies, each with its disposition and reason. A context that declares no crosswalk answers with an empty list. The :version segment may be omitted to default to "latest".
+//
+// Corresponds with GET /v1/ctx/{ctxId}/{version}/crosswalk/describe (the `CtxCrosswalkDescribe` operationId).
+func (c *Client) CtxCrosswalkDescribe(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCtxCrosswalkDescribeRequest(c.Server, ctxID, version)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // CtxCrosswalkTranslateWithBody Translate a marking through a crosswalk in a context
 //
 // Applies the named directional crosswalk to a SOURCE and returns the treatment of every source assertion: what was carried, what needs review, and what no mapping covers. A prohibition stops the translation before target processing and the response says which one. The source is either a rendered `marking` string or its structured `assertions` form: send exactly one of the two, because a request with neither has no source and a request with both has two. The :version segment may be omitted to default to "latest".
@@ -7338,7 +7541,7 @@ func (c *Client) CtxGuideDescribeRule(ctx context.Context, ctxID string, version
 
 // CtxGuideEvaluateWithBody Evaluate selected guide rules in a context
 //
-// Supply exactly one of guideId or allGuides: true. A named guide is evaluated alone. allGuides combines every loaded guide in load order through the context's composed scheme, with the later guide owning duplicate rule IDs. Returns the engine's structured evaluation result.
+// Send `guideId` with `selectedRuleIds` to evaluate that one guide, or `selections` to roll up rules selected from several guides. Each selection names its guide, so two guides that use the same rule ID hold two rules. Each guide evaluates its own selected rules, with its own dependencies and overrides, and the outcomes are rolled up per target scheme. No guide overrides or depends on another. Returns the engine's structured evaluation result.
 //
 // Takes any type of body and a specified content type.
 //
@@ -7357,7 +7560,7 @@ func (c *Client) CtxGuideEvaluateWithBody(ctx context.Context, ctxID string, ver
 
 // CtxGuideEvaluate Evaluate selected guide rules in a context
 //
-// Supply exactly one of guideId or allGuides: true. A named guide is evaluated alone. allGuides combines every loaded guide in load order through the context's composed scheme, with the later guide owning duplicate rule IDs. Returns the engine's structured evaluation result.
+// Send `guideId` with `selectedRuleIds` to evaluate that one guide, or `selections` to roll up rules selected from several guides. Each selection names its guide, so two guides that use the same rule ID hold two rules. Each guide evaluates its own selected rules, with its own dependencies and overrides, and the outcomes are rolled up per target scheme. No guide overrides or depends on another. Returns the engine's structured evaluation result.
 //
 // Takes a body of the `application/json` content type.
 //
@@ -7507,7 +7710,7 @@ func (c *Client) CtxSchemeSummary(ctx context.Context, ctxID string, version str
 
 // CtxSchemeAggregateWithBody Aggregate marking strings in a context
 //
-// Combines part markings into a single aggregate marking using the context's composed scheme aggregation rules. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
+// Rolls markings up into the one whole marking that covers them, using the context's composed scheme rollup rules. With no `context` the inputs are read as wholes, as in an aggregate such as the documents in a folder; `context` names the role the inputs are read in, and `{ role: 'part', partOf }` reads each as a part of that whole, as in a whole's parts rollup. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
 //
 // Takes any type of body and a specified content type.
 //
@@ -7526,7 +7729,7 @@ func (c *Client) CtxSchemeAggregateWithBody(ctx context.Context, ctxID string, v
 
 // CtxSchemeAggregate Aggregate marking strings in a context
 //
-// Combines part markings into a single aggregate marking using the context's composed scheme aggregation rules. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
+// Rolls markings up into the one whole marking that covers them, using the context's composed scheme rollup rules. With no `context` the inputs are read as wholes, as in an aggregate such as the documents in a folder; `context` names the role the inputs are read in, and `{ role: 'part', partOf }` reads each as a part of that whole, as in a whole's parts rollup. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
 //
 // Takes a body of the `application/json` content type.
 //
@@ -8516,6 +8719,47 @@ func NewCtxAccessRulesRequest(server string, ctxID string, version string) (*htt
 	}
 
 	operationPath := fmt.Sprintf("/v1/ctx/%s/%s/access/rules", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCtxCrosswalkDescribeRequest constructs an http.Request for the CtxCrosswalkDescribe method
+func NewCtxCrosswalkDescribeRequest(server string, ctxID string, version string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "ctxId", ctxID, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "version", version, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/ctx/%s/%s/crosswalk/describe", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -10442,6 +10686,15 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with GET /v1/ctx/{ctxId}/{version}/access/rules (the `CtxAccessRules` operationId).
 	CtxAccessRulesWithResponse(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*CtxAccessRulesHTTP, error)
 
+	// CtxCrosswalkDescribeWithResponse Describe every crosswalk in a context
+	//
+	// Returns every crosswalk the context holds, in declaration order: its id and the concrete version that answers, its name, guidance and citation, the source and target schemes as the selectors the context description lists under `schemes`, and the mappings and selections a translation applies, each with its disposition and reason. A context that declares no crosswalk answers with an empty list. The :version segment may be omitted to default to "latest".
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /v1/ctx/{ctxId}/{version}/crosswalk/describe (the `CtxCrosswalkDescribe` operationId).
+	CtxCrosswalkDescribeWithResponse(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*CtxCrosswalkDescribeHTTP, error)
+
 	// CtxCrosswalkTranslateWithBodyWithResponse Translate a marking through a crosswalk in a context
 	//
 	// Applies the named directional crosswalk to a SOURCE and returns the treatment of every source assertion: what was carried, what needs review, and what no mapping covers. A prohibition stops the translation before target processing and the response says which one. The source is either a rendered `marking` string or its structured `assertions` form: send exactly one of the two, because a request with neither has no source and a request with both has two. The :version segment may be omitted to default to "latest".
@@ -10498,7 +10751,7 @@ type ClientWithResponsesInterface interface {
 
 	// CtxGuideEvaluateWithBodyWithResponse Evaluate selected guide rules in a context
 	//
-	// Supply exactly one of guideId or allGuides: true. A named guide is evaluated alone. allGuides combines every loaded guide in load order through the context's composed scheme, with the later guide owning duplicate rule IDs. Returns the engine's structured evaluation result.
+	// Send `guideId` with `selectedRuleIds` to evaluate that one guide, or `selections` to roll up rules selected from several guides. Each selection names its guide, so two guides that use the same rule ID hold two rules. Each guide evaluates its own selected rules, with its own dependencies and overrides, and the outcomes are rolled up per target scheme. No guide overrides or depends on another. Returns the engine's structured evaluation result.
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10507,7 +10760,7 @@ type ClientWithResponsesInterface interface {
 
 	// CtxGuideEvaluateWithResponse Evaluate selected guide rules in a context
 	//
-	// Supply exactly one of guideId or allGuides: true. A named guide is evaluated alone. allGuides combines every loaded guide in load order through the context's composed scheme, with the later guide owning duplicate rule IDs. Returns the engine's structured evaluation result.
+	// Send `guideId` with `selectedRuleIds` to evaluate that one guide, or `selections` to roll up rules selected from several guides. Each selection names its guide, so two guides that use the same rule ID hold two rules. Each guide evaluates its own selected rules, with its own dependencies and overrides, and the outcomes are rolled up per target scheme. No guide overrides or depends on another. Returns the engine's structured evaluation result.
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10579,7 +10832,7 @@ type ClientWithResponsesInterface interface {
 
 	// CtxSchemeAggregateWithBodyWithResponse Aggregate marking strings in a context
 	//
-	// Combines part markings into a single aggregate marking using the context's composed scheme aggregation rules. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
+	// Rolls markings up into the one whole marking that covers them, using the context's composed scheme rollup rules. With no `context` the inputs are read as wholes, as in an aggregate such as the documents in a folder; `context` names the role the inputs are read in, and `{ role: 'part', partOf }` reads each as a part of that whole, as in a whole's parts rollup. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
 	//
 	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -10588,7 +10841,7 @@ type ClientWithResponsesInterface interface {
 
 	// CtxSchemeAggregateWithResponse Aggregate marking strings in a context
 	//
-	// Combines part markings into a single aggregate marking using the context's composed scheme aggregation rules. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
+	// Rolls markings up into the one whole marking that covers them, using the context's composed scheme rollup rules. With no `context` the inputs are read as wholes, as in an aggregate such as the documents in a folder; `context` names the role the inputs are read in, and `{ role: 'part', partOf }` reads each as a part of that whole, as in a whole's parts rollup. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
 	//
 	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 	//
@@ -11539,6 +11792,92 @@ func (r CtxAccessRulesHTTP) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r CtxAccessRulesHTTP) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+// CtxCrosswalkDescribeHTTP200Headers the declared response headers of an HTTP 200 response for CtxCrosswalkDescribe
+type CtxCrosswalkDescribeHTTP200Headers struct {
+	XEzClassifyResolvedVersion *string
+}
+
+// CtxCrosswalkDescribeHTTP429Headers the declared response headers of an HTTP 429 response for CtxCrosswalkDescribe
+type CtxCrosswalkDescribeHTTP429Headers struct {
+	RetryAfter          *int
+	XRateLimitLimit     *int
+	XRateLimitRemaining *int
+	XRateLimitReset     *int
+}
+
+type CtxCrosswalkDescribeHTTP struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *CtxCrosswalkDescribeResponseBody
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *BadRequest
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *NotFound
+	// JSON429 the response for an HTTP 429 `application/json` response
+	JSON429 *TooManyRequests
+	// JSON500 the response for an HTTP 500 `application/json` response
+	JSON500 *InternalError
+	// Headers200 the parsed response headers for an HTTP 200 response
+	Headers200 *CtxCrosswalkDescribeHTTP200Headers
+	// Headers429 the parsed response headers for an HTTP 429 response
+	Headers429 *CtxCrosswalkDescribeHTTP429Headers
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r CtxCrosswalkDescribeHTTP) GetJSON200() *CtxCrosswalkDescribeResponseBody {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r CtxCrosswalkDescribeHTTP) GetJSON400() *BadRequest {
+	return r.JSON400
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CtxCrosswalkDescribeHTTP) GetJSON404() *NotFound {
+	return r.JSON404
+}
+
+// GetJSON429 returns the response for an HTTP 429 `application/json` response
+func (r CtxCrosswalkDescribeHTTP) GetJSON429() *TooManyRequests {
+	return r.JSON429
+}
+
+// GetJSON500 returns the response for an HTTP 500 `application/json` response
+func (r CtxCrosswalkDescribeHTTP) GetJSON500() *InternalError {
+	return r.JSON500
+}
+
+// GetBody returns the raw response body bytes
+func (r CtxCrosswalkDescribeHTTP) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CtxCrosswalkDescribeHTTP) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CtxCrosswalkDescribeHTTP) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CtxCrosswalkDescribeHTTP) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -14461,6 +14800,21 @@ func (c *ClientWithResponses) CtxAccessRulesWithResponse(ctx context.Context, ct
 	return ParseCtxAccessRulesHTTP(rsp)
 }
 
+// CtxCrosswalkDescribeWithResponse Describe every crosswalk in a context
+//
+// Returns every crosswalk the context holds, in declaration order: its id and the concrete version that answers, its name, guidance and citation, the source and target schemes as the selectors the context description lists under `schemes`, and the mappings and selections a translation applies, each with its disposition and reason. A context that declares no crosswalk answers with an empty list. The :version segment may be omitted to default to "latest".
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /v1/ctx/{ctxId}/{version}/crosswalk/describe (the `CtxCrosswalkDescribe` operationId).
+func (c *ClientWithResponses) CtxCrosswalkDescribeWithResponse(ctx context.Context, ctxID string, version string, reqEditors ...RequestEditorFn) (*CtxCrosswalkDescribeHTTP, error) {
+	rsp, err := c.CtxCrosswalkDescribe(ctx, ctxID, version, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCtxCrosswalkDescribeHTTP(rsp)
+}
+
 // CtxCrosswalkTranslateWithBodyWithResponse Translate a marking through a crosswalk in a context
 //
 // Applies the named directional crosswalk to a SOURCE and returns the treatment of every source assertion: what was carried, what needs review, and what no mapping covers. A prohibition stops the translation before target processing and the response says which one. The source is either a rendered `marking` string or its structured `assertions` form: send exactly one of the two, because a request with neither has no source and a request with both has two. The :version segment may be omitted to default to "latest".
@@ -14553,7 +14907,7 @@ func (c *ClientWithResponses) CtxGuideDescribeRuleWithResponse(ctx context.Conte
 
 // CtxGuideEvaluateWithBodyWithResponse Evaluate selected guide rules in a context
 //
-// Supply exactly one of guideId or allGuides: true. A named guide is evaluated alone. allGuides combines every loaded guide in load order through the context's composed scheme, with the later guide owning duplicate rule IDs. Returns the engine's structured evaluation result.
+// Send `guideId` with `selectedRuleIds` to evaluate that one guide, or `selections` to roll up rules selected from several guides. Each selection names its guide, so two guides that use the same rule ID hold two rules. Each guide evaluates its own selected rules, with its own dependencies and overrides, and the outcomes are rolled up per target scheme. No guide overrides or depends on another. Returns the engine's structured evaluation result.
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -14568,7 +14922,7 @@ func (c *ClientWithResponses) CtxGuideEvaluateWithBodyWithResponse(ctx context.C
 
 // CtxGuideEvaluateWithResponse Evaluate selected guide rules in a context
 //
-// Supply exactly one of guideId or allGuides: true. A named guide is evaluated alone. allGuides combines every loaded guide in load order through the context's composed scheme, with the later guide owning duplicate rule IDs. Returns the engine's structured evaluation result.
+// Send `guideId` with `selectedRuleIds` to evaluate that one guide, or `selections` to roll up rules selected from several guides. Each selection names its guide, so two guides that use the same rule ID hold two rules. Each guide evaluates its own selected rules, with its own dependencies and overrides, and the outcomes are rolled up per target scheme. No guide overrides or depends on another. Returns the engine's structured evaluation result.
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -14688,7 +15042,7 @@ func (c *ClientWithResponses) CtxSchemeSummaryWithResponse(ctx context.Context, 
 
 // CtxSchemeAggregateWithBodyWithResponse Aggregate marking strings in a context
 //
-// Combines part markings into a single aggregate marking using the context's composed scheme aggregation rules. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
+// Rolls markings up into the one whole marking that covers them, using the context's composed scheme rollup rules. With no `context` the inputs are read as wholes, as in an aggregate such as the documents in a folder; `context` names the role the inputs are read in, and `{ role: 'part', partOf }` reads each as a part of that whole, as in a whole's parts rollup. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
 //
 // Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
 //
@@ -14703,7 +15057,7 @@ func (c *ClientWithResponses) CtxSchemeAggregateWithBodyWithResponse(ctx context
 
 // CtxSchemeAggregateWithResponse Aggregate marking strings in a context
 //
-// Combines part markings into a single aggregate marking using the context's composed scheme aggregation rules. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
+// Rolls markings up into the one whole marking that covers them, using the context's composed scheme rollup rules. With no `context` the inputs are read as wholes, as in an aggregate such as the documents in a folder; `context` names the role the inputs are read in, and `{ role: 'part', partOf }` reads each as a part of that whole, as in a whole's parts rollup. Supply either `inputs` (marking strings) or `assertionSets` (already-parsed assertion arrays for lossless transport of scope-only assertions and capture values): exactly one, not both. The :version segment may be omitted to default to "latest".
 //
 // Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
 //
@@ -15931,6 +16285,104 @@ func ParseCtxAccessRulesHTTP(rsp *http.Response) (*CtxAccessRulesHTTP, error) {
 		response.Headers200 = &headers
 	case rsp.StatusCode == 429:
 		var headers CtxAccessRulesHTTP429Headers
+		if values := rsp.Header.Values("Retry-After"); len(values) > 0 {
+			var value int
+			if err := runtime.BindStyledParameterWithOptions("simple", "Retry-After", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.RetryAfter = &value
+		}
+		if values := rsp.Header.Values("X-RateLimit-Limit"); len(values) > 0 {
+			var value int
+			if err := runtime.BindStyledParameterWithOptions("simple", "X-RateLimit-Limit", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.XRateLimitLimit = &value
+		}
+		if values := rsp.Header.Values("X-RateLimit-Remaining"); len(values) > 0 {
+			var value int
+			if err := runtime.BindStyledParameterWithOptions("simple", "X-RateLimit-Remaining", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.XRateLimitRemaining = &value
+		}
+		if values := rsp.Header.Values("X-RateLimit-Reset"); len(values) > 0 {
+			var value int
+			if err := runtime.BindStyledParameterWithOptions("simple", "X-RateLimit-Reset", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.XRateLimitReset = &value
+		}
+		response.Headers429 = &headers
+	}
+
+	return response, nil
+}
+
+// ParseCtxCrosswalkDescribeHTTP parses an HTTP response from a CtxCrosswalkDescribeWithResponse call
+func ParseCtxCrosswalkDescribeHTTP(rsp *http.Response) (*CtxCrosswalkDescribeHTTP, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CtxCrosswalkDescribeHTTP{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CtxCrosswalkDescribeResponseBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest TooManyRequests
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		var headers CtxCrosswalkDescribeHTTP200Headers
+		if values := rsp.Header.Values("X-EzClassify-Resolved-Version"); len(values) > 0 {
+			var value string
+			if err := runtime.BindStyledParameterWithOptions("simple", "X-EzClassify-Resolved-Version", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "string", Format: ""}); err != nil {
+				return nil, err
+			}
+			headers.XEzClassifyResolvedVersion = &value
+		}
+		response.Headers200 = &headers
+	case rsp.StatusCode == 429:
+		var headers CtxCrosswalkDescribeHTTP429Headers
 		if values := rsp.Header.Values("Retry-After"); len(values) > 0 {
 			var value int
 			if err := runtime.BindStyledParameterWithOptions("simple", "Retry-After", values[0], &value, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationHeader, Explode: false, Required: false, Type: "integer", Format: ""}); err != nil {

@@ -168,6 +168,10 @@ var readCases = []readCase{
 		_, err := cx.Access.Rules(ctx)
 		return err
 	}},
+	{"crosswalk.describe", "get", requestRoutePrefix + "crosswalk/describe", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
+		_, err := cx.Crosswalk.Describe(ctx)
+		return err
+	}},
 }
 
 // sendRead drives one read case against a stub that answers every request with

@@ -111,7 +111,7 @@ var wireDrivers = map[string]string{
 	"ctx-access-rules.no-policy":                                     publicDriver,
 	"ctx-guide-scan.ok":                                              publicDriver,
 	"ctx-guide-evaluate.ok":                                          publicDriver,
-	"ctx-guide-evaluate.all-guides":                                  publicDriver,
+	"ctx-guide-evaluate.selections":                                  publicDriver,
 	"ctx-guide-describe-rule.ok":                                     publicDriver,
 	"ctx-guide-describe-rule.unknown-guide":                          publicDriver,
 	"ctx-guide-view.by-id":                                           publicDriver,
@@ -119,6 +119,7 @@ var wireDrivers = map[string]string{
 	"ctx-guide-view.ok":                                              publicDriver,
 	"ctx-crosswalk-translate.marking":                                publicDriver,
 	"ctx-crosswalk-translate.assertions":                             publicDriver,
+	"ctx-crosswalk-describe.ok":                                      publicDriver,
 	"ctx-crosswalk-translate.translated":                             publicDriver,
 	"ctx-crosswalk-translate.forbidden":                              publicDriver,
 	"ctx-crosswalk-translate.both-sources":                           refusedBeforeTransport,
@@ -266,6 +267,8 @@ func driveWire(ctx context.Context, h *ez.EzClassifyContext, r wireCase, u *url.
 		return h.Scheme.DescribeConcept(ctx, u.Query().Get("conceptId"), u.Query().Get("categoryId"), wireOptionalQuery(u, "view"))
 	case "ctxAccessRules":
 		return h.Access.Rules(ctx)
+	case "ctxCrosswalkDescribe":
+		return h.Crosswalk.Describe(ctx)
 	case "ctxSchemeView":
 		return h.Scheme.View(ctx)
 	case "ctxSchemeProcess":
