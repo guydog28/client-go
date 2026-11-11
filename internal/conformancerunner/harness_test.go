@@ -24,11 +24,11 @@ func writeFixture(t *testing.T, dir, name, content string) {
 // therefore neither load nor depend on a scheme fixture.
 func TestBuildPlanBodySchemeOperationUsesContext(t *testing.T) {
 	dir := t.TempDir()
-	path, body, err := buildPlanBody("process", []interface{}{"HELLO"}, "no-such-fixture", "", dir)
+	path, body, err := buildPlanBody("process", []interface{}{"HELLO"}, "no-such-fixture", "", "", dir)
 	if err != nil {
 		t.Fatalf("process: err=%v", err)
 	}
-	if path != contextRouteBase("no-such-fixture")+"/scheme/process" {
+	if path != contextRouteBase("no-such-fixture", "", "")+"/scheme/process" {
 		t.Errorf("path = %q, want Context scheme route", path)
 	}
 	if body["input"] != "HELLO" {
@@ -58,7 +58,7 @@ func TestBuildPlanBodyWireNamesPerRoute(t *testing.T) {
 		{"validate", []interface{}{"CONF", map[string]interface{}{"inputFormat": "sensitivity/short"}}, map[string]string{"input": "CONF", "inputFormat": "sensitivity/short"}},
 	}
 	for _, c := range cases {
-		_, body, err := buildPlanBody(c.method, c.args, "no-such-fixture", "", dir)
+		_, body, err := buildPlanBody(c.method, c.args, "no-such-fixture", "", "", dir)
 		if err != nil {
 			t.Fatalf("%s: err=%v", c.method, err)
 		}
@@ -95,7 +95,7 @@ func TestBuildPlanBodyCorruptGuideFixtureFails(t *testing.T) {
 	dir := t.TempDir()
 	writeFixture(t, dir, "ref", `{"scheme":{"id":"ref-scheme"}}`)
 	writeFixture(t, dir, "bad-guide", "{not json")
-	_, _, err := buildPlanBody("evaluateGuide", nil, "ref", "bad-guide", dir)
+	_, _, err := buildPlanBody("evaluateGuide", nil, "ref", "bad-guide", "", dir)
 	if err == nil {
 		t.Fatal("expected an error for a corrupt guide fixture, got nil")
 	}
@@ -107,7 +107,7 @@ func TestBuildPlanBodyCorruptGuideFixtureFails(t *testing.T) {
 // TestBuildPlanBodyUnsupportedMethodFails prevents future contract methods
 // from silently disappearing from conformance execution.
 func TestBuildPlanBodyUnsupportedMethodFails(t *testing.T) {
-	_, _, err := buildPlanBody("someFutureMethod", nil, "ref", "", t.TempDir())
+	_, _, err := buildPlanBody("someFutureMethod", nil, "ref", "", "", t.TempDir())
 	if err == nil || !strings.Contains(err.Error(), "someFutureMethod") {
 		t.Fatalf("unsupported method: err=%v", err)
 	}
@@ -119,7 +119,7 @@ func TestBuildPlanBodyUnsupportedMethodFails(t *testing.T) {
 func TestBuildPlanBodyCheckAccessShortArgs(t *testing.T) {
 	dir := t.TempDir()
 	writeFixture(t, dir, "ref", `{"scheme":{"id":"ref-scheme"}}`)
-	path, body, err := buildPlanBody("checkAccess", nil, "ref", "", dir)
+	path, body, err := buildPlanBody("checkAccess", nil, "ref", "", "", dir)
 	if err != nil {
 		t.Fatalf("checkAccess: err=%v", err)
 	}
@@ -138,7 +138,7 @@ func TestBuildPlanBodyCheckAccessShortArgs(t *testing.T) {
 func TestBuildPlanBodyGuideEvaluate(t *testing.T) {
 	dir := t.TempDir()
 	writeFixture(t, dir, "ref-guide", `{"scheme":{"id":"s-1"},"guide":{"id":"g-1"}}`)
-	path, body, err := buildPlanBody("evaluateGuide", nil, "ref-guide", "", dir)
+	path, body, err := buildPlanBody("evaluateGuide", nil, "ref-guide", "", "", dir)
 	if err != nil {
 		t.Fatalf("evaluateGuide: err=%v", err)
 	}
@@ -156,7 +156,7 @@ func TestBuildPlanBodyFactsKeepTheirWireInput(t *testing.T) {
 	for _, method := range []string{"process", "validate", "suggest"} {
 		for _, facts := range [][]interface{}{{}, {map[string]interface{}{"conceptId": "c", "categoryId": "k"}}} {
 			t.Run(fmt.Sprintf("%s/%d-facts", method, len(facts)), func(t *testing.T) {
-				_, body, err := buildPlanBody(method, []interface{}{facts}, "ref", "", t.TempDir())
+				_, body, err := buildPlanBody(method, []interface{}{facts}, "ref", "", "", t.TempDir())
 				want := map[string]interface{}{"assertions": facts}
 				if method == "process" {
 					want["input"] = ""
@@ -181,7 +181,7 @@ func TestBuildPlanBodyRetainsContextAndReadOutputOptions(t *testing.T) {
 				delete(want, "input")
 				want["inputs"] = []string{"LOW"}
 			}
-			_, body, err := buildPlanBody(method, []interface{}{value, options}, "ref", "", t.TempDir())
+			_, body, err := buildPlanBody(method, []interface{}{value, options}, "ref", "", "", t.TempDir())
 			if err != nil || !reflect.DeepEqual(body, want) {
 				t.Fatalf("body=%#v err=%v, want %#v", body, err, want)
 			}
@@ -192,7 +192,7 @@ func TestBuildPlanBodyRetainsContextAndReadOutputOptions(t *testing.T) {
 func TestBuildPlanBodyProcessKeepsPartsChosenFactsAndEmptyOutputs(t *testing.T) {
 	facts := []interface{}{map[string]interface{}{"conceptId": "c", "categoryId": "k"}}
 	options := map[string]interface{}{"parts": []interface{}{"LOW"}, "assertions": facts, "outputs": []interface{}{}, "suggestFor": []interface{}{}}
-	_, body, err := buildPlanBody("process", []interface{}{"HIGH", options}, "ref", "", t.TempDir())
+	_, body, err := buildPlanBody("process", []interface{}{"HIGH", options}, "ref", "", "", t.TempDir())
 	want := map[string]interface{}{"input": "HIGH", "parts": options["parts"], "assertions": facts, "outputs": options["outputs"], "suggestFor": options["suggestFor"]}
 	if err != nil || !reflect.DeepEqual(body, want) {
 		t.Fatalf("body=%#v err=%v, want %#v", body, err, want)
@@ -201,7 +201,7 @@ func TestBuildPlanBodyProcessKeepsPartsChosenFactsAndEmptyOutputs(t *testing.T) 
 
 func TestBuildPlanBodySuggestPreservesExplicitFalseAndEmptyFilter(t *testing.T) {
 	options := map[string]interface{}{"filter": []interface{}{}, "includeGated": false, "surface": "part", "outputFormat": "full"}
-	_, body, err := buildPlanBody("suggest", []interface{}{"LOW", options}, "ref", "", t.TempDir())
+	_, body, err := buildPlanBody("suggest", []interface{}{"LOW", options}, "ref", "", "", t.TempDir())
 	want := map[string]interface{}{"input": "LOW", "filter": options["filter"], "includeGated": false, "surface": "part", "outputFormat": "full"}
 	if err != nil || !reflect.DeepEqual(body, want) {
 		t.Fatalf("body=%#v err=%v, want %#v", body, err, want)
@@ -213,7 +213,7 @@ func TestBuildPlanBodyConflictingOperandRefuses(t *testing.T) {
 		"input": {"input": "another input"},
 	} {
 		t.Run(name, func(t *testing.T) {
-			_, _, err := buildPlanBody("process", []interface{}{"LOW", options}, "ref", "", t.TempDir())
+			_, _, err := buildPlanBody("process", []interface{}{"LOW", options}, "ref", "", "", t.TempDir())
 			if err == nil || !strings.Contains(err.Error(), "conflicting plan option: "+name) {
 				t.Fatalf("conflicting options %#v: err=%v", options, err)
 			}
@@ -237,7 +237,7 @@ func requestAliasSpec(t *testing.T, secondResponse json.RawMessage) string {
 		if i == 1 {
 			response = secondResponse
 		}
-		responses[computeRecordingKey("validate", args, "ref", "fromJSON", "", "")] = map[string]interface{}{"response": response}
+		responses[computeRecordingKey("validate", args, "ref", "fromJSON", "", "", "", "")] = map[string]interface{}{"response": response}
 	}
 	for path, value := range map[string]interface{}{
 		"plans/v1/aliases.json":                 map[string]interface{}{"slice": "engine", "cases": cases},

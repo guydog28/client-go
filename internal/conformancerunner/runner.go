@@ -105,14 +105,15 @@ func RunConformance(t *testing.T, specDir string) {
 			ctxID, _ := tc["ctxId"].(string)
 			ctxVersion, _ := tc["ctxVersion"].(string)
 			guideFixture, _ := tc["guideFixture"].(string)
+			accessFixture, _ := tc["accessFixture"].(string)
 
-			recKey := computeRecordingKey(method, args, fixture, mode, ctxID, ctxVersion)
+			recKey := computeRecordingKey(method, args, fixture, mode, ctxID, ctxVersion, guideFixture, accessFixture)
 			responseJSON, found := allRecordings[recKey]
 			if !found {
 				continue
 			}
 
-			apiPath, body, err := buildPlanBody(method, args, fixture, guideFixture, fixtureDir)
+			apiPath, body, err := buildPlanBody(method, args, fixture, guideFixture, accessFixture, fixtureDir)
 			if err != nil {
 				// A broken fixture is spec drift, not an unsupported case:
 				// fail the suite with the real cause instead of skipping.
@@ -152,17 +153,14 @@ func RunConformance(t *testing.T, specDir string) {
 
 				method, _ := tc["method"].(string)
 				fixtureRaw := tc["fixture"]
-				fixture, _ := fixtureRaw.(string)
 				guideFixture, _ := tc["guideFixture"].(string)
-				if guideFixture == "" {
-					guideFixture = fixture
-				}
+				accessFixture, _ := tc["accessFixture"].(string)
 				expect := tc["expect"]
 				args := toIfaceSlice(tc["args"])
 
 				actual, runErr := runCase(
 					t, r.URL(), fixtureDir,
-					method, fixtureRaw, guideFixture, args,
+					method, fixtureRaw, guideFixture, accessFixture, args,
 				)
 				if runErr != nil {
 					t.Fatalf("run: %v", runErr)
