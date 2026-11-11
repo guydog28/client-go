@@ -102,6 +102,7 @@ func assertRootStructBoundary(t *testing.T) {
 		"CtxDocument":            true,
 		"CtxGuide":               true,
 		"CtxScheme":              true,
+		"CtxSchemes":             true,
 		"EzClassifyContext":      true,
 		"InvalidInputError":      true,
 		"MalformedResponseError": true,

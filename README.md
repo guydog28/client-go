@@ -321,7 +321,7 @@ if len(*presets) > 0 {
 
 ### A Context's other schemes
 
-`cx.Scheme` is the Context's primary scheme. A Context can hold more, such as the source and target of a crosswalk, and `cx.SchemeView(selector)` returns the same operations for one of them. The selector is the scheme's Context-local key; `Describe` lists every scheme the Context holds with the `Selector` that addresses it. Every call through the view, the operations and the reads alike, sends the selector as `?scheme=`:
+`cx.Scheme` is the Context's primary scheme. A Context can hold more, such as the source and target of a crosswalk, and `cx.Schemes.Get(key)` returns the same operations for one of them. The key is the scheme's Context-local key; `Describe` lists every scheme the Context holds with the key in its `Selector` field. Every call through the view, the operations and the reads alike, sends the key as `?scheme=`:
 
 ```go
 description, err := cx.Describe(ctx)
@@ -329,7 +329,7 @@ if err != nil {
 	log.Fatal(err)
 }
 for _, held := range description.Schemes[1:] {
-	other := cx.SchemeView(held.Selector)
+	other := cx.Schemes.Get(held.Selector)
 	res, err := other.Process(ctx, ezclassify.CtxSchemeProcessRequest{Input: "INTERNAL"})
 	if err != nil {
 		log.Fatal(err)
@@ -338,7 +338,7 @@ for _, held := range description.Schemes[1:] {
 }
 ```
 
-The same selector returns the same view, and a view shares the handle's binding and cache, with its results filed under its scheme. The server resolves the selector on every call: one the Context does not hold is answered 404 and returned as an error, never answered in the primary scheme. An empty selector panics.
+The same key returns the same view, and a view shares the handle's binding and cache, with its results filed under its scheme. The server is the authority on keys and resolves one on every call: a key the Context does not hold is answered 404 with code `scheme_not_found` and returned as an error, never answered in the primary scheme. An empty key panics.
 
 ## Errors and rate limits
 

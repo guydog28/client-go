@@ -126,7 +126,7 @@ func selectorRecorder(t *testing.T) (*httptest.Server, func() []*string) {
 	}
 }
 
-// A new CtxScheme method cannot skip the selector check: the table must name
+// A new CtxScheme method cannot skip the key check: the table must name
 // every exported method.
 func TestSchemeCallsCoverEveryCtxSchemeMethod(t *testing.T) {
 	listed := map[string]bool{}
@@ -148,13 +148,13 @@ func TestSchemeCallsCoverEveryCtxSchemeMethod(t *testing.T) {
 
 // Every operation and read of a scheme view names the view's scheme on the
 // wire, and the primary view names none, so the server answers the primary.
-func TestSchemeViewSendsItsSelectorOnEveryCall(t *testing.T) {
+func TestSchemeViewSendsItsKeyOnEveryCall(t *testing.T) {
 	srv, sent := selectorRecorder(t)
 	cx := ezclassify.Connect(srv.URL, "c", "1.0.0")
 	ctx := context.Background()
 	for _, call := range schemeCalls() {
 		t.Run(call.method, func(t *testing.T) {
-			_ = call.invoke(ctx, cx.SchemeView("second"))
+			_ = call.invoke(ctx, cx.Schemes.Get("second"))
 			got := sent()
 			if len(got) != 1 || got[0] == nil || *got[0] != "second" {
 				t.Fatalf("view call sent scheme %v, want exactly one request naming second", describeSelectors(got))
@@ -179,9 +179,9 @@ func describeSelectors(selectors []*string) []string {
 	return out
 }
 
-// One view per selector: the same selector returns the same view, also when
-// asked for concurrently, and a different selector or the primary is another.
-func TestSchemeViewIsOnePerSelector(t *testing.T) {
+// One view per key: the same key returns the same view, also when asked for
+// concurrently, and a different key or the primary is another.
+func TestSchemesGetIsOneViewPerKey(t *testing.T) {
 	cx := ezclassify.Connect("http://127.0.0.1:1", "c", "1.0.0")
 	const callers = 16
 	views := make([]*ezclassify.CtxScheme, callers)
@@ -190,22 +190,22 @@ func TestSchemeViewIsOnePerSelector(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			views[i] = cx.SchemeView("second")
+			views[i] = cx.Schemes.Get("second")
 		}(i)
 	}
 	wg.Wait()
 	for i, view := range views {
 		if view == nil || view != views[0] {
-			t.Fatalf("SchemeView(second) call %d returned a different view", i)
+			t.Fatalf("Schemes.Get(second) call %d returned a different view", i)
 		}
 	}
-	if cx.SchemeView("third") == views[0] {
-		t.Fatal("two selectors share one view")
+	if cx.Schemes.Get("third") == views[0] {
+		t.Fatal("two keys share one view")
 	}
 	if cx.Scheme == views[0] {
-		t.Fatal("a selector's view is the primary view")
+		t.Fatal("a key's view is the primary view")
 	}
-	if ezclassify.Connect("http://127.0.0.1:1", "c", "1.0.0").SchemeView("second") == views[0] {
+	if ezclassify.Connect("http://127.0.0.1:1", "c", "1.0.0").Schemes.Get("second") == views[0] {
 		t.Fatal("two handles share one view")
 	}
 }
@@ -228,7 +228,7 @@ func TestSchemeViewCachesPerScheme(t *testing.T) {
 	cx := ezclassify.Connect(srv.URL, "c", "1.0.0")
 	ctx := context.Background()
 	req := ezclassify.CtxSchemeProcessRequest{Input: "H"}
-	for _, view := range []*ezclassify.CtxScheme{cx.Scheme, cx.SchemeView("second"), cx.SchemeView("second"), cx.SchemeView("third"), cx.Scheme} {
+	for _, view := range []*ezclassify.CtxScheme{cx.Scheme, cx.Schemes.Get("second"), cx.Schemes.Get("second"), cx.Schemes.Get("third"), cx.Scheme} {
 		if _, err := view.Process(ctx, req); err != nil {
 			t.Fatal(err)
 		}
@@ -241,10 +241,10 @@ func TestSchemeViewCachesPerScheme(t *testing.T) {
 	}
 }
 
-// A selector the Context does not hold is an error. The client neither
-// retries without the selector nor answers from the primary scheme's cached
-// result for the same request.
-func TestSchemeViewUnknownSelectorIsAnError(t *testing.T) {
+// A key the Context does not hold is an error. The client neither retries
+// without the key nor answers from the primary scheme's cached result for the
+// same request.
+func TestSchemesGetUnknownKeyIsAnError(t *testing.T) {
 	var mu sync.Mutex
 	var selectors []string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -268,16 +268,16 @@ func TestSchemeViewUnknownSelectorIsAnError(t *testing.T) {
 	if _, err := cx.Scheme.Process(ctx, req); err != nil {
 		t.Fatal(err)
 	}
-	got, err := cx.SchemeView("unheld").Process(ctx, req)
+	got, err := cx.Schemes.Get("unheld").Process(ctx, req)
 	if got != nil {
-		t.Fatalf("unknown selector answered %+v", got)
+		t.Fatalf("unknown key answered %+v", got)
 	}
 	var apiErr *ezclassify.APIError
 	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusNotFound {
-		t.Fatalf("unknown selector error = %v, want a 404 APIError", err)
+		t.Fatalf("unknown key error = %v, want a 404 APIError", err)
 	}
-	if _, err := cx.SchemeView("unheld").Summary(ctx); !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusNotFound {
-		t.Fatalf("unknown selector read error = %v, want a 404 APIError", err)
+	if _, err := cx.Schemes.Get("unheld").Summary(ctx); !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusNotFound {
+		t.Fatalf("unknown key read error = %v, want a 404 APIError", err)
 	}
 	mu.Lock()
 	defer mu.Unlock()
@@ -286,11 +286,53 @@ func TestSchemeViewUnknownSelectorIsAnError(t *testing.T) {
 	}
 }
 
-func TestSchemeViewRefusesAnEmptySelector(t *testing.T) {
+func TestSchemesGetRefusesAnEmptyKey(t *testing.T) {
 	defer func() {
 		if recover() == nil {
-			t.Fatal("SchemeView(\"\") did not panic")
+			t.Fatal("Schemes.Get(\"\") did not panic")
 		}
 	}()
-	ezclassify.Connect("http://127.0.0.1:1", "c", "1.0.0").SchemeView("")
+	ezclassify.Connect("http://127.0.0.1:1", "c", "1.0.0").Schemes.Get("")
+}
+
+// The server is the authority on keys: the client holds no inventory, so a
+// value it has never seen listed, an artifact id included, goes out verbatim
+// and the server's refusal is what the caller sees.
+func TestSchemesGetSendsAnyKeyToTheServer(t *testing.T) {
+	const notListed = "acme@1.0.0"
+	var mu sync.Mutex
+	var sent []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		sent = append(sent, r.URL.Query().Get("scheme"))
+		mu.Unlock()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = io.WriteString(w, `{"error":"Scheme not found in context","code":"scheme_not_found"}`)
+	}))
+	t.Cleanup(srv.Close)
+	cx := ezclassify.Connect(srv.URL, "c", "1.0.0")
+	_, err := cx.Schemes.Get(notListed).Summary(context.Background())
+	var apiErr *ezclassify.APIError
+	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusNotFound {
+		t.Fatalf("error = %v, want the server's 404 APIError", err)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if want := []string{notListed}; !reflect.DeepEqual(sent, want) {
+		t.Fatalf("requests named schemes %q, want %q", sent, want)
+	}
+}
+
+// The collection is deliberately small. Enumeration belongs to Describe, so
+// anything added beside Get is a new public contract to decide on.
+func TestCtxSchemesHasOnlyGet(t *testing.T) {
+	collection := reflect.TypeOf(&ezclassify.CtxSchemes{})
+	if collection.NumMethod() != 1 || collection.Method(0).Name != "Get" {
+		names := make([]string, collection.NumMethod())
+		for i := range names {
+			names[i] = collection.Method(i).Name
+		}
+		t.Fatalf("CtxSchemes methods = %v, want only Get", names)
+	}
 }

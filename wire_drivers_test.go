@@ -245,7 +245,7 @@ func runWireDriver(ctx context.Context, c *ez.Client, r wireCase) (interface{}, 
 func driveWire(ctx context.Context, h *ez.EzClassifyContext, r wireCase, u *url.URL) (interface{}, error) {
 	scheme := h.Scheme
 	if selector := wireOptionalQuery(u, "scheme"); selector != nil {
-		scheme = h.SchemeView(*selector)
+		scheme = h.Schemes.Get(*selector)
 	}
 	switch r.Operation {
 	case "ctxDescribe":

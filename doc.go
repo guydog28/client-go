@@ -67,9 +67,9 @@
 // into a marking written in the request's OutputFormat.
 //
 // [EzClassifyContext.Scheme] addresses the Context's primary scheme.
-// [EzClassifyContext.SchemeView] returns the same operations for another
-// scheme the Context holds, named by the selector [ContextDescription] lists
-// for it, and sends that selector on every call.
+// [CtxSchemes.Get] on [EzClassifyContext.Schemes] returns the same operations
+// for another scheme the Context holds, named by the key [ContextDescription]
+// lists for it, and sends that key on every call.
 //
 // # Notices
 //

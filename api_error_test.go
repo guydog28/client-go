@@ -113,7 +113,7 @@ func TestUnknownSchemeSelectorIsNotContextNotFound(t *testing.T) {
 	t.Cleanup(srv.Close)
 	cx := ezclassify.Connect(srv.URL, "held-ctx", "1.0.0")
 
-	_, err := cx.SchemeView("other").Process(context.Background(), ezclassify.CtxSchemeProcessRequest{Input: "X"})
+	_, err := cx.Schemes.Get("other").Process(context.Background(), ezclassify.CtxSchemeProcessRequest{Input: "X"})
 	var notFound *ezclassify.ContextNotFoundError
 	if errors.As(err, &notFound) {
 		t.Fatalf("got ContextNotFoundError for a scheme the Context does not hold: %v", err)
