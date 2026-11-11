@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
@@ -540,11 +541,11 @@ type CtxSchemes struct {
 // filed under its key, so one scheme's answer is never served for another. A
 // view is safe for concurrent use.
 //
-// An empty key is a programmer error, so Get panics rather than deferring the
+// A blank key is a programmer error, so Get panics rather than deferring the
 // failure into the first operation.
 func (s *CtxSchemes) Get(key string) *CtxScheme {
-	if key == "" {
-		panic("ezclassify: scheme key must not be empty")
+	if strings.TrimSpace(key) == "" {
+		panic("ezclassify: scheme key must not be blank")
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()

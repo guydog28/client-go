@@ -148,7 +148,7 @@ func TestSchemeCallsCoverEveryCtxSchemeMethod(t *testing.T) {
 
 // Every operation and read of a scheme view names the view's scheme on the
 // wire, and the primary view names none, so the server answers the primary.
-func TestSchemeViewSendsItsKeyOnEveryCall(t *testing.T) {
+func TestCtxSchemesViewSendsItsKeyOnEveryCall(t *testing.T) {
 	srv, sent := selectorRecorder(t)
 	cx := ezclassify.Connect(srv.URL, "c", "1.0.0")
 	ctx := context.Background()
@@ -213,7 +213,7 @@ func TestSchemesGetIsOneViewPerKey(t *testing.T) {
 // Cached results are filed under the scheme that answered them. The same
 // request through the primary and two views reaches the server once for each
 // scheme, and a repeat through a view is answered from that view's entry.
-func TestSchemeViewCachesPerScheme(t *testing.T) {
+func TestCtxSchemesViewCachesPerScheme(t *testing.T) {
 	var mu sync.Mutex
 	requests := map[string]int{}
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -286,13 +286,17 @@ func TestSchemesGetUnknownKeyIsAnError(t *testing.T) {
 	}
 }
 
-func TestSchemesGetRefusesAnEmptyKey(t *testing.T) {
-	defer func() {
-		if recover() == nil {
-			t.Fatal("Schemes.Get(\"\") did not panic")
-		}
-	}()
-	ezclassify.Connect("http://127.0.0.1:1", "c", "1.0.0").Schemes.Get("")
+func TestSchemesGetRefusesABlankKey(t *testing.T) {
+	for _, key := range []string{"", "   ", "\t\n"} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Fatalf("Schemes.Get(%q) did not panic", key)
+				}
+			}()
+			ezclassify.Connect("http://127.0.0.1:1", "c", "1.0.0").Schemes.Get(key)
+		}()
+	}
 }
 
 // The server is the authority on keys: the client holds no inventory, so a
