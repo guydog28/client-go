@@ -134,12 +134,12 @@ ezclassify, method (*CtxScheme) SuggestForCategories(context.Context, CtxSchemeS
 ezclassify, method (*CtxScheme) Summary(context.Context) (*SchemeSummary, error)
 ezclassify, method (*CtxScheme) Validate(context.Context, CtxSchemeValidateRequest) (*ContextSchemeValidateResult, error)
 ezclassify, method (*CtxScheme) View(context.Context) (*ContextSchemeViewResult, error)
+ezclassify, method (*CtxSchemes) Get(string) *CtxScheme
 ezclassify, method (*EzClassifyContext) ClearCache()
 ezclassify, method (*EzClassifyContext) Describe(context.Context) (*ContextDescription, error)
 ezclassify, method (*EzClassifyContext) ID() string
 ezclassify, method (*EzClassifyContext) Resolve(context.Context) error
 ezclassify, method (*EzClassifyContext) ResolvedVersion() string
-ezclassify, method (*EzClassifyContext) SchemeView(string) *CtxScheme
 ezclassify, method (*EzClassifyContext) Version() string
 ezclassify, method (*InvalidInputError) Error() string
 ezclassify, method (*MalformedResponseError) Error() string
@@ -242,6 +242,7 @@ ezclassify, type CtxSchemeSuggestForCategoriesRequest = api.CtxSchemeSuggestForC
 ezclassify, type CtxSchemeSuggestRequest = api.CtxSchemeSuggestJSONRequestBody
 ezclassify, type CtxSchemeValidateRequest = api.CtxSchemeValidateJSONRequestBody
 ezclassify, type CtxSchemeViewRequest = api.CtxSchemeViewJSONRequestBody
+ezclassify, type CtxSchemes struct
 ezclassify, type DecisionProposalOrigin = api.DecisionProposalOrigin
 ezclassify, type DiffResult = api.DiffResult
 ezclassify, type DocumentAuditReport = api.DocumentAuditReport
@@ -260,6 +261,7 @@ ezclassify, type EzClassifyContext struct, Crosswalk *CtxCrosswalk
 ezclassify, type EzClassifyContext struct, Document *CtxDocument
 ezclassify, type EzClassifyContext struct, Guide *CtxGuide
 ezclassify, type EzClassifyContext struct, Scheme *CtxScheme
+ezclassify, type EzClassifyContext struct, Schemes *CtxSchemes
 ezclassify, type FilterResult = api.FilterResult
 ezclassify, type Fix = api.Fix
 ezclassify, type FixAction = api.FixAction

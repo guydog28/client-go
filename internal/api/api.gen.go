@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@b88f22507ef6197276e92b2e9800de45505708891d089e17b315774c8658eab6 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@e7dbb51306442da0a8aa1ee3a0b9cbec511443e81a13ddf2011cfa2a6ac5dde8 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -2118,7 +2118,7 @@ type ContextSchemeCoverageResult struct {
 //
 // Read it as a sentence: this Context holds a scheme you select with `selector`, it is `id` at `version`, and it plays these `roles`.
 //
-// `selector` is the whole point. A Context keys its schemes locally, and a caller reaches a scheme by its key: an adapter's `schemeView` takes it, and so does `?scheme=` on the REST surface. A caller that cannot enumerate the keys cannot reach anything but the primary.
+// `selector` is the whole point. A Context keys its schemes locally, and a caller reaches a scheme by its key: an adapter's `schemes.get` takes it, and so does `?scheme=` on the REST surface. A caller that cannot enumerate the keys cannot reach anything but the primary.
 type ContextSchemeDescriptor struct {
 	// ID Scheme id, from the scheme document itself.
 	ID string `json:"id"`
@@ -3784,8 +3784,8 @@ type GuideRuleView struct {
 //
 // Parallels the scheme-side scan result: one entry per rule hit, with offsets into the scanned text.
 type GuideScanResult struct {
-	// GuideID The id of the guide the rule belongs to, when the scan covered more than one.
-	GuideID *string `json:"guideId,omitempty"`
+	// GuideID The id of the guide the rule belongs to. Rule ids are unique only within a guide, so a selection built from this hit names this guide.
+	GuideID string `json:"guideId"`
 
 	// MatchedKeywords Each keyword or matcher label that fired, once each.
 	MatchedKeywords []string `json:"matchedKeywords"`
