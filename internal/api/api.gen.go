@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@e7dbb51306442da0a8aa1ee3a0b9cbec511443e81a13ddf2011cfa2a6ac5dde8 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@a0b675026fef78e3b25cc8361eda450c0e2986226037712d3324fecfe42e04a2 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -1887,6 +1887,9 @@ type ContextCrosswalkDescriptor struct {
 	// Mappings How each source assertion translates, in declared order.
 	Mappings []CrosswalkMapping `json:"mappings"`
 
+	// Marking The crosswalk document's own overall marking, exactly as its `crosswalk.marking` writes it. Display only: never interpreted. Absent when the document declares none.
+	Marking *string `json:"marking,omitempty"`
+
 	// Name Human-readable crosswalk name.
 	Name string `json:"name"`
 
@@ -2488,13 +2491,15 @@ type CrosswalkOutcome struct {
 	// Citation Supporting citation copied from the mapping, when declared.
 	Citation *string `json:"citation,omitempty"`
 
-	// Disposition Mapping decision, or `unmapped` when the artifact has no rule.
+	// Disposition Mapping decision, `unmapped` when the artifact has no rule, or `not-selected` when the assertion is covered only by a selection candidate that lost.
+	//
+	// `not-selected` is not an `omit`. An `omit` is a reviewed decision to drop the assertion. `not-selected` says a selection chose a different candidate, so nothing decided this assertion on its own. Like an `omit` it emits no targets and leaves the translation settled.
 	Disposition CrosswalkOutcome_Disposition `json:"disposition"`
 
 	// Guidance Operator guidance copied from the mapping, when declared.
 	Guidance *string `json:"guidance,omitempty"`
 
-	// MappingID Matched mapping id, absent when no mapping covers the assertion.
+	// MappingID Matched mapping id, absent when no mapping covers the assertion. On a `not-selected` outcome, `<selection>:<candidate>` names the candidate that lost.
 	MappingID *string `json:"mappingId,omitempty"`
 
 	// Reason Reviewable explanation of the decision.
@@ -2510,7 +2515,12 @@ type CrosswalkOutcome struct {
 // CrosswalkOutcomeDisposition1 defines model for CrosswalkOutcome.Disposition.1.
 type CrosswalkOutcomeDisposition1 = string
 
-// CrosswalkOutcome_Disposition Mapping decision, or `unmapped` when the artifact has no rule.
+// CrosswalkOutcomeDisposition2 defines model for CrosswalkOutcome.Disposition.2.
+type CrosswalkOutcomeDisposition2 = string
+
+// CrosswalkOutcome_Disposition Mapping decision, `unmapped` when the artifact has no rule, or `not-selected` when the assertion is covered only by a selection candidate that lost.
+//
+// `not-selected` is not an `omit`. An `omit` is a reviewed decision to drop the assertion. `not-selected` says a selection chose a different candidate, so nothing decided this assertion on its own. Like an `omit` it emits no targets and leaves the translation settled.
 type CrosswalkOutcome_Disposition struct {
 	union json.RawMessage
 }
@@ -2638,6 +2648,9 @@ type CtxAccessDescribeRuleRequestBody struct {
 //
 // One route serves both halves of the adapter contract. A caller that wants the descriptions has them; a caller that only wants the rule ids reads them off the same response instead of spending a second round trip on a projection of what it already holds.
 type CtxAccessRulesResponseBody struct {
+	// Marking The access policy document's own overall marking, exactly as its `access.marking` writes it. Display only: never interpreted. Omitted when the document declares none.
+	Marking *string `json:"marking,omitempty"`
+
 	// Rules Descriptions for every rule in the access policy, in declared order.
 	Rules []AccessRuleDescription `json:"rules"`
 }
@@ -3875,6 +3888,9 @@ type GuideViewResponse struct {
 	// ID The guide id.
 	ID string `json:"id"`
 
+	// Marking The guide document's own overall marking, exactly as its `guide.marking` writes it. Display only: never interpreted. Absent when the document declares none.
+	Marking *string `json:"marking,omitempty"`
+
 	// Name The guide's display name.
 	Name string `json:"name"`
 
@@ -4906,6 +4922,9 @@ type SchemeViewResponse struct {
 	// ID The scheme id.
 	ID string `json:"id"`
 
+	// Marking The scheme document's own overall marking, exactly as its `scheme.marking` writes it. Display only: never interpreted. Absent when the document declares none.
+	Marking *string `json:"marking,omitempty"`
+
 	// Name The scheme's display name.
 	Name string `json:"name"`
 
@@ -5811,6 +5830,32 @@ func (t *CrosswalkOutcome_Disposition) FromCrosswalkOutcomeDisposition1(v Crossw
 
 // MergeCrosswalkOutcomeDisposition1 performs a merge with any union data inside the CrosswalkOutcome_Disposition, using the provided CrosswalkOutcomeDisposition1
 func (t *CrosswalkOutcome_Disposition) MergeCrosswalkOutcomeDisposition1(v CrosswalkOutcomeDisposition1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsCrosswalkOutcomeDisposition2 returns the union data inside the CrosswalkOutcome_Disposition as a CrosswalkOutcomeDisposition2
+func (t CrosswalkOutcome_Disposition) AsCrosswalkOutcomeDisposition2() (CrosswalkOutcomeDisposition2, error) {
+	var body CrosswalkOutcomeDisposition2
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromCrosswalkOutcomeDisposition2 overwrites any union data inside the CrosswalkOutcome_Disposition as the provided CrosswalkOutcomeDisposition2
+func (t *CrosswalkOutcome_Disposition) FromCrosswalkOutcomeDisposition2(v CrosswalkOutcomeDisposition2) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeCrosswalkOutcomeDisposition2 performs a merge with any union data inside the CrosswalkOutcome_Disposition, using the provided CrosswalkOutcomeDisposition2
+func (t *CrosswalkOutcome_Disposition) MergeCrosswalkOutcomeDisposition2(v CrosswalkOutcomeDisposition2) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err

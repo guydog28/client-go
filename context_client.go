@@ -1046,6 +1046,12 @@ func (c *CtxCrosswalk) Describe(ctx context.Context) (*CrosswalkInventory, error
 // review, and what no mapping covers. Send exactly one of the request's
 // rendered marking or its structured assertions; neither or both is refused
 // before transport with an [InvalidInputError].
+//
+// On a completed translation, read each outcome's Disposition with
+// AsCrosswalkDisposition, which decodes every value without an error. Beyond
+// the decisions a mapping makes, it can be "unmapped", or "not-selected" for a
+// candidate that lost a selection. A "not-selected" outcome is not an "omit",
+// which is a reviewed decision to drop the assertion.
 func (c *CtxCrosswalk) Translate(ctx context.Context, req CtxCrosswalkTranslateRequest) (*ContextCrosswalkTranslationResult, error) {
 	if err := exclusiveInputError("crosswalk.translate", req.Marking != nil, req.Assertions != nil, nil); err != nil {
 		return nil, err

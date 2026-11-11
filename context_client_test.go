@@ -1057,6 +1057,38 @@ func TestAssessmentTellsAnUnwritableFactFromARefusedOutput(t *testing.T) {
 	}
 }
 
+// A candidate that lost a selection reads as "not-selected", so a caller can
+// tell it from an "omit", the reviewed decision to drop an assertion.
+func TestCrosswalkOutcomeTellsALostCandidateFromAnOmit(t *testing.T) {
+	corpus, err := loadWireCorpus("spec")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var result ezclassify.ContextCrosswalkTranslationResult
+	for _, recorded := range corpus.Cases {
+		if recorded.ID == "ctx-crosswalk-translate.not-selected" {
+			if err := json.Unmarshal(recorded.Response.Body, &result); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	completed, err := result.Result.AsCrosswalkCompletedTranslationResult()
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]string{}
+	for _, outcome := range completed.Outcomes {
+		disposition, err := outcome.Disposition.AsCrosswalkDisposition()
+		if err != nil {
+			t.Fatalf("outcome %v: %v", outcome.MappingID, err)
+		}
+		got[*outcome.MappingID] = string(disposition)
+	}
+	if got["sensitive"] != "carry" || got["handling:open-export"] != "not-selected" {
+		t.Fatalf("dispositions = %v, want the winner carried and the loser not-selected", got)
+	}
+}
+
 // Describe is the audit-trail read: the Context's description with each
 // component's declared version beside the one that answered, crosswalks
 // included. It always goes to the server and records the resolved version.
