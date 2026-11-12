@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@61f4be388fc94d7d86e1c84cde98c894f9635ae61458c9c7b0c51920f9046100 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@39fe4e3f3a9bf7433c10c8c0d10c04a28a087ed3f8d2cee30461a763747c132f by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -746,7 +746,7 @@ const (
 	RuleConditionOperatorEveryHasConcept   RuleConditionOperator = "every_has_concept"
 	RuleConditionOperatorHasConcept        RuleConditionOperator = "has_concept"
 	RuleConditionOperatorHasContent        RuleConditionOperator = "has_content"
-	RuleConditionOperatorMinOrder          RuleConditionOperator = "min_order"
+	RuleConditionOperatorMinRank           RuleConditionOperator = "min_rank"
 	RuleConditionOperatorNotHasConcept     RuleConditionOperator = "not_has_concept"
 	RuleConditionOperatorSharesConceptWith RuleConditionOperator = "shares_concept_with"
 	RuleConditionOperatorSubsetOf          RuleConditionOperator = "subset_of"
@@ -773,7 +773,7 @@ func (e RuleConditionOperator) Valid() bool {
 		return true
 	case RuleConditionOperatorHasContent:
 		return true
-	case RuleConditionOperatorMinOrder:
+	case RuleConditionOperatorMinRank:
 		return true
 	case RuleConditionOperatorNotHasConcept:
 		return true
@@ -4261,7 +4261,7 @@ type RuleCondition struct {
 	// Has Shorthand for has_concept: check if this concept is present
 	Has *string `json:"has,omitempty"`
 
-	// Operator The test a scheme condition applies to one category's assertions. `has_concept` and `not_has_concept` name a concept in `value`; `has_content` holds when the category holds anything; the `count_*` tests (greater than, greater than or equal, equal, less than, less than or equal) compare the number of concepts in the category with the number in `value`; `min_order` holds when a concept sits at or above the order in `value`; `subset_of` holds when this category's concepts are a subset of the category named in `value`, and `shares_concept_with` when the two share a concept; `every_has_concept` and `any_lacks_concept` ask whether every assertion set, or at least one, holds the concept named in `value`.
+	// Operator The test a scheme condition applies to one category's assertions. `has_concept` and `not_has_concept` name a concept in `value`; `has_content` holds when the category holds anything; the `count_*` tests (greater than, greater than or equal, equal, less than, less than or equal) compare the number of concepts in the category with the number in `value`; `min_rank` holds when the category holds a concept ranked at or above the rank in `value`; `subset_of` holds when this category's concepts are a subset of the category named in `value`, and `shares_concept_with` when the two share a concept; `every_has_concept` and `any_lacks_concept` ask whether every assertion set, or at least one, holds the concept named in `value`.
 	Operator *RuleConditionOperator `json:"operator,omitempty"`
 
 	// Role Structural role of a marking within a processing operation.
@@ -4289,7 +4289,7 @@ type RuleCondition_Value struct {
 	union json.RawMessage
 }
 
-// RuleConditionOperator The test a scheme condition applies to one category's assertions. `has_concept` and `not_has_concept` name a concept in `value`; `has_content` holds when the category holds anything; the `count_*` tests (greater than, greater than or equal, equal, less than, less than or equal) compare the number of concepts in the category with the number in `value`; `min_order` holds when a concept sits at or above the order in `value`; `subset_of` holds when this category's concepts are a subset of the category named in `value`, and `shares_concept_with` when the two share a concept; `every_has_concept` and `any_lacks_concept` ask whether every assertion set, or at least one, holds the concept named in `value`.
+// RuleConditionOperator The test a scheme condition applies to one category's assertions. `has_concept` and `not_has_concept` name a concept in `value`; `has_content` holds when the category holds anything; the `count_*` tests (greater than, greater than or equal, equal, less than, less than or equal) compare the number of concepts in the category with the number in `value`; `min_rank` holds when the category holds a concept ranked at or above the rank in `value`; `subset_of` holds when this category's concepts are a subset of the category named in `value`, and `shares_concept_with` when the two share a concept; `every_has_concept` and `any_lacks_concept` ask whether every assertion set, or at least one, holds the concept named in `value`.
 type RuleConditionOperator string
 
 // RuleConditionTarget Assertion set a rule condition is evaluated against.
@@ -4985,73 +4985,73 @@ type UnprocessableEntity = ErrorResponse
 
 // CtxListParams defines parameters for CtxList.
 type CtxListParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxVersionsParams defines parameters for CtxVersions.
 type CtxVersionsParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxDescribeParams defines parameters for CtxDescribe.
 type CtxDescribeParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxAccessCheckParams defines parameters for CtxAccessCheck.
 type CtxAccessCheckParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxAccessDescribeRequirementsParams defines parameters for CtxAccessDescribeRequirements.
 type CtxAccessDescribeRequirementsParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxAccessRulesParams defines parameters for CtxAccessRules.
 type CtxAccessRulesParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxCrosswalkDescribeParams defines parameters for CtxCrosswalkDescribe.
 type CtxCrosswalkDescribeParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxCrosswalkTranslateParams defines parameters for CtxCrosswalkTranslate.
 type CtxCrosswalkTranslateParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxDocumentAuditParams defines parameters for CtxDocumentAudit.
 type CtxDocumentAuditParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxGuideEvaluateParams defines parameters for CtxGuideEvaluate.
 type CtxGuideEvaluateParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxGuideScanParams defines parameters for CtxGuideScan.
 type CtxGuideScanParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
 // CtxGuideViewParams defines parameters for CtxGuideView.
 type CtxGuideViewParams struct {
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5060,7 +5060,7 @@ type CtxSchemeSummaryParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5069,7 +5069,7 @@ type CtxSchemeAggregateParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5078,7 +5078,7 @@ type CtxSchemeApplyPresetParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5087,7 +5087,7 @@ type CtxSchemeCategoriesParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5096,7 +5096,7 @@ type CtxSchemeCheckCoverageParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5105,7 +5105,7 @@ type CtxSchemeConceptsParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5123,7 +5123,7 @@ type CtxSchemeDescribeConceptParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5132,7 +5132,7 @@ type CtxSchemeDiffParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5141,7 +5141,7 @@ type CtxSchemeExplainParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5150,7 +5150,7 @@ type CtxSchemeFormatsParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5159,7 +5159,7 @@ type CtxSchemeLabelPresetsParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5168,7 +5168,7 @@ type CtxSchemeNoticesParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5177,7 +5177,7 @@ type CtxSchemeProcessParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5186,7 +5186,7 @@ type CtxSchemeRenderParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5195,7 +5195,7 @@ type CtxSchemeScanParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5204,7 +5204,7 @@ type CtxSchemeScopesParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5213,7 +5213,7 @@ type CtxSchemeSuggestParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5222,7 +5222,7 @@ type CtxSchemeSuggestForCategoriesParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5231,7 +5231,7 @@ type CtxSchemeValidateParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
@@ -5240,7 +5240,7 @@ type CtxSchemeViewParams struct {
 	// Scheme Context-local key of the scheme the request is answered in, as `GET /v1/ctx/{ctxId}/{version}` lists it. Without it the context's primary scheme answers. Any scheme the context holds may be named, a crosswalk's source or target among them. A key the context does not hold answers 404 with code `scheme_not_found`; it never falls back to the primary. Name it once: a repeated selector answers 400.
 	Scheme *string `form:"scheme,omitempty" json:"scheme,omitempty"`
 
-	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way.
+	// XEzclassifyApplicationID Identifies the calling application for per-application usage reporting: the id the application is registered under. It is not a credential and authorizes nothing. A request without it, or with an id the deployment has not registered, is served the same way. An id is 1 to 128 printable ASCII characters (0x21 to 0x7E), with no spaces. A value that does not match is served and counted as unidentified.
 	XEzclassifyApplicationID *ApplicationID `json:"x-ezclassify-application-id,omitempty"`
 }
 
