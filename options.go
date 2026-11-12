@@ -7,7 +7,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"strings"
+	"strconv"
 	"time"
 )
 
@@ -123,20 +123,34 @@ func WithResponseCacheDisabled() Option {
 // served the same way. It is sent only to Context routes on the configured
 // origin.
 //
-// WithApplicationID panics on a blank id, an id with leading or trailing
-// whitespace, or an id containing control characters. These are programming
-// errors.
+// An application id is 1 to 128 characters, each a visible ASCII character
+// (0x21 to 0x7e). WithApplicationID panics on an id outside that rule, naming
+// the rule in the message. That is a programming error, raised when the client
+// is constructed and before any request is made.
 func WithApplicationID(id string) Option {
-	if strings.TrimSpace(id) == "" {
-		panic("ezclassify: application id must not be blank")
-	}
-	if id != strings.TrimSpace(id) {
-		panic("ezclassify: application id must not have leading or trailing whitespace")
-	}
-	if strings.ContainsRune(id, '\t') || !validHeaderValue(id) {
-		panic("ezclassify: application id must not contain control characters")
+	if problem := checkApplicationID(id); problem != "" {
+		panic("ezclassify: application id " + problem)
 	}
 	return func(config *clientConfig) { config.applicationID = id }
+}
+
+const maxApplicationIDLength = 128
+
+// checkApplicationID returns the broken part of the application id grammar, or
+// an empty string when the id is valid.
+func checkApplicationID(id string) string {
+	if id == "" {
+		return "must be 1 to 128 characters, got an empty id"
+	}
+	if len(id) > maxApplicationIDLength {
+		return "must be 1 to 128 characters, got " + strconv.Itoa(len(id))
+	}
+	for i := 0; i < len(id); i++ {
+		if id[i] < 0x21 || id[i] > 0x7e {
+			return "must use only visible ASCII characters (0x21 to 0x7e), which excludes spaces and control characters"
+		}
+	}
+	return ""
 }
 
 // limitedBody caps how much of a response body is readable. The cap belongs in

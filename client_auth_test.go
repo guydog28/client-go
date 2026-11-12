@@ -206,15 +206,19 @@ func TestApplicationIDIsSentOnlyToContextRoutes(t *testing.T) {
 	}
 }
 
-func TestApplicationIDRejectsInvalidValuesBeforeTransport(t *testing.T) {
-	for name, id := range map[string]string{
-		"embedded tab":        "case\tportal",
-		"leading whitespace":  " portal",
-		"trailing whitespace": "portal ",
-		"blank":               " \t",
-		"empty":               "",
-		"newline":             "portal\n",
-		"null":                "por\x00tal",
+func TestApplicationIDRejectsIdsOutsideTheGrammarBeforeTransport(t *testing.T) {
+	for name, tc := range map[string]struct{ id, rule string }{
+		"embedded tab":        {"case\tportal", "visible ASCII"},
+		"embedded space":      {"case portal", "visible ASCII"},
+		"leading whitespace":  {" portal", "visible ASCII"},
+		"trailing whitespace": {"portal ", "visible ASCII"},
+		"blank":               {" \t", "visible ASCII"},
+		"empty":               {"", "1 to 128 characters"},
+		"newline":             {"portal\n", "visible ASCII"},
+		"null":                {"por\x00tal", "visible ASCII"},
+		"delete":              {"por\x7ftal", "visible ASCII"},
+		"non-ASCII":           {"portal\u00e9", "visible ASCII"},
+		"129 characters":      {strings.Repeat("a", 129), "1 to 128 characters"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			calls := 0
@@ -225,14 +229,28 @@ func TestApplicationIDRejectsInvalidValuesBeforeTransport(t *testing.T) {
 			var refusal any
 			func() {
 				defer func() { refusal = recover() }()
-				_ = New("http://localhost", WithHTTPClient(&http.Client{Transport: transport}), WithApplicationID(id))
+				_ = New("http://localhost", WithHTTPClient(&http.Client{Transport: transport}), WithApplicationID(tc.id))
 			}()
-			if refusal == nil {
-				t.Fatal("WithApplicationID accepted a value that cannot be sent as a header")
+			message, _ := refusal.(string)
+			if !strings.Contains(message, tc.rule) {
+				t.Fatalf("WithApplicationID(%q) panic = %v, want a message naming %q", tc.id, refusal, tc.rule)
 			}
 			if calls != 0 {
 				t.Fatalf("invalid configuration made %d transport calls", calls)
 			}
+		})
+	}
+}
+
+func TestApplicationIDAcceptsTheGrammarLimits(t *testing.T) {
+	for name, id := range map[string]string{
+		"one character":     "a",
+		"128 characters":    strings.Repeat("a", 128),
+		"edge punctuation":  "!~",
+		"dotted identifier": "case-intake.portal/v2",
+	} {
+		t.Run(name, func(t *testing.T) {
+			_ = New("http://localhost", WithApplicationID(id))
 		})
 	}
 }

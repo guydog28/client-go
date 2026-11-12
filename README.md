@@ -406,7 +406,7 @@ Name the calling application with `WithApplicationID`. The runtime counts reques
 client := ezclassify.New(baseURL, ezclassify.WithApplicationID("case-intake-portal"))
 ```
 
-The SDK sends the id as `x-ezclassify-application-id` only to Context routes on the configured origin, including deployments under a base path. It is not a credential and authorizes nothing: a request without it, or with an id the deployment has not registered, is served the same way. `WithApplicationID` panics on a blank id or one with surrounding whitespace or control characters.
+The SDK sends the id as `x-ezclassify-application-id` only to Context routes on the configured origin, including deployments under a base path. It is not a credential and authorizes nothing: a request without it, or with an id the deployment has not registered, is served the same way. An application id is 1 to 128 characters, each a visible ASCII character (0x21 to 0x7e). `WithApplicationID` panics at construction on an id outside that rule, and the message names the rule.
 
 Your application authenticates users with its own identity provider and supplies their tokens; the SDK does not sign users in. Keep each client's credentials and caches scoped to one caller. A transport supplied with `WithHTTPClient` receives the credentials on Context requests; what it does with them, including logging, is the caller's responsibility. Blank non-empty tokens are rejected. Use `WithHTTPClient` when you also need a custom transport, retry policy, cookie jar, or redirect policy:
 
