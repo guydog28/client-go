@@ -7,7 +7,7 @@
 //
 // Run with:
 //
-//	cd client-go && go test -run TestConformance ./...
+//	cd sdk-go && go test -run TestConformance ./...
 package ezclassify_test
 
 import (

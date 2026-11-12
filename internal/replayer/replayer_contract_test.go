@@ -23,8 +23,8 @@ func corpusPath(t *testing.T) string {
 	if !ok {
 		t.Fatal("runtime.Caller failed")
 	}
-	// thisFile = client-go/internal/replayer/replayer_contract_test.go
-	// corpus is at client-go/spec/replayer-contract/v1/corpus.json
+	// thisFile = sdk-go/internal/replayer/replayer_contract_test.go
+	// corpus is at sdk-go/spec/replayer-contract/v1/corpus.json
 	p := filepath.Join(filepath.Dir(thisFile), "..", "..", "spec", "replayer-contract", "v1", "corpus.json")
 	if _, err := os.Stat(p); err != nil {
 		t.Fatalf("corpus not found at %s: %v", p, err)
