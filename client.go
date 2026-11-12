@@ -408,7 +408,7 @@ func (c *Client) Ping(ctx context.Context) (PingResult, error) {
 				engineVersion = "(unreported)"
 			}
 			log.Printf(
-				"ezclassify-go v%s targets rest-api %s.x. "+
+				"github.com/ezclassify/sdk-go v%s targets rest-api %s.x. "+
 					"Connected to rest-api v%s. Mixed minor versions are unsupported.",
 				clientSpecVersion, majorMinor(clientSpecVersion), engineVersion,
 			)
