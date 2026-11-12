@@ -33,10 +33,6 @@ var goAbsentCapabilities = map[string]bool{
 	// An optional request member is a nil pointer with omitempty, so an unset
 	// member is always omitted from the body and an explicit null cannot be sent.
 	"explicitNullMember": true,
-	// Go exposes one method per wire operation. Access.Check serves both
-	// marking and assertion targets, so no two methods post the same body to
-	// the same route.
-	"sharedRouteOperations": true,
 }
 
 type cachePlanFile struct {

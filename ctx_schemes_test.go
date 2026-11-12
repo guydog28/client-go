@@ -28,7 +28,6 @@ func schemeCalls() []schemeCall {
 		{"Categories", func(ctx context.Context, s *ezclassify.CtxScheme) error { _, err := s.Categories(ctx); return err }},
 		{"Concepts", func(ctx context.Context, s *ezclassify.CtxScheme) error { _, err := s.Concepts(ctx); return err }},
 		{"Formats", func(ctx context.Context, s *ezclassify.CtxScheme) error { _, err := s.Formats(ctx); return err }},
-		{"Grammar", func(ctx context.Context, s *ezclassify.CtxScheme) error { _, err := s.Grammar(ctx); return err }},
 		{"Scopes", func(ctx context.Context, s *ezclassify.CtxScheme) error { _, err := s.Scopes(ctx); return err }},
 		{"LabelPresets", func(ctx context.Context, s *ezclassify.CtxScheme) error { _, err := s.LabelPresets(ctx); return err }},
 		{"ApplyPreset", func(ctx context.Context, s *ezclassify.CtxScheme) error {
@@ -67,10 +66,6 @@ func schemeCalls() []schemeCall {
 			_, err := s.Render(ctx, ezclassify.CtxSchemeRenderRequest{})
 			return err
 		}},
-		{"Normalize", func(ctx context.Context, s *ezclassify.CtxScheme) error {
-			_, err := s.Normalize(ctx, ezclassify.CtxSchemeNormalizeRequest{Input: input})
-			return err
-		}},
 		{"CheckCoverage", func(ctx context.Context, s *ezclassify.CtxScheme) error {
 			_, err := s.CheckCoverage(ctx, ezclassify.CtxSchemeCheckCoverageRequest{})
 			return err
@@ -81,10 +76,6 @@ func schemeCalls() []schemeCall {
 		}},
 		{"Diff", func(ctx context.Context, s *ezclassify.CtxScheme) error {
 			_, err := s.Diff(ctx, ezclassify.CtxSchemeDiffRequest{A: input, B: input})
-			return err
-		}},
-		{"FilterConcepts", func(ctx context.Context, s *ezclassify.CtxScheme) error {
-			_, err := s.FilterConcepts(ctx, ezclassify.CtxSchemeFilterConceptsRequest{Query: input})
 			return err
 		}},
 		{"Notices", func(ctx context.Context, s *ezclassify.CtxScheme) error {

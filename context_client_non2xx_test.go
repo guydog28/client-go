@@ -52,13 +52,6 @@ func TestCtxOpsNotFoundReturnsContextNotFoundError(t *testing.T) {
 			},
 		},
 		{
-			"Scheme.FilterConcepts",
-			func(cx *ezclassify.EzClassifyContext) error {
-				_, e := cx.Scheme.FilterConcepts(context.Background(), ezclassify.CtxSchemeFilterConceptsRequest{Query: "x"})
-				return e
-			},
-		},
-		{
 			"Scheme.Notices",
 			func(cx *ezclassify.EzClassifyContext) error {
 				_, e := cx.Scheme.Notices(context.Background(), ezclassify.CtxSchemeNoticesRequest{Assertions: []ezclassify.Assertion{}})
@@ -69,13 +62,6 @@ func TestCtxOpsNotFoundReturnsContextNotFoundError(t *testing.T) {
 			"Guide.Scan",
 			func(cx *ezclassify.EzClassifyContext) error {
 				_, e := cx.Guide.Scan(context.Background(), ezclassify.CtxGuideScanRequest{Text: "x"})
-				return e
-			},
-		},
-		{
-			"Guide.FilterRules",
-			func(cx *ezclassify.EzClassifyContext) error {
-				_, e := cx.Guide.FilterRules(context.Background(), ezclassify.CtxGuideFilterRulesRequest{Query: "x"})
 				return e
 			},
 		},
@@ -229,8 +215,8 @@ func TestCtxSchemeProcessUnexpectedShapeIsMalformedResponse(t *testing.T) {
 	if result != nil {
 		t.Errorf("result = %+v, want nil beside an error", result)
 	}
-	if malformed.Op != "scheme.process" || malformed.StatusCode != http.StatusOK || malformed.Member != "/operationLimitations" {
-		t.Errorf("error = %+v, want scheme.process, 200, first missing member /operationLimitations", malformed)
+	if malformed.Op != "scheme.process" || malformed.StatusCode != http.StatusOK || malformed.Member != "/resolution" {
+		t.Errorf("error = %+v, want scheme.process, 200, first missing member /resolution", malformed)
 	}
 	var apiErr *ezclassify.APIError
 	if errors.As(err, &apiErr) {
@@ -281,9 +267,6 @@ func TestCtxOpsTransportErrorPropagate(t *testing.T) {
 	if _, err := cx.Scheme.Render(ctx, ezclassify.CtxSchemeRenderRequest{}); err == nil {
 		t.Error("Scheme.Render: expected transport error")
 	}
-	if _, err := cx.Scheme.Normalize(ctx, ezclassify.CtxSchemeNormalizeRequest{}); err == nil {
-		t.Error("Scheme.Normalize: expected transport error")
-	}
 	if _, err := cx.Scheme.CheckCoverage(ctx, ezclassify.CtxSchemeCheckCoverageRequest{}); err == nil {
 		t.Error("Scheme.CheckCoverage: expected transport error")
 	}
@@ -292,9 +275,6 @@ func TestCtxOpsTransportErrorPropagate(t *testing.T) {
 	}
 	if _, err := cx.Scheme.Diff(ctx, ezclassify.CtxSchemeDiffRequest{}); err == nil {
 		t.Error("Scheme.Diff: expected transport error")
-	}
-	if _, err := cx.Scheme.FilterConcepts(ctx, ezclassify.CtxSchemeFilterConceptsRequest{}); err == nil {
-		t.Error("Scheme.FilterConcepts: expected transport error")
 	}
 	if _, err := cx.Scheme.Notices(ctx, ezclassify.CtxSchemeNoticesRequest{}); err == nil {
 		t.Error("Scheme.Notices: expected transport error")
@@ -308,12 +288,6 @@ func TestCtxOpsTransportErrorPropagate(t *testing.T) {
 	if _, err := cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{}); err == nil {
 		t.Error("Guide.Evaluate: expected transport error")
 	}
-	if _, err := cx.Guide.FilterRules(ctx, ezclassify.CtxGuideFilterRulesRequest{}); err == nil {
-		t.Error("Guide.FilterRules: expected transport error")
-	}
-	if _, err := cx.Guide.DescribeRule(ctx, ezclassify.CtxGuideDescribeRuleRequest{}); err == nil {
-		t.Error("Guide.DescribeRule: expected transport error")
-	}
 	if _, err := cx.Guide.View(ctx, nil); err == nil {
 		t.Error("Guide.View: expected transport error")
 	}
@@ -322,9 +296,6 @@ func TestCtxOpsTransportErrorPropagate(t *testing.T) {
 	}
 	if _, err := cx.Access.DescribeRequirements(ctx, ezclassify.CtxAccessDescribeRequirementsRequest{}); err == nil {
 		t.Error("Access.DescribeRequirements: expected transport error")
-	}
-	if _, err := cx.Access.DescribeRule(ctx, ezclassify.CtxAccessDescribeRuleRequest{}); err == nil {
-		t.Error("Access.DescribeRule: expected transport error")
 	}
 	if _, err := cx.Document.Audit(ctx, ezclassify.CtxDocumentAuditRequest{}); err == nil {
 		t.Error("Document.Audit: expected transport error")
@@ -375,13 +346,6 @@ func TestCtxOpsNotFoundRemainingMethods(t *testing.T) {
 			},
 		},
 		{
-			"Scheme.Normalize",
-			func(cx *ezclassify.EzClassifyContext) error {
-				_, e := cx.Scheme.Normalize(context.Background(), ezclassify.CtxSchemeNormalizeRequest{})
-				return e
-			},
-		},
-		{
 			"Scheme.CheckCoverage",
 			func(cx *ezclassify.EzClassifyContext) error {
 				_, e := cx.Scheme.CheckCoverage(context.Background(), ezclassify.CtxSchemeCheckCoverageRequest{})
@@ -410,23 +374,9 @@ func TestCtxOpsNotFoundRemainingMethods(t *testing.T) {
 			},
 		},
 		{
-			"Guide.DescribeRule",
-			func(cx *ezclassify.EzClassifyContext) error {
-				_, e := cx.Guide.DescribeRule(context.Background(), ezclassify.CtxGuideDescribeRuleRequest{})
-				return e
-			},
-		},
-		{
 			"Access.DescribeRequirements",
 			func(cx *ezclassify.EzClassifyContext) error {
 				_, e := cx.Access.DescribeRequirements(context.Background(), ezclassify.CtxAccessDescribeRequirementsRequest{})
-				return e
-			},
-		},
-		{
-			"Access.DescribeRule",
-			func(cx *ezclassify.EzClassifyContext) error {
-				_, e := cx.Access.DescribeRule(context.Background(), ezclassify.CtxAccessDescribeRuleRequest{})
 				return e
 			},
 		},
@@ -472,23 +422,9 @@ func TestCtxOpsDecodeErrorOnWrongBodyType(t *testing.T) {
 			},
 		},
 		{
-			"Scheme.FilterConcepts",
-			func(cx *ezclassify.EzClassifyContext) error {
-				_, e := cx.Scheme.FilterConcepts(context.Background(), ezclassify.CtxSchemeFilterConceptsRequest{Query: "x"})
-				return e
-			},
-		},
-		{
 			"Scheme.Notices",
 			func(cx *ezclassify.EzClassifyContext) error {
 				_, e := cx.Scheme.Notices(context.Background(), ezclassify.CtxSchemeNoticesRequest{})
-				return e
-			},
-		},
-		{
-			"Guide.FilterRules",
-			func(cx *ezclassify.EzClassifyContext) error {
-				_, e := cx.Guide.FilterRules(context.Background(), ezclassify.CtxGuideFilterRulesRequest{Query: "x"})
 				return e
 			},
 		},

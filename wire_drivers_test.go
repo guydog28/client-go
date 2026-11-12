@@ -54,7 +54,6 @@ var wireDrivers = map[string]string{
 	"ctx-scheme-concepts.layered":                                    publicDriver,
 	"ctx-scheme-categories.layered":                                  publicDriver,
 	"ctx-scheme-formats.ok":                                          publicDriver,
-	"ctx-scheme-grammar.ok":                                          publicDriver,
 	"ctx-scheme-scopes.ok":                                           publicDriver,
 	"ctx-scheme-scopes.none":                                         publicDriver,
 	"ctx-scheme-label-presets.ok":                                    publicDriver,
@@ -64,7 +63,6 @@ var wireDrivers = map[string]string{
 	"ctx-scheme-concepts.full":                                       publicDriver,
 	"ctx-scheme-categories.full":                                     publicDriver,
 	"ctx-scheme-formats.full":                                        publicDriver,
-	"ctx-scheme-grammar.full":                                        publicDriver,
 	"ctx-scheme-scopes.full":                                         publicDriver,
 	"ctx-scheme-label-presets.full":                                  publicDriver,
 	"ctx-scheme-process.ok":                                          publicDriver,
@@ -77,15 +75,12 @@ var wireDrivers = map[string]string{
 	"ctx-scheme-process.undeclared-format":                           publicDriver,
 	"ctx-scheme-aggregate.input-format-with-sets":                    refusedBeforeTransport,
 	"ctx-scheme-explain.ok":                                          publicDriver,
-	"ctx-scheme-normalize.ok":                                        publicDriver,
 	"ctx-scheme-render.ok":                                           publicDriver,
 	"ctx-scheme-render.empty":                                        publicDriver,
 	"ctx-scheme-diff.ok":                                             publicDriver,
 	"ctx-scheme-view.ok":                                             publicDriver,
 	"ctx-scheme-view.marked":                                         publicDriver,
 	"ctx-scheme-notices.ok":                                          publicDriver,
-	"ctx-scheme-filter-concepts.ok":                                  publicDriver,
-	"ctx-scheme-filter-concepts.no-match":                            publicDriver,
 	"ctx-scheme-scan.ok":                                             publicDriver,
 	"ctx-scheme-aggregate.ok":                                        publicDriver,
 	"ctx-scheme-aggregate.assertion-sets":                            publicDriver,
@@ -111,7 +106,6 @@ var wireDrivers = map[string]string{
 	"ctx-access-check.marking":                                       publicDriver,
 	"ctx-access-check.assertions":                                    publicDriver,
 	"ctx-access-check.two-attributes":                                publicDriver,
-	"ctx-access-describe-rule.ok":                                    publicDriver,
 	"ctx-access-describe-requirements.ok":                            publicDriver,
 	"ctx-access-rules.ok":                                            publicDriver,
 	"ctx-access-rules.marked":                                        publicDriver,
@@ -119,10 +113,7 @@ var wireDrivers = map[string]string{
 	"ctx-guide-scan.ok":                                              publicDriver,
 	"ctx-guide-evaluate.ok":                                          publicDriver,
 	"ctx-guide-evaluate.selections":                                  publicDriver,
-	"ctx-guide-describe-rule.ok":                                     publicDriver,
-	"ctx-guide-describe-rule.unknown-guide":                          publicDriver,
 	"ctx-guide-view.by-id":                                           publicDriver,
-	"ctx-guide-filter-rules.ok":                                      publicDriver,
 	"ctx-guide-view.ok":                                              publicDriver,
 	"ctx-guide-view.marked":                                          publicDriver,
 	"ctx-crosswalk-translate.marking":                                publicDriver,
@@ -147,7 +138,6 @@ var wireDrivers = map[string]string{
 	"ctx-scheme-process.undeclared-request-field-unknownField":       undeclaredMember,
 	"ctx-scheme-validate.undeclared-field":                           undeclaredMember,
 	"ctx-scheme-explain.undeclared-field":                            undeclaredMember,
-	"ctx-scheme-normalize.undeclared-field":                          undeclaredMember,
 	"ctx-scheme-aggregate.undeclared-field":                          undeclaredMember,
 	"ctx-scheme-suggest.undeclared-field":                            undeclaredMember,
 	"ctx-scheme-suggest-for-categories.undeclared-field":             undeclaredMember,
@@ -271,8 +261,6 @@ func driveWire(ctx context.Context, h *ez.EzClassifyContext, r wireCase, u *url.
 		return scheme.Categories(ctx)
 	case "ctxSchemeFormats":
 		return scheme.Formats(ctx)
-	case "ctxSchemeGrammar":
-		return scheme.Grammar(ctx)
 	case "ctxSchemeScopes":
 		return scheme.Scopes(ctx)
 	case "ctxSchemeLabelPresets":
@@ -293,16 +281,12 @@ func driveWire(ctx context.Context, h *ez.EzClassifyContext, r wireCase, u *url.
 		return wireCall[ez.ApplyPresetRequest](r.Request.Body, func(v ez.ApplyPresetRequest) (interface{}, error) { return scheme.ApplyPreset(ctx, v) })
 	case "ctxSchemeExplain":
 		return wireCall[ez.CtxSchemeExplainRequest](r.Request.Body, func(v ez.CtxSchemeExplainRequest) (interface{}, error) { return scheme.Explain(ctx, v) })
-	case "ctxSchemeNormalize":
-		return wireCall[ez.CtxSchemeNormalizeRequest](r.Request.Body, func(v ez.CtxSchemeNormalizeRequest) (interface{}, error) { return scheme.Normalize(ctx, v) })
 	case "ctxSchemeRender":
 		return wireCall[ez.CtxSchemeRenderRequest](r.Request.Body, func(v ez.CtxSchemeRenderRequest) (interface{}, error) { return scheme.Render(ctx, v) })
 	case "ctxSchemeDiff":
 		return wireCall[ez.CtxSchemeDiffRequest](r.Request.Body, func(v ez.CtxSchemeDiffRequest) (interface{}, error) { return scheme.Diff(ctx, v) })
 	case "ctxSchemeNotices":
 		return wireCall[ez.CtxSchemeNoticesRequest](r.Request.Body, func(v ez.CtxSchemeNoticesRequest) (interface{}, error) { return scheme.Notices(ctx, v) })
-	case "ctxSchemeFilterConcepts":
-		return wireCall[ez.CtxSchemeFilterConceptsRequest](r.Request.Body, func(v ez.CtxSchemeFilterConceptsRequest) (interface{}, error) { return scheme.FilterConcepts(ctx, v) })
 	case "ctxSchemeScan":
 		return wireCall[ez.CtxSchemeScanRequest](r.Request.Body, func(v ez.CtxSchemeScanRequest) (interface{}, error) { return scheme.Scan(ctx, v) })
 	case "ctxSchemeAggregate":
@@ -317,8 +301,6 @@ func driveWire(ctx context.Context, h *ez.EzClassifyContext, r wireCase, u *url.
 		return wireCall[ez.CtxSchemeCheckCoverageRequest](r.Request.Body, func(v ez.CtxSchemeCheckCoverageRequest) (interface{}, error) { return scheme.CheckCoverage(ctx, v) })
 	case "ctxAccessCheck":
 		return wireCall[ez.CtxAccessCheckRequest](r.Request.Body, func(v ez.CtxAccessCheckRequest) (interface{}, error) { return h.Access.Check(ctx, v) })
-	case "ctxAccessDescribeRule":
-		return wireCall[ez.CtxAccessDescribeRuleRequest](r.Request.Body, func(v ez.CtxAccessDescribeRuleRequest) (interface{}, error) { return h.Access.DescribeRule(ctx, v) })
 	case "ctxAccessDescribeRequirements":
 		return wireCall[ez.CtxAccessDescribeRequirementsRequest](r.Request.Body, func(v ez.CtxAccessDescribeRequirementsRequest) (interface{}, error) {
 			return h.Access.DescribeRequirements(ctx, v)
@@ -327,10 +309,6 @@ func driveWire(ctx context.Context, h *ez.EzClassifyContext, r wireCase, u *url.
 		return wireCall[ez.CtxGuideScanRequest](r.Request.Body, func(v ez.CtxGuideScanRequest) (interface{}, error) { return h.Guide.Scan(ctx, v) })
 	case "ctxGuideEvaluate":
 		return wireCall[ez.CtxGuideEvaluateRequest](r.Request.Body, func(v ez.CtxGuideEvaluateRequest) (interface{}, error) { return h.Guide.Evaluate(ctx, v) })
-	case "ctxGuideDescribeRule":
-		return wireCall[ez.CtxGuideDescribeRuleRequest](r.Request.Body, func(v ez.CtxGuideDescribeRuleRequest) (interface{}, error) { return h.Guide.DescribeRule(ctx, v) })
-	case "ctxGuideFilterRules":
-		return wireCall[ez.CtxGuideFilterRulesRequest](r.Request.Body, func(v ez.CtxGuideFilterRulesRequest) (interface{}, error) { return h.Guide.FilterRules(ctx, v) })
 	case "ctxDocumentAudit":
 		return wireCall[ez.CtxDocumentAuditRequest](r.Request.Body, func(v ez.CtxDocumentAuditRequest) (interface{}, error) { return h.Document.Audit(ctx, v) })
 	case "ctxCrosswalkTranslate":

@@ -33,7 +33,7 @@ func TestResponseBodyClosePreservesErrorAndRunsOnce(t *testing.T) {
 	body := &closeErrorBody{Reader: strings.NewReader(`{"contexts":[]}`), err: want}
 	client := New("http://ezclassify.invalid",
 		WithHTTPClient(&http.Client{Transport: singleBodyTransport{body}}))
-	response, err := client.wire.CtxList(context.Background())
+	response, err := client.wire.CtxList(context.Background(), nil)
 	if err != nil {
 		t.Fatal(err)
 	}

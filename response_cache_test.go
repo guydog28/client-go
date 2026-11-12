@@ -16,7 +16,7 @@ import (
 	"github.com/ezclassify/client-go"
 )
 
-var cachedProcessBody = fixtureAs[ezclassify.ContextSchemeProcessResult](`{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[],"sources":[]},"operationLimitations":[],"result":{"valid":true,"rendered":"H","inputWasValid":true,"notices":[]}}`)
+var cachedProcessBody = fixtureAs[ezclassify.ContextSchemeProcessResult](`{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[]},"result":{"valid":true,"rendered":"H","inputWasValid":true,"notices":[]}}`)
 
 func TestContextProcessReusesValidatedResponse(t *testing.T) {
 	var calls atomic.Int32
@@ -56,7 +56,7 @@ func TestContextCacheRetriesFailuresAndMalformedSuccess(t *testing.T) {
 		case 2:
 			_, _ = io.WriteString(w, `{"unexpected":"shape"}`)
 		case 3:
-			_, _ = io.WriteString(w, `{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[],"sources":[]},"operationLimitations":[],"result":{}}`)
+			_, _ = io.WriteString(w, `{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[]},"result":{}}`)
 		default:
 			_, _ = io.WriteString(w, cachedProcessBody)
 		}
@@ -67,7 +67,7 @@ func TestContextCacheRetriesFailuresAndMalformedSuccess(t *testing.T) {
 	if _, err := cx.Scheme.Process(context.Background(), req); err == nil {
 		t.Fatal("server error was not returned")
 	}
-	for _, member := range []string{"/operationLimitations", "/result/"} {
+	for _, member := range []string{"/resolution", "/result/"} {
 		_, err := cx.Scheme.Process(context.Background(), req)
 		var malformed *ezclassify.MalformedResponseError
 		if !errors.As(err, &malformed) || !strings.HasPrefix(malformed.Member, member) {
@@ -155,7 +155,7 @@ func TestContextAccessDecisionIsNeverServedFromClientMemory(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[],"sources":[]},"operationLimitations":[],"result":{"granted":false,"rules":[],"warnings":[]}}`)
+		_, _ = io.WriteString(w, `{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[]},"result":{"granted":false,"rules":[],"warnings":[]}}`)
 	}))
 	t.Cleanup(srv.Close)
 	req := ezclassify.CtxAccessCheckRequest{}
@@ -236,7 +236,7 @@ func countingContextServer(t *testing.T, body func(path string, attempt int32) s
 		attempt := counter.Add(1)
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("X-EzClassify-Resolved-Version", "1.0.0")
-		_, _ = io.WriteString(w, contextFixture(r.URL.Path, `{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[],"sources":[]},"operationLimitations":[],"result":`+body(r.URL.Path, attempt)+`}`))
+		_, _ = io.WriteString(w, contextFixture(r.URL.Path, `{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[]},"result":`+body(r.URL.Path, attempt)+`}`))
 	}))
 	t.Cleanup(srv.Close)
 	return srv, func(path string) int32 {
@@ -533,7 +533,7 @@ func TestContextCachedResultsAreIndependentCopies(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls.Add(1)
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, fixtureAs[ezclassify.ContextSchemeProcessResult](`{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[{"kind":"scheme","id":"s","version":"1.0.0"}],"sources":[]},"operationLimitations":[],"result":{"valid":true,"rendered":"H","inputWasValid":true,"assertions":[{"conceptId":"L_H","categoryId":"level","confidence":"certain","source":"parse"}]}}`))
+		_, _ = io.WriteString(w, fixtureAs[ezclassify.ContextSchemeProcessResult](`{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[{"kind":"scheme","id":"s","version":"1.0.0"}]},"result":{"valid":true,"rendered":"H","inputWasValid":true,"assertions":[{"conceptId":"L_H","categoryId":"level","confidence":"certain","source":"parse"}]}}`))
 	}))
 	t.Cleanup(srv.Close)
 	cx := ezclassify.Connect(srv.URL, "c", "1.0.0")

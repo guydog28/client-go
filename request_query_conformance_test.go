@@ -144,10 +144,6 @@ var readCases = []readCase{
 		_, err := cx.Schemes.Get("acme").Formats(ctx)
 		return err
 	}},
-	{"scheme.grammar", "get", requestRoutePrefix + "scheme/grammar", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Schemes.Get("acme").Grammar(ctx)
-		return err
-	}},
 	{"scheme.scopes", "get", requestRoutePrefix + "scheme/scopes", func(ctx context.Context, _ *ezclassify.Client, cx *ezclassify.EzClassifyContext) error {
 		_, err := cx.Schemes.Get("acme").Scopes(ctx)
 		return err
@@ -262,7 +258,9 @@ func TestEveryContractReadOperationHasACase(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	covered := map[operationKey]bool{}
+	// Readiness is for an orchestrator's routing; no public method sends it
+	// (see specOperationsNotSent).
+	covered := map[operationKey]bool{{"get", "/v1/ready"}: true}
 	for _, c := range readCases {
 		covered[operationKey{c.method, c.template}] = true
 	}

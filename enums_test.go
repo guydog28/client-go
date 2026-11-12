@@ -15,16 +15,10 @@ func TestWireEnumConstantsCarryTheLockedWireValues(t *testing.T) {
 		{"AssertionConfidenceCertain", string(AssertionConfidenceCertain), "certain"},
 		{"AssertionConfidenceInferred", string(AssertionConfidenceInferred), "inferred"},
 		{"AssertionConfidenceRepaired", string(AssertionConfidenceRepaired), "repaired"},
-		{"AssertionConfidenceUncertain", string(AssertionConfidenceUncertain), "uncertain"},
 		{"ConceptNoticeTypeAdmonition", string(ConceptNoticeTypeAdmonition), "admonition"},
-		{"ConceptNoticeTypeDistribution", string(ConceptNoticeTypeDistribution), "distribution"},
-		{"ConceptNoticeTypeHandling", string(ConceptNoticeTypeHandling), "handling"},
-		{"ConceptNoticeTypeInfo", string(ConceptNoticeTypeInfo), "info"},
 		{"ConceptNoticeTypeWarning", string(ConceptNoticeTypeWarning), "warning"},
 		{"ProcessingRolePart", string(ProcessingRolePart), "part"},
 		{"ProcessingRoleWhole", string(ProcessingRoleWhole), "whole"},
-		{"ValidationSeverityError", string(ValidationSeverityError), "error"},
-		{"ValidationSeverityWarning", string(ValidationSeverityWarning), "warning"},
 		{"WarningKindDeprecation", string(WarningKindDeprecation), "deprecation"},
 		{"WarningKindRule", string(WarningKindRule), "rule"},
 		{"OverallVerdictPass", string(OverallVerdictPass), "pass"},
@@ -61,7 +55,7 @@ func TestWireEnumConstantsCarryTheLockedWireValues(t *testing.T) {
 		}
 	}
 
-	if !ConceptNoticeTypeHandling.Valid() || ConceptNoticeType("bogus").Valid() {
+	if !ConceptNoticeTypeWarning.Valid() || ConceptNoticeType("bogus").Valid() {
 		t.Error("ConceptNoticeType.Valid() must accept locked members and reject unknown values")
 	}
 

@@ -166,7 +166,7 @@ func (cx *EzClassifyContext) Describe(ctx context.Context) (*ContextDescription,
 // [EzClassifyContext.Resolve]; op names the caller in errors.
 func (cx *EzClassifyContext) describe(ctx context.Context, op string) (*ContextDescription, error) {
 	return do(cx, ctx, op, func(wireCtx context.Context) (callResult[ContextDescription], error) {
-		r, err := cx.client.wire.CtxDescribeWithResponse(wireCtx, cx.id, cx.version)
+		r, err := cx.client.wire.CtxDescribeWithResponse(wireCtx, cx.id, cx.version, nil)
 		if err != nil {
 			return callResult[ContextDescription]{}, fmt.Errorf("ezclassify: %s %q: %w", op, cx.id, err)
 		}
@@ -582,6 +582,7 @@ func (s *CtxScheme) cacheScope() string {
 func (s *CtxScheme) Summary(ctx context.Context) (*SchemeSummary, error) {
 	return do(s.cx, ctx, "scheme.summary", func(wireCtx context.Context) (callResult[SchemeSummary], error) {
 		r, err := s.cx.client.wire.CtxSchemeSummaryWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeSummaryParams{Scheme: s.key})
+
 		if err != nil {
 			return callResult[SchemeSummary]{}, err
 		}
@@ -593,6 +594,7 @@ func (s *CtxScheme) Summary(ctx context.Context) (*SchemeSummary, error) {
 func (s *CtxScheme) Categories(ctx context.Context) (*[]CategoryView, error) {
 	return do(s.cx, ctx, "scheme.categories", func(wireCtx context.Context) (callResult[[]CategoryView], error) {
 		r, err := s.cx.client.wire.CtxSchemeCategoriesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeCategoriesParams{Scheme: s.key})
+
 		if err != nil {
 			return callResult[[]CategoryView]{}, err
 		}
@@ -604,6 +606,7 @@ func (s *CtxScheme) Categories(ctx context.Context) (*[]CategoryView, error) {
 func (s *CtxScheme) Concepts(ctx context.Context) (*[]ConceptView, error) {
 	return do(s.cx, ctx, "scheme.concepts", func(wireCtx context.Context) (callResult[[]ConceptView], error) {
 		r, err := s.cx.client.wire.CtxSchemeConceptsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeConceptsParams{Scheme: s.key})
+
 		if err != nil {
 			return callResult[[]ConceptView]{}, err
 		}
@@ -615,21 +618,11 @@ func (s *CtxScheme) Concepts(ctx context.Context) (*[]ConceptView, error) {
 func (s *CtxScheme) Formats(ctx context.Context) (*[]FormatView, error) {
 	return do(s.cx, ctx, "scheme.formats", func(wireCtx context.Context) (callResult[[]FormatView], error) {
 		r, err := s.cx.client.wire.CtxSchemeFormatsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeFormatsParams{Scheme: s.key})
+
 		if err != nil {
 			return callResult[[]FormatView]{}, err
 		}
 		return callResult[[]FormatView]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
-	})
-}
-
-// Grammar returns the parse grammar of this view's scheme.
-func (s *CtxScheme) Grammar(ctx context.Context) (*SchemeGrammar, error) {
-	return do(s.cx, ctx, "scheme.grammar", func(wireCtx context.Context) (callResult[SchemeGrammar], error) {
-		r, err := s.cx.client.wire.CtxSchemeGrammarWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeGrammarParams{Scheme: s.key})
-		if err != nil {
-			return callResult[SchemeGrammar]{}, err
-		}
-		return callResult[SchemeGrammar]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
 	})
 }
 
@@ -640,6 +633,7 @@ func (s *CtxScheme) Grammar(ctx context.Context) (*SchemeGrammar, error) {
 func (s *CtxScheme) LabelPresets(ctx context.Context) (*[]LabelPresetView, error) {
 	return do(s.cx, ctx, "scheme.labelPresets", func(wireCtx context.Context) (callResult[[]LabelPresetView], error) {
 		r, err := s.cx.client.wire.CtxSchemeLabelPresetsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeLabelPresetsParams{Scheme: s.key})
+
 		if err != nil {
 			return callResult[[]LabelPresetView]{}, err
 		}
@@ -651,6 +645,7 @@ func (s *CtxScheme) LabelPresets(ctx context.Context) (*[]LabelPresetView, error
 func (s *CtxScheme) Scopes(ctx context.Context) (*[]SchemeScope, error) {
 	return do(s.cx, ctx, "scheme.scopes", func(wireCtx context.Context) (callResult[[]SchemeScope], error) {
 		r, err := s.cx.client.wire.CtxSchemeScopesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeScopesParams{Scheme: s.key})
+
 		if err != nil {
 			return callResult[[]SchemeScope]{}, err
 		}
@@ -665,6 +660,7 @@ func (s *CtxScheme) Scopes(ctx context.Context) (*[]SchemeScope, error) {
 func (s *CtxScheme) ApplyPreset(ctx context.Context, req ApplyPresetRequest) (*ContextSchemeValidateResult, error) {
 	return cachedSchemeDo(s, ctx, "scheme.applyPreset", req, func(wireCtx context.Context) (callResult[ContextSchemeValidateResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeApplyPresetWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeApplyPresetParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeValidateResult]{}, err
 		}
@@ -682,6 +678,7 @@ func (s *CtxScheme) ApplyPreset(ctx context.Context, req ApplyPresetRequest) (*C
 func (s *CtxScheme) Process(ctx context.Context, req CtxSchemeProcessRequest) (*ContextSchemeProcessResult, error) {
 	return cachedSchemeDo(s, ctx, "scheme.process", req, func(wireCtx context.Context) (callResult[ContextSchemeProcessResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeProcessWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeProcessParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeProcessResult]{}, err
 		}
@@ -702,6 +699,7 @@ func (s *CtxScheme) Validate(ctx context.Context, req CtxSchemeValidateRequest) 
 	}
 	return cachedSchemeDo(s, ctx, "scheme.validate", req, func(wireCtx context.Context) (callResult[ContextSchemeValidateResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeValidateWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeValidateParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeValidateResult]{}, err
 		}
@@ -717,6 +715,7 @@ func (s *CtxScheme) Validate(ctx context.Context, req CtxSchemeValidateRequest) 
 func (s *CtxScheme) Explain(ctx context.Context, req CtxSchemeExplainRequest) (*ContextSchemeExplainResult, error) {
 	return cachedSchemeDo(s, ctx, "scheme.explain", req, func(wireCtx context.Context) (callResult[ContextSchemeExplainResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeExplainWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeExplainParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeExplainResult]{}, err
 		}
@@ -737,6 +736,7 @@ func (s *CtxScheme) Suggest(ctx context.Context, req CtxSchemeSuggestRequest) (*
 	}
 	return cachedSchemeDo(s, ctx, "scheme.suggest", req, func(wireCtx context.Context) (callResult[ContextSchemeSuggestResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeSuggestWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeSuggestParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeSuggestResult]{}, err
 		}
@@ -753,6 +753,7 @@ func (s *CtxScheme) Suggest(ctx context.Context, req CtxSchemeSuggestRequest) (*
 func (s *CtxScheme) SuggestForCategories(ctx context.Context, req CtxSchemeSuggestForCategoriesRequest) (*ContextSchemeSuggestForCategoriesResult, error) {
 	return cachedDoAccepting(s.cx, ctx, "scheme.suggestForCategories", s.cacheScope(), req, answersEveryCategory(req.CategoryIds), func(wireCtx context.Context) (callResult[ContextSchemeSuggestForCategoriesResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeSuggestForCategoriesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeSuggestForCategoriesParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeSuggestForCategoriesResult]{}, err
 		}
@@ -772,6 +773,7 @@ func (s *CtxScheme) Aggregate(ctx context.Context, req CtxSchemeAggregateRequest
 	}
 	return cachedSchemeDo(s, ctx, "scheme.aggregate", req, func(wireCtx context.Context) (callResult[ContextSchemeAggregateResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeAggregateWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeAggregateParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeAggregateResult]{}, err
 		}
@@ -790,6 +792,7 @@ func (s *CtxScheme) Scan(ctx context.Context, req CtxSchemeScanRequest) (*Contex
 	}
 	return cachedSchemeDo(s, ctx, "scheme.scan", req, func(wireCtx context.Context) (callResult[ContextSchemeScanResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeScanWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeScanParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeScanResult]{}, err
 		}
@@ -801,6 +804,7 @@ func (s *CtxScheme) Scan(ctx context.Context, req CtxSchemeScanRequest) (*Contex
 func (s *CtxScheme) Render(ctx context.Context, req CtxSchemeRenderRequest) (*ContextSchemeRenderResult, error) {
 	return cachedSchemeDo(s, ctx, "scheme.render", req, func(wireCtx context.Context) (callResult[ContextSchemeRenderResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeRenderWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeRenderParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeRenderResult]{}, err
 		}
@@ -808,21 +812,11 @@ func (s *CtxScheme) Render(ctx context.Context, req CtxSchemeRenderRequest) (*Co
 	})
 }
 
-// Normalize returns the canonical normalized form of a marking.
-func (s *CtxScheme) Normalize(ctx context.Context, req CtxSchemeNormalizeRequest) (*ContextSchemeNormalizeResult, error) {
-	return cachedSchemeDo(s, ctx, "scheme.normalize", req, func(wireCtx context.Context) (callResult[ContextSchemeNormalizeResult], error) {
-		r, err := s.cx.client.wire.CtxSchemeNormalizeWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeNormalizeParams{Scheme: s.key}, req)
-		if err != nil {
-			return callResult[ContextSchemeNormalizeResult]{}, err
-		}
-		return callResult[ContextSchemeNormalizeResult]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
-	})
-}
-
 // CheckCoverage reports whether a set of child markings is covered by a parent.
 func (s *CtxScheme) CheckCoverage(ctx context.Context, req CtxSchemeCheckCoverageRequest) (*ContextSchemeCoverageResult, error) {
 	return do(s.cx, ctx, "scheme.checkCoverage", func(wireCtx context.Context) (callResult[ContextSchemeCoverageResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeCheckCoverageWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeCheckCoverageParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeCoverageResult]{}, err
 		}
@@ -853,21 +847,11 @@ func (s *CtxScheme) DescribeConcept(ctx context.Context, conceptID, categoryID s
 func (s *CtxScheme) Diff(ctx context.Context, req CtxSchemeDiffRequest) (*ContextSchemeDiffResult, error) {
 	return cachedSchemeDo(s, ctx, "scheme.diff", req, func(wireCtx context.Context) (callResult[ContextSchemeDiffResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeDiffWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeDiffParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeDiffResult]{}, err
 		}
 		return callResult[ContextSchemeDiffResult]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
-	})
-}
-
-// FilterConcepts filters this view's scheme's concepts by a text query.
-func (s *CtxScheme) FilterConcepts(ctx context.Context, req CtxSchemeFilterConceptsRequest) (*ContextSchemeFilterConceptsResult, error) {
-	return do(s.cx, ctx, "scheme.filterConcepts", func(wireCtx context.Context) (callResult[ContextSchemeFilterConceptsResult], error) {
-		r, err := s.cx.client.wire.CtxSchemeFilterConceptsWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeFilterConceptsParams{Scheme: s.key}, req)
-		if err != nil {
-			return callResult[ContextSchemeFilterConceptsResult]{}, err
-		}
-		return callResult[ContextSchemeFilterConceptsResult]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
 	})
 }
 
@@ -879,6 +863,7 @@ func (s *CtxScheme) FilterConcepts(ctx context.Context, req CtxSchemeFilterConce
 func (s *CtxScheme) Notices(ctx context.Context, req CtxSchemeNoticesRequest) (*ContextSchemeNoticesResult, error) {
 	return do(s.cx, ctx, "scheme.notices", func(wireCtx context.Context) (callResult[ContextSchemeNoticesResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeNoticesWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeNoticesParams{Scheme: s.key}, req)
+
 		if err != nil {
 			return callResult[ContextSchemeNoticesResult]{}, err
 		}
@@ -890,6 +875,7 @@ func (s *CtxScheme) Notices(ctx context.Context, req CtxSchemeNoticesRequest) (*
 func (s *CtxScheme) View(ctx context.Context) (*ContextSchemeViewResult, error) {
 	return do(s.cx, ctx, "scheme.view", func(wireCtx context.Context) (callResult[ContextSchemeViewResult], error) {
 		r, err := s.cx.client.wire.CtxSchemeViewWithResponse(wireCtx, s.cx.id, s.cx.version, &api.CtxSchemeViewParams{Scheme: s.key}, CtxSchemeViewRequest{})
+
 		if err != nil {
 			return callResult[ContextSchemeViewResult]{}, err
 		}
@@ -908,7 +894,7 @@ func (g *CtxGuide) Scan(ctx context.Context, req CtxGuideScanRequest) (*ContextG
 		return nil, err
 	}
 	return do(g.cx, ctx, "guide.scan", func(wireCtx context.Context) (callResult[ContextGuideScanResult], error) {
-		r, err := g.cx.client.wire.CtxGuideScanWithResponse(wireCtx, g.cx.id, g.cx.version, req)
+		r, err := g.cx.client.wire.CtxGuideScanWithResponse(wireCtx, g.cx.id, g.cx.version, nil, req)
 		if err != nil {
 			return callResult[ContextGuideScanResult]{}, err
 		}
@@ -923,7 +909,7 @@ func (g *CtxGuide) Scan(ctx context.Context, req CtxGuideScanRequest) (*ContextG
 // refuses a request that is not exactly one of the two forms.
 func (g *CtxGuide) Evaluate(ctx context.Context, req CtxGuideEvaluateRequest) (*ContextGuideEvaluationResult, error) {
 	return do(g.cx, ctx, "guide.evaluate", func(wireCtx context.Context) (callResult[ContextGuideEvaluationResult], error) {
-		r, err := g.cx.client.wire.CtxGuideEvaluateWithResponse(wireCtx, g.cx.id, g.cx.version, req)
+		r, err := g.cx.client.wire.CtxGuideEvaluateWithResponse(wireCtx, g.cx.id, g.cx.version, nil, req)
 		if err != nil {
 			return callResult[ContextGuideEvaluationResult]{}, err
 		}
@@ -931,33 +917,11 @@ func (g *CtxGuide) Evaluate(ctx context.Context, req CtxGuideEvaluateRequest) (*
 	})
 }
 
-// FilterRules filters guide rules by a text query.
-func (g *CtxGuide) FilterRules(ctx context.Context, req CtxGuideFilterRulesRequest) (*ContextGuideFilterRulesResult, error) {
-	return do(g.cx, ctx, "guide.filterRules", func(wireCtx context.Context) (callResult[ContextGuideFilterRulesResult], error) {
-		r, err := g.cx.client.wire.CtxGuideFilterRulesWithResponse(wireCtx, g.cx.id, g.cx.version, req)
-		if err != nil {
-			return callResult[ContextGuideFilterRulesResult]{}, err
-		}
-		return callResult[ContextGuideFilterRulesResult]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
-	})
-}
-
-// DescribeRule returns a guide rule's name, outcome, and dependencies.
-func (g *CtxGuide) DescribeRule(ctx context.Context, req CtxGuideDescribeRuleRequest) (*ContextGuideRuleDescriptionResult, error) {
-	return do(g.cx, ctx, "guide.describeRule", func(wireCtx context.Context) (callResult[ContextGuideRuleDescriptionResult], error) {
-		r, err := g.cx.client.wire.CtxGuideDescribeRuleWithResponse(wireCtx, g.cx.id, g.cx.version, req)
-		if err != nil {
-			return callResult[ContextGuideRuleDescriptionResult]{}, err
-		}
-		return callResult[ContextGuideRuleDescriptionResult]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
-	})
-}
-
 // View returns a render-ready structural view of a guide. guideID is optional;
 // pass nil to use the first guide in the context.
 func (g *CtxGuide) View(ctx context.Context, guideID *string) (*ContextGuideViewResult, error) {
 	return do(g.cx, ctx, "guide.view", func(wireCtx context.Context) (callResult[ContextGuideViewResult], error) {
-		r, err := g.cx.client.wire.CtxGuideViewWithResponse(wireCtx, g.cx.id, g.cx.version, CtxGuideViewRequest{GuideID: guideID})
+		r, err := g.cx.client.wire.CtxGuideViewWithResponse(wireCtx, g.cx.id, g.cx.version, nil, CtxGuideViewRequest{GuideID: guideID})
 		if err != nil {
 			return callResult[ContextGuideViewResult]{}, err
 		}
@@ -972,7 +936,7 @@ type CtxAccess struct{ cx *EzClassifyContext }
 // payload only, with no schemeID; the context selects the access policy.
 func (a *CtxAccess) Check(ctx context.Context, req CtxAccessCheckRequest) (*ContextAccessDecisionResult, error) {
 	call := func(wireCtx context.Context) (callResult[ContextAccessDecisionResult], error) {
-		r, err := a.cx.client.wire.CtxAccessCheckWithResponse(wireCtx, a.cx.id, a.cx.version, req)
+		r, err := a.cx.client.wire.CtxAccessCheckWithResponse(wireCtx, a.cx.id, a.cx.version, nil, req)
 		if err != nil {
 			return callResult[ContextAccessDecisionResult]{}, err
 		}
@@ -984,22 +948,11 @@ func (a *CtxAccess) Check(ctx context.Context, req CtxAccessCheckRequest) (*Cont
 // DescribeRequirements summarizes the access requirements for a marking.
 func (a *CtxAccess) DescribeRequirements(ctx context.Context, req CtxAccessDescribeRequirementsRequest) (*ContextAccessRequirementsResult, error) {
 	return do(a.cx, ctx, "access.describeRequirements", func(wireCtx context.Context) (callResult[ContextAccessRequirementsResult], error) {
-		r, err := a.cx.client.wire.CtxAccessDescribeRequirementsWithResponse(wireCtx, a.cx.id, a.cx.version, req)
+		r, err := a.cx.client.wire.CtxAccessDescribeRequirementsWithResponse(wireCtx, a.cx.id, a.cx.version, nil, req)
 		if err != nil {
 			return callResult[ContextAccessRequirementsResult]{}, err
 		}
 		return callResult[ContextAccessRequirementsResult]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
-	})
-}
-
-// DescribeRule returns the description of a single access rule.
-func (a *CtxAccess) DescribeRule(ctx context.Context, req CtxAccessDescribeRuleRequest) (*ContextAccessRuleDescriptionResult, error) {
-	return do(a.cx, ctx, "access.describeRule", func(wireCtx context.Context) (callResult[ContextAccessRuleDescriptionResult], error) {
-		r, err := a.cx.client.wire.CtxAccessDescribeRuleWithResponse(wireCtx, a.cx.id, a.cx.version, req)
-		if err != nil {
-			return callResult[ContextAccessRuleDescriptionResult]{}, err
-		}
-		return callResult[ContextAccessRuleDescriptionResult]{r.JSON200, r.HTTPResponse, r.StatusCode(), r.Body}, nil
 	})
 }
 
@@ -1008,7 +961,7 @@ func (a *CtxAccess) DescribeRule(ctx context.Context, req CtxAccessDescribeRuleR
 // each rule depends on.
 func (a *CtxAccess) Rules(ctx context.Context) (*AccessRulesResponse, error) {
 	return cachedDo(a.cx, ctx, "access.rules", nil, func(wireCtx context.Context) (callResult[AccessRulesResponse], error) {
-		r, err := a.cx.client.wire.CtxAccessRulesWithResponse(wireCtx, a.cx.id, a.cx.version)
+		r, err := a.cx.client.wire.CtxAccessRulesWithResponse(wireCtx, a.cx.id, a.cx.version, nil)
 		if err != nil {
 			return callResult[AccessRulesResponse]{}, err
 		}
@@ -1026,7 +979,7 @@ type CtxCrosswalk struct{ cx *EzClassifyContext }
 // like [CtxAccess.Rules].
 func (c *CtxCrosswalk) Describe(ctx context.Context) (*CrosswalkInventory, error) {
 	return cachedDo(c.cx, ctx, "crosswalk.describe", nil, func(wireCtx context.Context) (callResult[CrosswalkInventory], error) {
-		r, err := c.cx.client.wire.CtxCrosswalkDescribeWithResponse(wireCtx, c.cx.id, c.cx.version)
+		r, err := c.cx.client.wire.CtxCrosswalkDescribeWithResponse(wireCtx, c.cx.id, c.cx.version, nil)
 		if err != nil {
 			return callResult[CrosswalkInventory]{}, err
 		}
@@ -1050,7 +1003,7 @@ func (c *CtxCrosswalk) Translate(ctx context.Context, req CtxCrosswalkTranslateR
 		return nil, err
 	}
 	return do(c.cx, ctx, "crosswalk.translate", func(wireCtx context.Context) (callResult[ContextCrosswalkTranslationResult], error) {
-		r, err := c.cx.client.wire.CtxCrosswalkTranslateWithResponse(wireCtx, c.cx.id, c.cx.version, req)
+		r, err := c.cx.client.wire.CtxCrosswalkTranslateWithResponse(wireCtx, c.cx.id, c.cx.version, nil, req)
 		if err != nil {
 			return callResult[ContextCrosswalkTranslationResult]{}, err
 		}
@@ -1068,7 +1021,7 @@ func (d *CtxDocument) Audit(ctx context.Context, req CtxDocumentAuditRequest) (*
 		return nil, err
 	}
 	return do(d.cx, ctx, "document.audit", func(wireCtx context.Context) (callResult[ContextDocumentAuditResult], error) {
-		r, err := d.cx.client.wire.CtxDocumentAuditWithResponse(wireCtx, d.cx.id, d.cx.version, req)
+		r, err := d.cx.client.wire.CtxDocumentAuditWithResponse(wireCtx, d.cx.id, d.cx.version, nil, req)
 		if err != nil {
 			return callResult[ContextDocumentAuditResult]{}, err
 		}

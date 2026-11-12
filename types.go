@@ -57,7 +57,6 @@ type (
 	ScanLimits                  = api.ScanLimits
 	ScanStatus                  = api.ScanStatus
 	UnreadMark                  = api.UnreadMark
-	NormalizeResponse           = api.NormalizeResponse
 
 	GuideScanResult     = api.GuideScanResult
 	EvaluationResult    = api.EvaluationResult
@@ -71,47 +70,39 @@ type (
 	AccessRuleDescription         = api.AccessRuleDescription
 	AccessRequirementsDescription = api.AccessRequirementsDescription
 
-	ArtifactReference               = api.ArtifactReference
-	ArtifactKind                    = api.ArtifactKind
-	AssertionReference              = api.AssertionReference
-	AssertionSupport                = api.AssertionSupport
-	AssessmentLimitation            = api.AssessmentLimitation
-	ContentEvidenceSpan             = api.ContentEvidenceSpan
-	ContextResolution               = api.ContextResolution
-	DocumentGuideAssessment         = api.DocumentGuideAssessment
-	DocumentResponseCounts          = api.DocumentResponseCounts
-	DocumentResponseProfile         = api.DocumentResponseProfile
-	DocumentResponseProjection      = api.DocumentResponseProjection
-	DocumentUnmarkedSpan            = api.DocumentUnmarkedSpan
-	GuideCompilationStatus          = api.GuideCompilationStatus
-	GuideCompiledDetail             = api.GuideCompiledDetail
-	GuideCompiledResult             = api.GuideCompiledResult
-	GuideContentEvaluation          = api.GuideContentEvaluation
-	GuideDeterminationInput         = api.GuideDeterminationInput
-	GuideFactReference              = api.GuideFactReference
-	GuideFactKind                   = api.GuideFactKind
-	GuideFindingDetermination       = api.GuideFindingDetermination
-	GuideFindingDecision            = api.GuideFindingDecision
-	ManualGuideSelectionInput       = api.ManualGuideSelectionInput
-	DecisionProposalOrigin          = api.DecisionProposalOrigin
-	GuideNomination                 = api.GuideNomination
-	GuideScopeCoverage              = api.GuideScopeCoverage
-	GuideUnitEvaluation             = api.GuideUnitEvaluation
-	RuleReference                   = api.RuleReference
-	RuleSourceReference             = api.RuleSourceReference
-	ReproducibleRuleSourceReference = api.ReproducibleRuleSourceReference
-	BestEffortRuleSourceReference   = api.BestEffortRuleSourceReference
-	SourceReference                 = api.SourceReference
-	ReproducibleSourceReference     = api.ReproducibleSourceReference
-	BestEffortSourceReference       = api.BestEffortSourceReference
-	ErrorResponse                   = api.ErrorResponse
-	CategoryPositionOverrides       = api.CategoryPositionOverrides
+	ArtifactReference          = api.ArtifactReference
+	ArtifactKind               = api.ArtifactKind
+	AssertionReference         = api.AssertionReference
+	AssertionSupport           = api.AssertionSupport
+	AssessmentLimitation       = api.AssessmentLimitation
+	ContentEvidenceSpan        = api.ContentEvidenceSpan
+	ContextResolution          = api.ContextResolution
+	DocumentGuideAssessment    = api.DocumentGuideAssessment
+	DocumentResponseCounts     = api.DocumentResponseCounts
+	DocumentResponseProfile    = api.DocumentResponseProfile
+	DocumentResponseProjection = api.DocumentResponseProjection
+	DocumentUnmarkedSpan       = api.DocumentUnmarkedSpan
+	GuideCompilationStatus     = api.GuideCompilationStatus
+	GuideCompiledDetail        = api.GuideCompiledDetail
+	GuideCompiledResult        = api.GuideCompiledResult
+	GuideContentEvaluation     = api.GuideContentEvaluation
+	GuideDeterminationInput    = api.GuideDeterminationInput
+	GuideFactReference         = api.GuideFactReference
+	GuideFactKind              = api.GuideFactKind
+	GuideFindingDetermination  = api.GuideFindingDetermination
+	GuideFindingDecision       = api.GuideFindingDecision
+	ManualGuideSelectionInput  = api.ManualGuideSelectionInput
+	DecisionProposalOrigin     = api.DecisionProposalOrigin
+	GuideNomination            = api.GuideNomination
+	GuideScopeCoverage         = api.GuideScopeCoverage
+	GuideUnitEvaluation        = api.GuideUnitEvaluation
+	RuleReference              = api.RuleReference
+	ErrorResponse              = api.ErrorResponse
+	CategoryPositionOverrides  = api.CategoryPositionOverrides
 
 	CoverageReport      = api.CheckCoverageResult
 	ConceptDescription  = api.ConceptDescription
 	DocumentAuditReport = api.DocumentAuditReport
-	FilterResult        = api.FilterResult
-	RuleDescription     = api.RuleDescription
 	SchemeView          = api.SchemeViewResponse
 	GuideView           = api.GuideViewResponse
 	SchemeSummary       = api.SchemeSummary
@@ -119,7 +110,6 @@ type (
 	ConceptView         = api.ConceptView
 	FormatView          = api.FormatView
 	LabelPresetView     = api.LabelPresetView
-	SchemeGrammar       = api.SchemeGrammar
 	SchemeScope         = api.SchemeScope
 	AccessRulesResponse = api.CtxAccessRulesResponseBody
 	// CrosswalkInventory is the answer of [CtxCrosswalk.Describe]: every
@@ -132,13 +122,10 @@ type (
 
 	ContextAccessDecisionResult             = api.ContextAccessDecisionResult
 	ContextAccessRequirementsResult         = api.ContextAccessRequirementsResult
-	ContextAccessRuleDescriptionResult      = api.ContextAccessRuleDescriptionResult
 	ContextCrosswalkTranslationResult       = api.ContextCrosswalkTranslationResult
 	ContextCrosswalkDescriptor              = api.ContextCrosswalkDescriptor
 	ContextDocumentAuditResult              = api.ContextDocumentAuditResult
 	ContextGuideEvaluationResult            = api.ContextGuideEvaluationResult
-	ContextGuideFilterRulesResult           = api.ContextGuideFilterRulesResult
-	ContextGuideRuleDescriptionResult       = api.ContextGuideRuleDescriptionResult
 	ContextGuideScanResult                  = api.ContextGuideScanResult
 	ContextGuideViewResult                  = api.ContextGuideViewResult
 	ContextSchemeAggregateResult            = api.ContextSchemeAggregateResult
@@ -146,8 +133,6 @@ type (
 	ContextSchemeCoverageResult             = api.ContextSchemeCoverageResult
 	ContextSchemeDiffResult                 = api.ContextSchemeDiffResult
 	ContextSchemeExplainResult              = api.ContextSchemeExplainResult
-	ContextSchemeFilterConceptsResult       = api.ContextSchemeFilterConceptsResult
-	ContextSchemeNormalizeResult            = api.ContextSchemeNormalizeResult
 	ContextSchemeNoticesResult              = api.ContextSchemeNoticesResult
 	ContextSchemeProcessResult              = api.ContextSchemeProcessResult
 	ContextSchemeRenderResult               = api.ContextSchemeRenderResult
@@ -174,32 +159,26 @@ type (
 type (
 	ConceptNoticeType      = api.ConceptNoticeType
 	ProcessingRole         = api.ProcessingRole
-	ValidationSeverity     = api.ValidationSeverity
 	WarningKind            = api.WarningKind
 	DocumentOverallVerdict = api.DocumentOverallVerdict
 	FixAction              = api.FixAction
 )
 
 const (
-	AssertionConfidenceCertain   = api.AssertionConfidenceCertain
-	AssertionConfidenceInferred  = api.AssertionConfidenceInferred
-	AssertionConfidenceRepaired  = api.AssertionConfidenceRepaired
-	AssertionConfidenceUncertain = api.AssertionConfidenceUncertain
+	// The generator drops the type-name prefix on these members because no
+	// other enum claims their names; the exported names keep it.
+	AssertionConfidenceCertain  = api.Certain
+	AssertionConfidenceInferred = api.Inferred
+	AssertionConfidenceRepaired = api.Repaired
 
-	ConceptNoticeTypeAdmonition   = api.ConceptNoticeTypeAdmonition
-	ConceptNoticeTypeDistribution = api.ConceptNoticeTypeDistribution
-	ConceptNoticeTypeHandling     = api.ConceptNoticeTypeHandling
-	ConceptNoticeTypeInfo         = api.ConceptNoticeTypeInfo
-	ConceptNoticeTypeWarning      = api.ConceptNoticeTypeWarning
+	ConceptNoticeTypeAdmonition = api.ConceptNoticeTypeAdmonition
+	ConceptNoticeTypeWarning    = api.ConceptNoticeTypeWarning
 
 	// The generator drops the type-name prefix on these two members because
 	// no other enum in the spec claims "part" or "whole". The exported names
 	// here keep the prefix, the way WarningKind does below.
 	ProcessingRolePart  = api.Part
 	ProcessingRoleWhole = api.Whole
-
-	ValidationSeverityError   = api.ValidationSeverityError
-	ValidationSeverityWarning = api.ValidationSeverityWarning
 
 	WarningKindDeprecation = api.WarningKindDeprecation
 	WarningKindNotice      = api.WarningKindNotice
@@ -228,14 +207,10 @@ const (
 	RecognitionCorrectionReasonOrder     = api.RecognitionCorrectionReasonOrder
 	RecognitionCorrectionReasonSeparator = api.RecognitionCorrectionReasonSeparator
 
-	RecognitionLimitAborted     = api.Aborted
-	RecognitionLimitDepth       = api.Depth
-	RecognitionLimitGrammarSize = api.GrammarSize
 	RecognitionLimitInputLength = api.InputLength
 	RecognitionLimitLiveStates  = api.LiveStates
 	RecognitionLimitLookups     = api.Lookups
 	RecognitionLimitTransitions = api.Transitions
-	RecognitionLimitWallClock   = api.WallClock
 
 	UnrepresentableFactReasonAmbiguousIdentity = api.AmbiguousIdentity
 	UnrepresentableFactReasonNoField           = api.NoField
@@ -297,24 +272,19 @@ type (
 	CtxSchemeScanRequest                 = api.CtxSchemeScanJSONRequestBody
 	CtxSchemeAggregateRequest            = api.CtxSchemeAggregateJSONRequestBody
 	CtxSchemeRenderRequest               = api.CtxSchemeRenderJSONRequestBody
-	CtxSchemeNormalizeRequest            = api.CtxSchemeNormalizeJSONRequestBody
 	CtxSchemeCheckCoverageRequest        = api.CtxSchemeCheckCoverageJSONRequestBody
 	CtxSchemeExplainRequest              = api.CtxSchemeExplainJSONRequestBody
 	CtxSchemeSuggestRequest              = api.CtxSchemeSuggestJSONRequestBody
 	CtxSchemeSuggestForCategoriesRequest = api.CtxSchemeSuggestForCategoriesJSONRequestBody
 	CtxSchemeDiffRequest                 = api.CtxSchemeDiffJSONRequestBody
-	CtxSchemeFilterConceptsRequest       = api.CtxSchemeFilterConceptsJSONRequestBody
 	CtxSchemeNoticesRequest              = api.CtxSchemeNoticesJSONRequestBody
 	CtxSchemeViewRequest                 = api.CtxSchemeViewJSONRequestBody
 	CtxDocumentAuditRequest              = api.CtxDocumentAuditJSONRequestBody
 	CtxGuideScanRequest                  = api.CtxGuideScanJSONRequestBody
 	CtxGuideEvaluateRequest              = api.CtxGuideEvaluateJSONRequestBody
 	GuideRuleSelection                   = api.GuideRuleSelection
-	CtxGuideFilterRulesRequest           = api.CtxGuideFilterRulesJSONRequestBody
-	CtxGuideDescribeRuleRequest          = api.CtxGuideDescribeRuleJSONRequestBody
 	CtxGuideViewRequest                  = api.CtxGuideViewJSONRequestBody
 	CtxAccessCheckRequest                = api.CtxAccessCheckJSONRequestBody
-	CtxAccessDescribeRuleRequest         = api.CtxAccessDescribeRuleJSONRequestBody
 	CtxAccessDescribeRequirementsRequest = api.CtxAccessDescribeRequirementsJSONRequestBody
 	CtxCrosswalkTranslateRequest         = api.CtxCrosswalkTranslateJSONRequestBody
 )

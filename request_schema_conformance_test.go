@@ -620,14 +620,6 @@ var requestCases = []requestCase{
 		})
 		return err
 	}},
-	{"scheme.normalize", "scheme/normalize", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Schemes.Get("acme").Normalize(ctx, ezclassify.CtxSchemeNormalizeRequest{
-			Input:        "h",
-			InputFormat:  ptr("portion"),
-			OutputFormat: ptr("banner"),
-		})
-		return err
-	}},
 	{"scheme.check-coverage", "scheme/check-coverage", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
 		_, err := cx.Schemes.Get("acme").CheckCoverage(ctx, ezclassify.CtxSchemeCheckCoverageRequest{
 			Children:     []string{"L"},
@@ -639,10 +631,6 @@ var requestCases = []requestCase{
 	}},
 	{"scheme.diff", "scheme/diff", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
 		_, err := cx.Schemes.Get("acme").Diff(ctx, ezclassify.CtxSchemeDiffRequest{A: "H", B: "L", InputFormat: ptr("portion")})
-		return err
-	}},
-	{"scheme.filter-concepts", "scheme/filter-concepts", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Schemes.Get("acme").FilterConcepts(ctx, ezclassify.CtxSchemeFilterConceptsRequest{Query: "hi"})
 		return err
 	}},
 	{"scheme.notices", "scheme/notices", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
@@ -669,14 +657,6 @@ var requestCases = []requestCase{
 		_, err := cx.Guide.Evaluate(ctx, ezclassify.CtxGuideEvaluateRequest{Selections: &[]ezclassify.GuideRuleSelection{{GuideID: "g1", RuleID: "r1"}}})
 		return err
 	}},
-	{"guide.filter-rules", "guide/filter-rules", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Guide.FilterRules(ctx, ezclassify.CtxGuideFilterRulesRequest{Query: "sec", GuideID: ptr("g1")})
-		return err
-	}},
-	{"guide.describe-rule", "guide/describe-rule", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Guide.DescribeRule(ctx, ezclassify.CtxGuideDescribeRuleRequest{RuleID: "r1", GuideID: ptr("g1")})
-		return err
-	}},
 	{"guide.view", "guide/view", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
 		_, err := cx.Guide.View(ctx, ptr("g1"))
 		return err
@@ -695,10 +675,6 @@ var requestCases = []requestCase{
 			Marking:    ptr("H"),
 			Assertions: &[]ezclassify.Assertion{caseLevel},
 		})
-		return err
-	}},
-	{"access.describe-rule", "access/describe-rule", func(ctx context.Context, cx *ezclassify.EzClassifyContext) error {
-		_, err := cx.Access.DescribeRule(ctx, ezclassify.CtxAccessDescribeRuleRequest{RuleID: "rule-1"})
 		return err
 	}},
 	// The server takes exactly one crosswalk source, so each gets a case.

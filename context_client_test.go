@@ -72,7 +72,7 @@ func ctxServer(t *testing.T, resolved string, routes map[string]string) (*httpte
 					if strings.Contains(r.URL.Path, "/document/") {
 						projection = `,"responseProjection":{"profile":"standard","detailsComplete":false,"omittedFields":[],"counts":{"nominations":0,"evidenceSpans":0,"guideUnits":0,"accessRuleResults":0,"contentRequirements":0,"contextRequirements":0}}`
 					}
-					body = contextFixture(r.URL.Path, `{"resolution":{"contextId":"c","resolvedVersion":"`+resolved+`","artifacts":[],"sources":[]},"operationLimitations":[],"result":`+body+projection+`}`)
+					body = contextFixture(r.URL.Path, `{"resolution":{"contextId":"c","resolvedVersion":"`+resolved+`","artifacts":[]},"result":`+body+projection+`}`)
 				}
 				_, _ = io.WriteString(w, body)
 				return
@@ -165,20 +165,18 @@ func TestSchemeOps(t *testing.T) {
 	ctx := context.Background()
 	const ver = "1.0.0"
 	srv, last := ctxServer(t, ver, map[string]string{
-		"/scheme/process":                `{"valid":true,"rendered":"H","renders":{"marking/banner":{"rendered":"H","assessment":{"emitted":[{"conceptId":"L_H","categoryId":"level","value":"A&B"}],"omitted":[],"collapsed":[],"conflicts":[],"unrepresentable":[]}},"marking/portion":{"rendered":"(H)","assessment":{"emitted":[],"omitted":[],"collapsed":[],"conflicts":[],"unrepresentable":[]}}},"recognition":{"status":"complete","inputFormat":"marking/banner","role":"whole","surface":"marking","unmatched":[],"corrections":[{"start":0,"end":1,"original":"h","replacement":"H","reason":"case"}]},"inputWasValid":true,"assertions":[{"conceptId":"L_H","categoryId":"level","confidence":"certain","source":"parse","value":"A&B"}],"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"handling","text":"controlled","required":true}],"suggestionsFor":{"level":{"suggestions":[{"conceptId":"L_H","label":"H","categoryId":"level"}],"warnings":[]}}}`,
+		"/scheme/process":                `{"valid":true,"rendered":"H","renders":{"marking/banner":{"rendered":"H","assessment":{"emitted":[{"conceptId":"L_H","categoryId":"level","value":"A&B"}],"omitted":[],"collapsed":[],"conflicts":[],"unrepresentable":[]}},"marking/portion":{"rendered":"(H)","assessment":{"emitted":[],"omitted":[],"collapsed":[],"conflicts":[],"unrepresentable":[]}}},"recognition":{"status":"complete","inputFormat":"marking/banner","role":"whole","surface":"marking","unmatched":[],"corrections":[{"start":0,"end":1,"original":"h","replacement":"H","reason":"case"}]},"inputWasValid":true,"assertions":[{"conceptId":"L_H","categoryId":"level","confidence":"certain","source":"parse","value":"A&B"}],"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"warning","text":"controlled","required":true}],"suggestionsFor":{"level":{"suggestions":[{"conceptId":"L_H","label":"H","categoryId":"level"}],"warnings":[]}}}`,
 		"/scheme/validate":               `{"valid":false,"rendered":"H","inputWasValid":false,"errors":[{"constraintId":"_unmatched_token","message":"Could not read HGH. Did you mean HIGH?","didYouMean":["L_H"]}],"recognition":{"status":"partial","inputFormat":"marking/banner","role":"whole","surface":"marking","unmatched":[{"start":2,"end":5,"text":"HGH"}]},"notices":[]}`,
 		"/scheme/explain":                `{"input":"h","schemeId":"s","entries":[{"stage":"parse","action":"add","detail":"Read h as H.","conceptId":"L_H"}],"repairs":[],"validationErrors":[],"inferences":[],"finalAssertions":[],"rendered":"H"}`,
 		"/scheme/suggest":                `{"suggestions":[{"conceptId":"L_H","label":"H","categoryId":"level"}],"warnings":[]}`,
 		"/scheme/suggest-for-categories": `{"level":{"suggestions":[{"conceptId":"L_H","label":"H","categoryId":"level","selected":true}],"warnings":[]}}`,
-		"/scheme/aggregate":              `{"valid":true,"rendered":"H","assertions":[],"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"handling","text":"controlled","required":true}]}`,
+		"/scheme/aggregate":              `{"valid":true,"rendered":"H","assertions":[],"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"warning","text":"controlled","required":true}]}`,
 		"/scheme/scan":                   `{"results":[{"marking":"H","start":5,"end":6,"type":"marking/banner","role":"whole","wrapped":false,"result":{"valid":true,"inputWasValid":true,"rendered":"H","recognition":{"status":"complete","inputFormat":"marking/banner","role":"whole","surface":"marking","unmatched":[]}}}],"limits":{"status":"complete","regionsFound":1}}`,
 		"/scheme/render":                 `{"result":"LEVEL-HIGH","assessment":{"emitted":[],"omitted":[],"collapsed":[],"conflicts":[],"unrepresentable":[]}}`,
-		"/scheme/normalize":              `{"result":"LEVEL-HIGH"}`,
 		"/scheme/check-coverage":         `{"covered":false,"missing":[],"missingLabels":["HIGH"],"excess":[],"excessLabels":[],"rendered":"HIGH"}`,
 		"/scheme/describe-concept":       `{"conceptId":"L_H","categoryId":"level","name":"High","lines":["High"]}`,
 		"/scheme/diff":                   `{"added":[{"conceptId":"A","categoryId":"c","confidence":"certain","source":"parse"}],"removed":[],"common":[]}`,
-		"/scheme/filter-concepts":        `{"visibleIds":["a","b"],"categoryCounts":{},"total":{"visible":2,"total":9}}`,
-		"/scheme/notices":                `[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"handling","text":"controlled","required":true}]`,
+		"/scheme/notices":                `[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"warning","text":"controlled","required":true}]`,
 		"/scheme/view":                   `{"id":"s","name":"Scheme","description":"d","categories":[],"uncategorized":[]}`,
 	})
 	cx := ezclassify.Connect(srv.URL, "c", ver)
@@ -282,12 +280,6 @@ func TestSchemeOps(t *testing.T) {
 		t.Fatalf("Render request = %s, want format and full preservation", last().body)
 	}
 
-	norm, err := cx.Scheme.Normalize(ctx, ezclassify.CtxSchemeNormalizeRequest{Input: "high"})
-	if err != nil || norm.Result.Result != "LEVEL-HIGH" {
-		t.Fatalf("Normalize: %+v err=%v", norm, err)
-	}
-	assertPath(t, last(), "/v1/ctx/c/1.0.0/scheme/normalize")
-
 	cov, err := cx.Scheme.CheckCoverage(ctx, ezclassify.CtxSchemeCheckCoverageRequest{Children: []string{"HIGH"}, Parent: "HIGH//H_CTRL"})
 	if err != nil || cov.Result.Covered || len(cov.Result.MissingLabels) != 1 || cov.Result.Excess == nil || cov.Result.ExcessLabels == nil || len(cov.Result.ExcessLabels) != 0 {
 		t.Fatalf("CheckCoverage: %+v err=%v", cov, err)
@@ -309,12 +301,6 @@ func TestSchemeOps(t *testing.T) {
 	}
 	assertPath(t, last(), "/v1/ctx/c/1.0.0/scheme/diff")
 
-	filt, err := cx.Scheme.FilterConcepts(ctx, ezclassify.CtxSchemeFilterConceptsRequest{Query: "hi"})
-	if err != nil || len(filt.Result.VisibleIds) != 2 || filt.Result.Total.Total != 9 {
-		t.Fatalf("FilterConcepts: %+v err=%v", filt, err)
-	}
-	assertPath(t, last(), "/v1/ctx/c/1.0.0/scheme/filter-concepts")
-
 	notices, err := cx.Scheme.Notices(ctx, ezclassify.CtxSchemeNoticesRequest{Assertions: []ezclassify.Assertion{}})
 	if err != nil || len(notices.Result) != 1 || !notices.Result[0].Required {
 		t.Fatalf("Notices: %+v err=%v", notices, err)
@@ -333,11 +319,9 @@ func TestSchemeOps(t *testing.T) {
 func TestGuideOps(t *testing.T) {
 	ctx := context.Background()
 	srv, last := ctxServer(t, "1.0.0", map[string]string{
-		"/guide/scan":          `[{"rule":{"id":"r1","name":"Rule"},"matchedKeywords":["secret"],"spans":[],"guideId":"g1"}]`,
-		"/guide/evaluate":      `{"aggregatedMarking":"H","selectedRules":[],"activeComputedRules":[],"effectiveMarkings":["H"],"breakdown":[],"contributingBreakdown":[],"guideId":"g1"}`,
-		"/guide/filter-rules":  `{"visibleIds":["r1"],"categoryCounts":{},"total":{"visible":1,"total":3}}`,
-		"/guide/describe-rule": `{"ruleId":"r1","guideId":"g1","name":"Rule","outcomeText":"marks H","isComputed":false,"dependsOn":[],"overrides":[],"lines":[]}`,
-		"/guide/view":          `{"id":"g1","name":"Guide","description":"","categories":[],"uncategorized":[]}`,
+		"/guide/scan":     `[{"rule":{"id":"r1","name":"Rule"},"matchedKeywords":["secret"],"spans":[],"guideId":"g1"}]`,
+		"/guide/evaluate": `{"aggregatedMarking":"H","selectedRules":[],"activeComputedRules":[],"effectiveMarkings":["H"],"breakdown":[],"contributingBreakdown":[],"guideId":"g1"}`,
+		"/guide/view":     `{"id":"g1","name":"Guide","description":"","categories":[],"uncategorized":[]}`,
 	})
 	cx := ezclassify.Connect(srv.URL, "c", "1.0.0")
 
@@ -364,18 +348,6 @@ func TestGuideOps(t *testing.T) {
 		t.Fatalf("guide selections request body = %s", got)
 	}
 
-	fr, err := cx.Guide.FilterRules(ctx, ezclassify.CtxGuideFilterRulesRequest{Query: "sec"})
-	if err != nil || len(fr.Result.VisibleIds) != 1 {
-		t.Fatalf("Guide.FilterRules: %+v err=%v", fr, err)
-	}
-	assertPath(t, last(), "/v1/ctx/c/1.0.0/guide/filter-rules")
-
-	dr, err := cx.Guide.DescribeRule(ctx, ezclassify.CtxGuideDescribeRuleRequest{RuleID: "r1"})
-	if err != nil || dr.Result.OutcomeText != "marks H" {
-		t.Fatalf("Guide.DescribeRule: %+v err=%v", dr, err)
-	}
-	assertPath(t, last(), "/v1/ctx/c/1.0.0/guide/describe-rule")
-
 	gv, err := cx.Guide.View(ctx, ptr("g1"))
 	if err != nil || gv.Result.Name != "Guide" {
 		t.Fatalf("Guide.View: %+v err=%v", gv, err)
@@ -388,7 +360,6 @@ func TestAccessOps(t *testing.T) {
 	srv, last := ctxServer(t, "1.0.0", map[string]string{
 		"/access/check":                 `{"granted":true,"rules":[{"id":"r1","name":"Clr","granted":true,"skipped":false,"ruleIndex":0}]}`,
 		"/access/describe-requirements": `{"marking":"TS//NF","accessId":"ap","schemeId":"s","appliedRuleIds":["r1"],"rules":[],"combinedRequirementText":"US only","combinedAttributesNeeded":["nationality"],"lines":[]}`,
-		"/access/describe-rule":         `{"ruleId":"r1","accessId":"ap","schemeId":"s","name":"NF","requirementText":"US only","attributesNeeded":["nationality"],"dependsOn":[],"overrides":[],"lines":[]}`,
 	})
 	cx := ezclassify.Connect(srv.URL, "c", "1.0.0")
 
@@ -411,11 +382,6 @@ func TestAccessOps(t *testing.T) {
 	}
 	assertPath(t, last(), "/v1/ctx/c/1.0.0/access/describe-requirements")
 
-	rule, err := cx.Access.DescribeRule(ctx, ezclassify.CtxAccessDescribeRuleRequest{RuleID: "r1"})
-	if err != nil || rule.Result.Name != "NF" {
-		t.Fatalf("Access.DescribeRule: %+v err=%v", rule, err)
-	}
-	assertPath(t, last(), "/v1/ctx/c/1.0.0/access/describe-rule")
 }
 
 func TestDocumentAudit(t *testing.T) {
@@ -532,7 +498,7 @@ func TestContextProcessRoute(t *testing.T) {
 		gotPath = r.URL.Path
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		_, _ = io.WriteString(w, fixtureAs[ezclassify.ContextSchemeProcessResult](`{"resolution":{"contextId":"tlp","requestedVersion":"latest","resolvedVersion":"1.0.0","engineVersion":"1.0.0"},"operationLimitations":[],"result":{"valid":true,"rendered":"H","inputWasValid":true,"assertions":[],"errors":[],"warnings":[],"appliedFixes":[],"proposedFixes":[],"notices":[],"assessment":{"emitted":[],"omitted":[],"collapsed":[],"conflicts":[],"unrepresentable":[]},"renders":{}}}`))
+		_, _ = io.WriteString(w, fixtureAs[ezclassify.ContextSchemeProcessResult](`{"resolution":{"contextId":"tlp","requestedVersion":"latest","resolvedVersion":"1.0.0","engineVersion":"1.0.0"},"result":{"valid":true,"rendered":"H","inputWasValid":true,"assertions":[],"errors":[],"warnings":[],"appliedFixes":[],"proposedFixes":[],"notices":[],"assessment":{"emitted":[],"omitted":[],"collapsed":[],"conflicts":[],"unrepresentable":[]},"renders":{}}}`))
 	}))
 	t.Cleanup(srv.Close)
 	cx := ezclassify.Connect(srv.URL, "tlp", "latest")
@@ -751,14 +717,14 @@ func TestRichResultsCarryNotices(t *testing.T) {
 	const ver = "1.0.0"
 	srv, _ := ctxServer(t, ver, map[string]string{
 		"/scheme/process": `{"valid":true,"rendered":"H","inputWasValid":true,"assertions":[],` +
-			`"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"handling","text":"controlled","required":true},` +
+			`"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"warning","text":"controlled","required":true},` +
 			`{"conceptId":"H_ADV","conceptName":"Advisory","type":"info","text":"advisory","required":false}]}`,
 		"/scheme/validate": `{"valid":true,"rendered":"H","inputWasValid":true,"notices":[]}`,
 		"/scheme/aggregate": `{"valid":true,"rendered":"H","assertions":[],` +
-			`"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"handling","text":"controlled","required":true}]}`,
+			`"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"warning","text":"controlled","required":true}]}`,
 		"/scheme/scan": `{"results":[{"marking":"H","start":0,"end":1,"type":"marking","wrapped":false,` +
 			`"result":{"valid":true,"rendered":"H","inputWasValid":true,` +
-			`"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"handling","text":"controlled","required":true}]}}],` +
+			`"notices":[{"conceptId":"H_CTRL","conceptName":"Handling Controlled","type":"warning","text":"controlled","required":true}]}}],` +
 			`"limits":{"status":"complete","regionsFound":1}}`,
 	})
 	cx := ezclassify.Connect(srv.URL, "c", ver)
@@ -774,8 +740,8 @@ func TestRichResultsCarryNotices(t *testing.T) {
 		t.Errorf("required flags = %v, %v, want true then false",
 			proc.Result.Notices[0].Required, proc.Result.Notices[1].Required)
 	}
-	if got := proc.Result.Notices[0].Type; got != ezclassify.ConceptNoticeTypeHandling {
-		t.Errorf("Notices[0].Type = %q, want the handling member", got)
+	if got := proc.Result.Notices[0].Type; got != ezclassify.ConceptNoticeTypeWarning {
+		t.Errorf("Notices[0].Type = %q, want the warning member", got)
 	}
 
 	val, err := cx.Scheme.Validate(ctx, ezclassify.CtxSchemeValidateRequest{Input: ptr("H")})
@@ -816,46 +782,6 @@ func assertNoSchemeID(t *testing.T, r recordedReq) {
 	t.Helper()
 	if strings.Contains(r.body, "schemeId") || strings.Contains(r.body, "schemeID") {
 		t.Fatalf("ctx body should not carry a scheme id, got: %s", r.body)
-	}
-}
-
-// TestProcessCarriesWhatWasReadBeforeRepair pins that the reading a server
-// sends when repair changed the marking reaches the caller. A fix for a rule
-// repair enforced is applied to that reading rather than to Assertions, so a
-// decode that dropped it would apply the fix to the wrong set. Absent on the
-// wire, the field is nil.
-func TestProcessCarriesWhatWasReadBeforeRepair(t *testing.T) {
-	ctx := context.Background()
-	const ver = "1.0.0"
-	assertion := func(id string) string {
-		return `{"conceptId":"` + id + `","categoryId":"level","confidence":"certain","source":"user"}`
-	}
-	srv, _ := ctxServer(t, ver, map[string]string{
-		"/scheme/process": `{"valid":false,"rendered":"SENSITIVE","inputWasValid":false,` +
-			`"assertions":[` + assertion("SENSITIVE") + `],` +
-			`"assertionsBeforeRepair":[` + assertion("OPEN") + `,` + assertion("SENSITIVE") + `]}`,
-	})
-	cx := ezclassify.Connect(srv.URL, "c", ver)
-
-	processed, err := cx.Scheme.Process(ctx, ezclassify.CtxSchemeProcessRequest{Input: "OPEN/SENSITIVE"})
-	if err != nil {
-		t.Fatalf("Process: %v", err)
-	}
-	read := processed.Result.AssertionsBeforeRepair
-	if read == nil || len(*read) != 2 || (*read)[0].ConceptID != "OPEN" || (*read)[1].ConceptID != "SENSITIVE" {
-		t.Fatalf("AssertionsBeforeRepair = %+v, want OPEN then SENSITIVE", read)
-	}
-
-	unrepairedServer, _ := ctxServer(t, ver, map[string]string{
-		"/scheme/process": `{"valid":true,"rendered":"OPEN","inputWasValid":true,` +
-			`"assertions":[` + assertion("OPEN") + `]}`,
-	})
-	unrepaired, err := ezclassify.Connect(unrepairedServer.URL, "c", ver).Scheme.Process(ctx, ezclassify.CtxSchemeProcessRequest{Input: "OPEN"})
-	if err != nil {
-		t.Fatalf("Process: %v", err)
-	}
-	if unrepaired.Result.AssertionsBeforeRepair != nil {
-		t.Errorf("AssertionsBeforeRepair = %+v, want nil when the wire omits it", unrepaired.Result.AssertionsBeforeRepair)
 	}
 }
 

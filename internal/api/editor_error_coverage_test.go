@@ -24,7 +24,7 @@ func TestRequestEditorErrors(t *testing.T) {
 		t.Fatal(err)
 	}
 	editor := RequestEditorFn(failRequestEditor)
-	if _, err := c.CtxListWithResponse(context.Background(), editor); err == nil {
+	if _, err := c.CtxListWithResponse(context.Background(), nil, editor); err == nil {
 		t.Fatal("CtxList accepted failing editor")
 	}
 	if _, err := c.CtxSchemeProcessWithResponse(

@@ -50,7 +50,7 @@ func TestSuggestExclusiveInputContract(t *testing.T) {
 					t.Errorf("request=%v want=%v", got, expected)
 				}
 				w.Header().Set("Content-Type", "application/json")
-				_, _ = io.WriteString(w, `{"operationLimitations":[],"resolution":{"contextId":"fixture","resolvedVersion":"1.0.0","artifacts":[],"sources":[]},"result":{"suggestions":[],"warnings":[]}}`)
+				_, _ = io.WriteString(w, `{"resolution":{"contextId":"fixture","resolvedVersion":"1.0.0","artifacts":[]},"result":{"suggestions":[],"warnings":[]}}`)
 			}))
 			defer srv.Close()
 			cx := ezclassify.ConnectWith(ezclassify.New(srv.URL, ezclassify.WithCredentials(ezclassify.RestClientCredentials{AccessToken: "fixture-access", ContextToken: "fixture-context"})), "fixture", "1.0.0")
@@ -155,7 +155,7 @@ func TestDescribeConceptResource404IsNotContext404(t *testing.T) {
 func TestSourceOpenLabelsAndValuesStayOnTheWire(t *testing.T) {
 	for _, source := range []string{"parse", "user", "stated", "custom-author", "infer", "default", "context", "repair"} {
 		t.Run(source, func(t *testing.T) {
-			payload := `{"input":"","assertions":[{"categoryId":"level","conceptId":"H","confidence":"certain","source":"` + source + `","sourceRule":"fixture-rule","value":"20351231","metadata":{"nested":{"count":7}}}]}`
+			payload := `{"input":"","assertions":[{"categoryId":"level","conceptId":"H","confidence":"certain","source":"` + source + `","sourceRule":"fixture-rule","value":"20351231"}]}`
 			var req ezclassify.CtxSchemeProcessRequest
 			if err := json.Unmarshal([]byte(payload), &req); err != nil {
 				t.Fatal(err)

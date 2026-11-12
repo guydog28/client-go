@@ -11,10 +11,9 @@ import (
 func TestEnumsValid(t *testing.T) {
 	t.Run("AssertionConfidence", func(t *testing.T) {
 		for _, e := range []AssertionConfidence{
-			AssertionConfidenceCertain,
-			AssertionConfidenceInferred,
-			AssertionConfidenceRepaired,
-			AssertionConfidenceUncertain,
+			Certain,
+			Inferred,
+			Repaired,
 		} {
 			if !e.Valid() {
 				t.Errorf("%q.Valid() = false", e)
@@ -41,20 +40,6 @@ func TestEnumsValid(t *testing.T) {
 		}
 	})
 
-	t.Run("RepairConfidence", func(t *testing.T) {
-		for _, e := range []RepairConfidence{
-			RepairConfidenceSafe,
-			RepairConfidenceUncertain,
-		} {
-			if !e.Valid() {
-				t.Errorf("%q.Valid() = false", e)
-			}
-		}
-		if RepairConfidence("bogus").Valid() {
-			t.Error(`RepairConfidence("bogus").Valid() = true`)
-		}
-	})
-
 	t.Run("FixAction", func(t *testing.T) {
 		for _, e := range []FixAction{Add, Remove, Reorder, Replace} {
 			if !e.Valid() {
@@ -68,8 +53,7 @@ func TestEnumsValid(t *testing.T) {
 
 	t.Run("ConceptNoticeType", func(t *testing.T) {
 		for _, e := range []ConceptNoticeType{
-			ConceptNoticeTypeAdmonition, ConceptNoticeTypeDistribution,
-			ConceptNoticeTypeHandling, ConceptNoticeTypeInfo, ConceptNoticeTypeWarning,
+			ConceptNoticeTypeAdmonition, ConceptNoticeTypeWarning,
 		} {
 			if !e.Valid() {
 				t.Errorf("%q.Valid() = false", e)
@@ -113,19 +97,6 @@ func TestEnumsValid(t *testing.T) {
 		}
 		if SuggestionSource("bogus").Valid() {
 			t.Error(`SuggestionSource("bogus").Valid() = true`)
-		}
-	})
-
-	t.Run("ValidationSeverity", func(t *testing.T) {
-		for _, e := range []ValidationSeverity{
-			ValidationSeverityError, ValidationSeverityWarning,
-		} {
-			if !e.Valid() {
-				t.Errorf("%q.Valid() = false", e)
-			}
-		}
-		if ValidationSeverity("bogus").Valid() {
-			t.Error(`ValidationSeverity("bogus").Valid() = true`)
 		}
 	})
 

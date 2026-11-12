@@ -329,7 +329,7 @@ func (c *Client) EngineSpecVersion() string {
 // member the contract requires is a *[MalformedResponseError].
 func (c *Client) ListContexts(ctx context.Context) (*ContextListResponse, error) {
 	ctx, status := withResponseStatus(ctx)
-	resp, err := c.wire.CtxListWithResponse(ctx)
+	resp, err := c.wire.CtxListWithResponse(ctx, nil)
 	if err != nil {
 		return nil, decodeFailure("list contexts", status, fmt.Errorf("ezclassify: list contexts: %w", err))
 	}
@@ -340,7 +340,7 @@ func (c *Client) ListContexts(ctx context.Context) (*ContextListResponse, error)
 // first as ordered by the server. Errors follow [Client.ListContexts].
 func (c *Client) ListContextVersions(ctx context.Context, contextID string) (*ContextVersionsResponse, error) {
 	ctx, status := withResponseStatus(ctx)
-	resp, err := c.wire.CtxVersionsWithResponse(ctx, contextID)
+	resp, err := c.wire.CtxVersionsWithResponse(ctx, contextID, nil)
 	if err != nil {
 		return nil, decodeFailure("list context versions", status, fmt.Errorf("ezclassify: list context versions: %w", err))
 	}
