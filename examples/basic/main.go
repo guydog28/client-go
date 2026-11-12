@@ -21,7 +21,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 func main() {

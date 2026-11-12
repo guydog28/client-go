@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 // stubStatus returns a handler that always responds with the given status and body.

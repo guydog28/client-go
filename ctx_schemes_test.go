@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 // schemeCall drives one CtxScheme method with a request the client sends

@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 // rateLimitExample is the contract's own 429 body: the error text and the wait

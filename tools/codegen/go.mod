@@ -1,4 +1,4 @@
-module github.com/ezclassify/client-go/tools/codegen
+module github.com/ezclassify/sdk-go/tools/codegen
 
 go 1.26.10
 

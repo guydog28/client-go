@@ -24,7 +24,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 const (

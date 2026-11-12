@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strings"
 
-	ez "github.com/ezclassify/client-go"
+	ez "github.com/ezclassify/sdk-go"
 )
 
 // contextResponseTypes maps a Context route's suffix to the response type the

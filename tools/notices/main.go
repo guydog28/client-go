@@ -28,7 +28,7 @@ const noticesPath = "THIRD-PARTY-NOTICES.md"
 
 // ownModule is the module whose dependencies are being audited; it is
 // excluded from its own closure.
-const ownModule = "github.com/ezclassify/client-go"
+const ownModule = "github.com/ezclassify/sdk-go"
 
 // allowedLicenses is the set of licenses cleared for redistribution with the
 // Apache-2.0-licensed SDK. It mirrors the permissive core of the allowlist used across the EzClassify

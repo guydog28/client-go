@@ -3,7 +3,7 @@
 This repository contains the EzClassify Go SDK. It adapts the public REST
 contract to Go; EzClassify Runtime evaluates marking operations and composes
 Contexts. It ships one public package,
-`github.com/ezclassify/client-go`. Generated wire code stays internal; the root
+`github.com/ezclassify/sdk-go`. Generated wire code stays internal; the root
 package exposes aliases and small Go-native transport conveniences.
 
 ## Sources of truth

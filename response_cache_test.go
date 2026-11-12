@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 var cachedProcessBody = fixtureAs[ezclassify.ContextSchemeProcessResult](`{"resolution":{"contextId":"c","resolvedVersion":"1.0.0","artifacts":[]},"result":{"valid":true,"rendered":"H","inputWasValid":true,"notices":[]}}`)

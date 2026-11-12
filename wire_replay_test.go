@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	ez "github.com/ezclassify/client-go"
+	ez "github.com/ezclassify/sdk-go"
 	"io"
 	"net/http"
 	"net/http/httptest"

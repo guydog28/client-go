@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ezclassify/client-go/internal/api"
+	"github.com/ezclassify/sdk-go/internal/api"
 )
 
 // PingResult carries the live version information returned by [Client.Ping].

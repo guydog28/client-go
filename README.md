@@ -1,7 +1,7 @@
-# <img src="https://raw.githubusercontent.com/ezclassify/client-go/main/assets/icon.svg" alt="" width="32"> EzClassify Go SDK
+# <img src="https://raw.githubusercontent.com/ezclassify/sdk-go/main/assets/icon.svg" alt="" width="32"> EzClassify Go SDK
 
-[![CI](https://github.com/ezclassify/client-go/actions/workflows/ci.yml/badge.svg)](https://github.com/ezclassify/client-go/actions/workflows/ci.yml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/ezclassify/client-go.svg)](https://pkg.go.dev/github.com/ezclassify/client-go)
+[![CI](https://github.com/ezclassify/sdk-go/actions/workflows/ci.yml/badge.svg)](https://github.com/ezclassify/sdk-go/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ezclassify/sdk-go.svg)](https://pkg.go.dev/github.com/ezclassify/sdk-go)
 [![license: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Go 1.26.10+](https://img.shields.io/badge/go-1.26.10%2B-00ADD8.svg)](go.mod)
 
@@ -20,13 +20,13 @@ Go 1.26.10 or newer. Import the module directly in your application.
 ## Install
 
 ```sh
-go get github.com/ezclassify/client-go
+go get github.com/ezclassify/sdk-go
 ```
 
 Then import it under the module-root path:
 
 ```go
-import "github.com/ezclassify/client-go"
+import "github.com/ezclassify/sdk-go"
 ```
 
 Go 1.26.10+.
@@ -49,7 +49,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 func main() {
@@ -117,7 +117,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 func main() {

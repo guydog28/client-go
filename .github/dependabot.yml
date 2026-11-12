@@ -9,6 +9,12 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    cooldown:
+      # The repository refuses any third-party release published inside a
+      # seven-day window (`go run ./tools/dependencyage`). Without a matching
+      # cooldown here, Dependabot opens a bump the moment it lands and the
+      # pull request fails its own quarantine gate.
+      default-days: 7
     groups:
       gomod:
         patterns: ["*"]
@@ -26,6 +32,8 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    cooldown:
+      default-days: 7
     groups:
       github-actions:
         patterns: ["*"]

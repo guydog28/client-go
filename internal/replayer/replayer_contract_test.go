@@ -11,8 +11,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/ezclassify/client-go/internal/replayer"
-	"github.com/ezclassify/client-go/internal/subsetmatch"
+	"github.com/ezclassify/sdk-go/internal/replayer"
+	"github.com/ezclassify/sdk-go/internal/subsetmatch"
 )
 
 // corpusPath returns the absolute path to the replayer-contract corpus file

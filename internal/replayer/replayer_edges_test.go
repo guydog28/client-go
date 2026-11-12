@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/ezclassify/client-go/internal/replayer"
+	"github.com/ezclassify/sdk-go/internal/replayer"
 )
 
 // TestHandleInvalidJSONBody verifies the replayer returns HTTP 400 with an

@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 // budget is the client timeout these tests configure. A call must end within
@@ -319,7 +319,7 @@ func requestGoroutines() []string {
 	buf = buf[:runtime.Stack(buf, true)]
 	var found []string
 	for _, stack := range strings.Split(string(buf), "\n\n") {
-		if strings.Contains(stack, "client-go.roundTripWithin") || strings.Contains(stack, "client-go.newDeadlineBody") {
+		if strings.Contains(stack, "sdk-go.roundTripWithin") || strings.Contains(stack, "sdk-go.newDeadlineBody") {
 			found = append(found, stack)
 		}
 	}

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 // TestUnknownResponseFieldsAreTolerated is this SDK's conformance case for the

@@ -1,4 +1,4 @@
-.PHONY: regen test test-verbose build clean distclean conformance-server smoke api-surface check-api-surface notices check-notices docs
+.PHONY: regen test test-verbose build clean distclean conformance-server smoke api-surface check-api-surface notices check-notices check-dependency-age docs
 
 # regen: generate Go types from the vendored OpenAPI spec (spec/openapi.yaml).
 # There is deliberately no local re-vendor target. spec/ is bot-owned: the
@@ -29,6 +29,11 @@ notices:
 
 check-notices:
 	go run ./tools/notices
+
+# check-dependency-age: refuse third-party modules in go.sum published inside
+#   the last seven days (EZCLASSIFY_DEPENDENCY_AGE_DAYS overrides the window).
+check-dependency-age:
+	go run ./tools/dependencyage
 
 test:
 	go test ./...
@@ -63,7 +68,7 @@ docs:
 	mkdir -p dist/api
 	go list ./... > dist/api/packages.txt
 	@while IFS= read -r package; do \
-		relative=$${package#github.com/ezclassify/client-go}; \
+		relative=$${package#github.com/ezclassify/sdk-go}; \
 		mkdir -p "dist/api$$relative"; \
 		go doc -all "$$package" > "dist/api$$relative/index.txt" || exit; \
 	done < dist/api/packages.txt

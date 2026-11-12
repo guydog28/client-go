@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/ezclassify/client-go"
+	"github.com/ezclassify/sdk-go"
 )
 
 // TestAPIErrorMessage pins the formatted message returned by
