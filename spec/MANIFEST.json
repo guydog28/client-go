@@ -22,7 +22,7 @@
         },
         {
           "path": "tools/codegen/go.mod",
-          "sha256": "452bb2c7b2f77de755a6ad2e95462e6082ae77fcd3919917bef285863525b6f0"
+          "sha256": "3d86678f572e69a9baca842b15b88337ff09135a0893d711606a634d8fa6336b"
         },
         {
           "path": "tools/codegen/go.sum",
