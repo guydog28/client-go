@@ -255,15 +255,14 @@ func TestPingNon2xxOutside4xxIsAnAPIError(t *testing.T) {
 // response cap on a success path: the body is well-formed JSON, so nothing
 // but the ceiling can reject it.
 func TestResponseCeilingRejectsAnOversizedBody(t *testing.T) {
-	const limit = 1 << 10
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		padding := strings.Repeat("p", 4*limit)
+		padding := strings.Repeat("p", maxResponseBytes+1)
 		_, _ = io.WriteString(w, `{"status":"ok","engineVersion":"1.0.0","engineSha":"","openapiVersion":"1.0.0","abiVersion":"v1","gitTag":"`+padding+`"}`)
 	}))
 	t.Cleanup(srv.Close)
 
-	c := New(srv.URL, WithMaxResponseBytes(limit))
+	c := New(srv.URL)
 	if _, err := c.Ping(context.Background()); !errors.Is(err, ErrResponseTooLarge) {
 		t.Fatalf("Ping error = %v, want one wrapping ErrResponseTooLarge", err)
 	}
@@ -282,8 +281,12 @@ func TestResponseCeilingRejectsAnOversizedBody(t *testing.T) {
 // shows up on the read after it, with the ceiling already spent. Real
 // rest-api responses take the streamed path, so both belong here.
 func TestResponseCeilingAcceptsABodyOnTheLimit(t *testing.T) {
-	const contextID = "demo"
-	payload := `{"contexts":["` + contextID + `"]}`
+	const prefix, suffix = `{"contexts":["`, `"]}`
+	contextID := strings.Repeat("c", maxResponseBytes-len(prefix)-len(suffix))
+	payload := prefix + contextID + suffix
+	if len(payload) != maxResponseBytes {
+		t.Fatalf("payload is %d bytes, want exactly the %d byte ceiling", len(payload), maxResponseBytes)
+	}
 
 	cases := []struct {
 		name  string
@@ -320,7 +323,7 @@ func TestResponseCeilingAcceptsABodyOnTheLimit(t *testing.T) {
 			}))
 			t.Cleanup(srv.Close)
 
-			c := New(srv.URL, WithMaxResponseBytes(int64(len(payload))))
+			c := New(srv.URL)
 			result, err := c.ListContexts(context.Background())
 			if err != nil {
 				t.Fatalf("ListContexts: %v", err)
@@ -336,14 +339,13 @@ func TestResponseCeilingAcceptsABodyOnTheLimit(t *testing.T) {
 // transport, where every generated operation inherits it, rather than in the
 // handwritten Ping path alone.
 func TestResponseCeilingCoversGeneratedOperations(t *testing.T) {
-	const limit = 512
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"contexts":["`+strings.Repeat("c", 4*limit)+`"]}`)
+		_, _ = io.WriteString(w, `{"contexts":["`+strings.Repeat("c", maxResponseBytes)+`"]}`)
 	}))
 	t.Cleanup(srv.Close)
 
-	c := New(srv.URL, WithMaxResponseBytes(limit))
+	c := New(srv.URL)
 	if _, err := c.ListContexts(context.Background()); !errors.Is(err, ErrResponseTooLarge) {
 		t.Fatalf("ListContexts error = %v, want one wrapping ErrResponseTooLarge", err)
 	}

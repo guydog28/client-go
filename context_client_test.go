@@ -117,7 +117,7 @@ func TestConnectDefaultsToLatest(t *testing.T) {
 // An omitted version leaves the choice to the server: under a Context token
 // the runtime answers "latest" with the token's default version. Describe
 // sends that request with the token and reports the version the server chose,
-// and the binding stays unpinned, so access-decision caching is still refused.
+// and the binding stays unpinned.
 func TestOmittedVersionLetsTheServerChooseUnderAContextToken(t *testing.T) {
 	var method, path, token string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -139,12 +139,9 @@ func TestOmittedVersionLetsTheServerChooseUnderAContextToken(t *testing.T) {
 	if description.Version != "1.4.0" || cx.ResolvedVersion() != "1.4.0" {
 		t.Fatalf("description version %q, resolved %q, want the token default 1.4.0", description.Version, cx.ResolvedVersion())
 	}
-	defer func() {
-		if recover() == nil {
-			t.Fatal("an omitted version must stay unpinned and refuse access-decision caching")
-		}
-	}()
-	_ = ezclassify.ConnectWith(ezclassify.New(srv.URL, ezclassify.WithCacheAccessDecisions()), "acme-ctx", "")
+	if cx.Version() != "latest" {
+		t.Fatalf("Version() = %q, want the binding to stay unpinned", cx.Version())
+	}
 }
 
 func TestResolveSurfacesVersion(t *testing.T) {
@@ -663,7 +660,7 @@ func TestProcessAndValidateSendPartsOrOmitThem(t *testing.T) {
 	}
 }
 
-func TestContextLabelPresetsWithResponse(t *testing.T) {
+func TestContextSchemeLabelPresets(t *testing.T) {
 	var gotPath string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotPath = r.URL.Path
@@ -672,13 +669,12 @@ func TestContextLabelPresetsWithResponse(t *testing.T) {
 		_, _ = io.WriteString(w, `[{"id":"state-assessment-staff","label":"State Assessment Staff"}]`)
 	}))
 	t.Cleanup(srv.Close)
-	c := ezclassify.New(srv.URL)
-	resp, err := c.CtxSchemeLabelPresetsWithResponse(context.Background(), "cedar-valley-protection", "latest", nil)
+	presets, err := ezclassify.Connect(srv.URL, "cedar-valley-protection", "latest").Scheme.LabelPresets(context.Background())
 	if err != nil {
-		t.Fatalf("CtxSchemeLabelPresetsWithResponse: %v", err)
+		t.Fatalf("LabelPresets: %v", err)
 	}
-	if resp.JSON200 == nil || len(*resp.JSON200) != 1 || (*resp.JSON200)[0].ID != "state-assessment-staff" {
-		t.Fatalf("CtxSchemeLabelPresetsWithResponse JSON200 = %+v", resp.JSON200)
+	if presets == nil || len(*presets) != 1 || (*presets)[0].ID != "state-assessment-staff" {
+		t.Fatalf("LabelPresets = %+v", presets)
 	}
 	if gotPath != "/v1/ctx/cedar-valley-protection/latest/scheme/label-presets" {
 		t.Fatalf("path = %q", gotPath)
@@ -711,11 +707,10 @@ func TestSchemeSummaryCarriesTheDocumentsOwnMarking(t *testing.T) {
 	}
 }
 
-// TestContextSchemeScopesWithResponse covers the Context-bound scopes wire
-// surface. The response is an ordered array of scope
+// TestContextSchemeScopes covers the Context-bound scopes operation. The response is an ordered array of scope
 // entries, not a map, because a selector offers scopes in declaration order
 // and a JSON object carries no order. This pins that shape and the ordering.
-func TestContextSchemeScopesWithResponse(t *testing.T) {
+func TestContextSchemeScopes(t *testing.T) {
 	var gotPath string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotPath = r.URL.Path
@@ -724,15 +719,14 @@ func TestContextSchemeScopesWithResponse(t *testing.T) {
 		_, _ = io.WriteString(w, `[{"id":"public","label":"Public"},{"id":"internal","label":"Internal"}]`)
 	}))
 	t.Cleanup(srv.Close)
-	c := ezclassify.New(srv.URL)
-	resp, err := c.CtxSchemeScopesWithResponse(context.Background(), "cedar-valley-protection", "latest", nil)
+	result, err := ezclassify.Connect(srv.URL, "cedar-valley-protection", "latest").Scheme.Scopes(context.Background())
 	if err != nil {
-		t.Fatalf("CtxSchemeScopesWithResponse: %v", err)
+		t.Fatalf("Scopes: %v", err)
 	}
-	if resp.JSON200 == nil {
-		t.Fatalf("CtxSchemeScopesWithResponse JSON200 = nil")
+	if result == nil {
+		t.Fatalf("Scopes = nil")
 	}
-	scopes := *resp.JSON200
+	scopes := *result
 	if len(scopes) != 2 {
 		t.Fatalf("scopes length = %d, want 2", len(scopes))
 	}

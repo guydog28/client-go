@@ -455,7 +455,7 @@ func TestCtxOpsNotFoundRemainingMethods(t *testing.T) {
 
 // TestCtxOpsDecodeErrorOnWrongBodyType pins the decode-failure path in the ops
 // below (Diff, FilterConcepts, Notices, FilterRules, Guide.View) that route
-// through the generated ClientWithResponses like every other context method.
+// through the generated wire client like every other context method.
 // A server returning the JSON token "true" with status 200 is valid JSON but
 // not an object or array, so the generated parser refuses it, and the call
 // reports a *MalformedResponseError for the 200.

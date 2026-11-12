@@ -23,7 +23,6 @@ ezclassify, const ConceptNoticeTypeWarning
 ezclassify, const DecisionProposalOriginAgentDrafted
 ezclassify, const DecisionProposalOriginAnalystAuthored
 ezclassify, const DecisionProposalOriginHostImported
-ezclassify, const DefaultMaxResponseBytes int64
 ezclassify, const DocumentResponseProfileFull
 ezclassify, const DocumentResponseProfileStandard
 ezclassify, const DocumentResponseProfileSummary
@@ -83,13 +82,10 @@ ezclassify, func Connect(string, string, string) *EzClassifyContext
 ezclassify, func ConnectWith(*Client, string, string) *EzClassifyContext
 ezclassify, func New(string, ...Option) *Client
 ezclassify, func UTF8ByteOffset(string, int) (int, error)
-ezclassify, func UTF8ByteOffsets(string, []int) ([]int, error)
 ezclassify, func UTF8RuneIndex(string, int) (int, error)
-ezclassify, func UTF8RuneIndexes(string, []int) ([]int, error)
-ezclassify, func WithCacheAccessDecisions() Option
+ezclassify, func WithApplicationID(string) Option
 ezclassify, func WithCredentials(RestClientCredentials) Option
 ezclassify, func WithHTTPClient(*http.Client) Option
-ezclassify, func WithMaxResponseBytes(int64) Option
 ezclassify, func WithResponseCacheDisabled() Option
 ezclassify, func WithTimeout(time.Duration) Option
 ezclassify, method (*APIError) Error() string
@@ -172,7 +168,6 @@ ezclassify, type CategoryPositionOverrides = api.CategoryPositionOverrides
 ezclassify, type CategoryView = api.CategoryView
 ezclassify, type Change = api.Change
 ezclassify, type Client struct
-ezclassify, type Client struct, embedded *api.ClientWithResponses
 ezclassify, type ConceptDescription = api.ConceptDescription
 ezclassify, type ConceptNoticeType = api.ConceptNoticeType
 ezclassify, type ConceptView = api.ConceptView
@@ -318,7 +313,6 @@ ezclassify, type ReproducibleRuleSourceReference = api.ReproducibleRuleSourceRef
 ezclassify, type ReproducibleSourceReference = api.ReproducibleSourceReference
 ezclassify, type RestClientCredentials struct
 ezclassify, type RestClientCredentials struct, AccessToken string
-ezclassify, type RestClientCredentials struct, ApplicationCredential string
 ezclassify, type RestClientCredentials struct, ContextToken string
 ezclassify, type RuleDescription = api.RuleDescription
 ezclassify, type RuleReference = api.RuleReference

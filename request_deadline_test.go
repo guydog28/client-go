@@ -446,36 +446,3 @@ func TestPublicDeadlineDoesNotWaitForBodyClose(t *testing.T) {
 		})
 	}
 }
-
-type closeErrorBody struct {
-	io.Reader
-	closes atomic.Int32
-	err    error
-}
-
-func (b *closeErrorBody) Close() error {
-	b.closes.Add(1)
-	return b.err
-}
-
-func TestResponseBodyClosePreservesErrorAndRunsOnce(t *testing.T) {
-	want := errors.New("close failed")
-	body := &closeErrorBody{Reader: strings.NewReader(`{"contexts":[]}`), err: want}
-	client := ezclassify.New("http://ezclassify.invalid",
-		ezclassify.WithHTTPClient(&http.Client{Transport: bodyTransport{body}}))
-	response, err := client.CtxList(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := io.ReadAll(response.Body); err != nil {
-		t.Fatal(err)
-	}
-	for range 2 {
-		if err := response.Body.Close(); !errors.Is(err, want) {
-			t.Errorf("Close error = %v, want %v", err, want)
-		}
-	}
-	if got := body.closes.Load(); got != 1 {
-		t.Errorf("underlying Close called %d times, want once", got)
-	}
-}

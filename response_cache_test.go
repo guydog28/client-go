@@ -150,7 +150,7 @@ func TestContextCachePendingCallSurvivesOneCallerCancellation(t *testing.T) {
 	}
 }
 
-func TestContextAccessDecisionAuditDefault(t *testing.T) {
+func TestContextAccessDecisionIsNeverServedFromClientMemory(t *testing.T) {
 	var calls atomic.Int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls.Add(1)
@@ -166,16 +166,7 @@ func TestContextAccessDecisionAuditDefault(t *testing.T) {
 		}
 	}
 	if got := calls.Load(); got != 2 {
-		t.Fatalf("default access audit used %d wire calls, want 2", got)
-	}
-	cached := ezclassify.ConnectWith(ezclassify.New(srv.URL, ezclassify.WithCacheAccessDecisions()), "c", "1.0.0")
-	for i := 0; i < 2; i++ {
-		if _, err := cached.Access.Check(context.Background(), req); err != nil {
-			t.Fatal(err)
-		}
-	}
-	if got := calls.Load(); got != 3 {
-		t.Fatalf("opted-in access used %d wire calls, want 3", got)
+		t.Fatalf("access check used %d wire calls, want 2", got)
 	}
 }
 
@@ -226,15 +217,6 @@ func TestContextCacheClearsOnUnauthorizedAndVersionChange(t *testing.T) {
 	if got := calls.Load(); got != 5 {
 		t.Fatalf("version change did not clear cache: %d calls, want 5", got)
 	}
-}
-
-func TestContextAccessCacheRequiresConcreteVersion(t *testing.T) {
-	defer func() {
-		if recover() == nil {
-			t.Fatal("access cache opt-in should reject latest")
-		}
-	}()
-	_ = ezclassify.ConnectWith(ezclassify.New("http://localhost", ezclassify.WithCacheAccessDecisions()), "c", "latest")
 }
 
 // countingContextServer answers every Context route with body inside a

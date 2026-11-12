@@ -65,28 +65,6 @@ func TestWithTimeoutRejectsANonPositiveDuration(t *testing.T) {
 	}
 }
 
-func TestWithMaxResponseBytesRejectsANonPositiveLimit(t *testing.T) {
-	for _, limit := range []int64{0, -1} {
-		func() {
-			defer func() {
-				if recover() == nil {
-					t.Errorf("WithMaxResponseBytes(%d) was accepted, which would remove the response ceiling", limit)
-				}
-			}()
-			_ = WithMaxResponseBytes(limit)
-		}()
-	}
-}
-
-func TestNewKeepsTheDefaultResponseCeilingUnlessOneIsSet(t *testing.T) {
-	if got := New("http://localhost").cacheConfig.maxResponseBytes; got != DefaultMaxResponseBytes {
-		t.Fatalf("default ceiling = %d, want %d", got, DefaultMaxResponseBytes)
-	}
-	if got := New("http://localhost", WithMaxResponseBytes(1<<10)).cacheConfig.maxResponseBytes; got != 1<<10 {
-		t.Fatalf("ceiling = %d, want 1024", got)
-	}
-}
-
 func TestWithHTTPClientRejectsNil(t *testing.T) {
 	defer func() {
 		if recover() == nil {

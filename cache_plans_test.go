@@ -62,10 +62,8 @@ type cachePlan struct {
 	Covers       []string `json:"covers"`
 	Capabilities []string `json:"capabilities"`
 	Client       struct {
-		Binding              string `json:"binding"`
-		Context              string `json:"context"`
-		CacheAccessDecisions bool   `json:"cacheAccessDecisions"`
-		Construction         string `json:"construction"`
+		Binding string `json:"binding"`
+		Context string `json:"context"`
 	} `json:"client"`
 	Steps []cacheStep `json:"steps"`
 }
@@ -595,19 +593,7 @@ func (h *cacheHarness) binding() {
 		ez.WithHTTPClient(&http.Client{Transport: h.tr}),
 		ez.WithCredentials(ez.RestClientCredentials{ContextToken: "fixture-context-carrier"}),
 	}
-	if h.plan.Client.CacheAccessDecisions {
-		options = append(options, ez.WithCacheAccessDecisions())
-	}
 	client := ez.New("http://cache.invalid", options...)
-	if h.plan.Client.Construction == "refused" {
-		defer func() {
-			if recover() == nil {
-				t.Fatal("construction was not refused")
-			}
-		}()
-		ez.ConnectWith(client, contextID, version)
-		return
-	}
 	h.cx = ez.ConnectWith(client, contextID, version)
 	ez.SetCacheClockForTest(h.cx, h.clock.Now)
 }
@@ -615,12 +601,6 @@ func (h *cacheHarness) binding() {
 func (h *cacheHarness) run() {
 	t := h.t
 	h.binding()
-	if h.plan.Client.Construction == "refused" {
-		if len(h.plan.Steps) != 0 {
-			t.Fatal("a refused construction has no steps")
-		}
-		return
-	}
 	for i, step := range h.plan.Steps {
 		h.perform(i, step)
 		h.tr.mu.Lock()

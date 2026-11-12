@@ -117,10 +117,6 @@ var readCases = []readCase{
 		_, err := c.Ping(ctx)
 		return err
 	}},
-	{"ready", "get", "/v1/ready", func(ctx context.Context, c *ezclassify.Client, _ *ezclassify.EzClassifyContext) error {
-		_, err := c.GetReadyWithResponse(ctx)
-		return err
-	}},
 	{"list-contexts", "get", "/v1/ctx", func(ctx context.Context, c *ezclassify.Client, _ *ezclassify.EzClassifyContext) error {
 		_, err := c.ListContexts(ctx)
 		return err

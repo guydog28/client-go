@@ -211,14 +211,7 @@ The cache clears itself when an unpinned binding's resolved version changes, and
 
 ### Access decisions
 
-`Access.Check` calls the server every time by default. The request is what puts the decision in the deployment's audit record, against the exact artifact versions that answered it, and a decision served from client memory never made that trip. If you choose to trade those audit records for fewer requests on a concrete Context version, build the client with `ezclassify.WithCacheAccessDecisions()`:
-
-```go
-client := ezclassify.New(baseURL, ezclassify.WithCacheAccessDecisions())
-cx := ezclassify.ConnectWith(client, "cedar-valley", "1.0.0") // a concrete version
-```
-
-`ConnectWith` panics when the option is combined with `"latest"` or an empty version, because the composition behind an unpinned binding can move under a cached decision. The option reaches `Access.Check` and nothing else: document audit and assessment, access requirements and crosswalk translation stay on the wire.
+`Access.Check` is never served from client memory. Each call reaches the server, which records the decision against the exact artifact versions that answered it, and that record is what an accreditation review reads.
 
 ## Reading a marking and writing one
 
@@ -375,7 +368,7 @@ for _, n := range res.Result.Notices {
 
 ## Context discovery and generated surface
 
-Use `client.ListContexts(ctx)` and `client.ListContextVersions(ctx, id)` to discover bindings before calling `ConnectWith`. The embedded generated client also exposes canonical `Ctx*WithResponse` methods for callers that need response headers or typed error bodies directly. `cx.Describe(ctx)` returns a Context's component breakdown: its scheme, layers, guides, access policy, and crosswalks, each with the version it declares and the concrete version that answered; `client.CtxDescribeWithResponse` is the same request with the raw response.
+Use `client.ListContexts(ctx)` and `client.ListContextVersions(ctx, id)` to discover bindings before calling `ConnectWith`. `cx.Describe(ctx)` returns a Context's component breakdown: its scheme, layers, guides, access policy, and crosswalks, each with the version it declares and the concrete version that answered.
 
 ```go
 contexts, err := client.ListContexts(ctx)
@@ -398,7 +391,7 @@ Operations with no REST endpoint (registry mutation, in-process scheme loading, 
 
 ## Authentication
 
-Use `RestClientCredentials` for ordinary caller and Context tokens, or a managed application credential. `AccessToken` is sent as a bearer token on every REST request. `ContextToken` is sent as `x-ezclassify-context-token` only on `/v1/ctx` routes, so it cannot leak to health or other route families:
+Use `RestClientCredentials` for caller and Context tokens. `AccessToken` is sent as a bearer token on every REST request. `ContextToken` is sent as `x-ezclassify-context-token` only on `/v1/ctx` routes, so it cannot leak to health or other route families:
 
 ```go
 client := ezclassify.New(baseURL, ezclassify.WithCredentials(ezclassify.RestClientCredentials{
@@ -407,18 +400,15 @@ client := ezclassify.New(baseURL, ezclassify.WithCredentials(ezclassify.RestClie
 }))
 ```
 
-For an application grant, use the opaque credential issued by your deployment's management plane. Supply the current user's access token when the configured application policy requires verified user identity:
+Name the calling application with `WithApplicationID`. The runtime counts requests per application id and reports the usage to Studio, so pass the id your application is registered under:
 
 ```go
-client := ezclassify.New(baseURL, ezclassify.WithCredentials(ezclassify.RestClientCredentials{
-	ApplicationCredential: os.Getenv("EZCLASSIFY_APPLICATION_CREDENTIAL"),
-	AccessToken: currentUserAccessToken,
-}))
+client := ezclassify.New(baseURL, ezclassify.WithApplicationID("case-intake-portal"))
 ```
 
-The SDK sends the grant as `x-ezclassify-application-grant` only to Context routes on the configured origin, including deployments under a base path. It does not decode or refresh the credential. Combining it with `ContextToken` is rejected before any request. Omit `AccessToken` when the application's user policy does not use a bearer token. Your application authenticates users with its own identity provider and supplies their tokens; the SDK does not sign users in. Keep each client's credentials and caches scoped to one caller. A transport supplied with `WithHTTPClient` receives the credential on Context requests; what it does with that credential, including logging, is the caller's responsibility. Headers the transport adds or changes are outside construction-time credential validation.
+The SDK sends the id as `x-ezclassify-application-id` only to Context routes on the configured origin, including deployments under a base path. It is not a credential and authorizes nothing: a request without it, or with an id the deployment has not registered, is served the same way. `WithApplicationID` panics on a blank id or one with surrounding whitespace or control characters.
 
-The zero-value credential struct can call public probes and the replay server. Runtime execution requires an authorized application definition and its configured credential and user policy, including for ordinary caller credentials; public application identifiers alone grant no access. Standalone operators can supply protected application configuration without Studio. Blank non-empty tokens are rejected. Use `WithHTTPClient` when you also need a custom transport, retry policy, cookie jar, or redirect policy:
+Your application authenticates users with its own identity provider and supplies their tokens; the SDK does not sign users in. Keep each client's credentials and caches scoped to one caller. A transport supplied with `WithHTTPClient` receives the credentials on Context requests; what it does with them, including logging, is the caller's responsibility. Blank non-empty tokens are rejected. Use `WithHTTPClient` when you also need a custom transport, retry policy, cookie jar, or redirect policy:
 
 ```go
 type headerTransport struct {
@@ -461,13 +451,7 @@ client := ezclassify.New(baseURL, ezclassify.WithTimeout(10*time.Second))
 
 ### Response size
 
-`New` takes its settings as options. `WithMaxResponseBytes` sets the response ceiling: a client reads at most `ezclassify.DefaultMaxResponseBytes` (32 MiB) from a single response body and fails a longer one with an error wrapping `ezclassify.ErrResponseTooLarge`, rather than truncating it.
-
-```go
-client := ezclassify.New(baseURL, ezclassify.WithMaxResponseBytes(128<<20))
-```
-
-The limit must be positive: `WithMaxResponseBytes` panics on zero or less, so no caller code can remove the ceiling. It applies to every operation, generated or handwritten, because it sits on the transport.
+A client reads at most 32 MiB from a single response body and fails a longer one with an error wrapping `ezclassify.ErrResponseTooLarge`, rather than truncating it. The ceiling applies to every operation, generated or handwritten, because it sits on the transport.
 
 ## Versioning
 

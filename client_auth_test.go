@@ -162,7 +162,7 @@ func TestRestClientCredentialsRejectControlCharacters(t *testing.T) {
 	}
 }
 
-func TestApplicationCredentialIsOpaqueAndScopedToContextRoutes(t *testing.T) {
+func TestApplicationIDIsSentOnlyToContextRoutes(t *testing.T) {
 	for _, prefix := range []string{"", "/api"} {
 		t.Run(prefix, func(t *testing.T) {
 			seen := make(map[string]http.Header)
@@ -172,9 +172,7 @@ func TestApplicationCredentialIsOpaqueAndScopedToContextRoutes(t *testing.T) {
 				_, _ = io.WriteString(w, `{"contexts":[]}`)
 			}))
 			t.Cleanup(srv.Close)
-			credentials := RestClientCredentials{ApplicationCredential: "opaque.not-decoded.value"}
-			client := New(srv.URL+prefix, WithCredentials(credentials))
-			credentials.ApplicationCredential = "changed-after-construction"
+			client := New(srv.URL+prefix, WithApplicationID("case-intake-portal"))
 			if _, err := client.ListContexts(context.Background()); err != nil {
 				t.Fatal(err)
 			}
@@ -195,13 +193,10 @@ func TestApplicationCredentialIsOpaqueAndScopedToContextRoutes(t *testing.T) {
 			for path, headers := range seen {
 				want := ""
 				if path == prefix+"/v1/ctx" || path == prefix+"/v1/ctx/example/1.0.0" {
-					want = "opaque.not-decoded.value"
+					want = "case-intake-portal"
 				}
-				if got := headers.Get(applicationCredentialHeader); got != want {
-					t.Errorf("%s application credential = %q, want %q", path, got, want)
-				}
-				if headers.Get("Authorization") != "" || headers.Get(contextTokenHeader) != "" {
-					t.Errorf("%s carried ordinary credentials in application mode", path)
+				if got := headers.Get(applicationIDHeader); got != want {
+					t.Errorf("%s application id = %q, want %q", path, got, want)
 				}
 			}
 			if len(seen) != len(paths)+1 {
@@ -211,16 +206,15 @@ func TestApplicationCredentialIsOpaqueAndScopedToContextRoutes(t *testing.T) {
 	}
 }
 
-func TestApplicationCredentialRejectsInvalidConfigurationBeforeTransport(t *testing.T) {
-	for name, credentials := range map[string]RestClientCredentials{
-		"context token":       {ApplicationCredential: "opaque", ContextToken: "context"},
-		"both tokens":         {ApplicationCredential: "opaque", AccessToken: "access", ContextToken: "context"},
-		"embedded tab":        {ApplicationCredential: "opa\tque"},
-		"leading whitespace":  {ApplicationCredential: " opaque"},
-		"trailing whitespace": {ApplicationCredential: "opaque "},
-		"blank":               {ApplicationCredential: " \t"},
-		"newline":             {ApplicationCredential: "opaque\n"},
-		"null":                {ApplicationCredential: "opa\x00que"},
+func TestApplicationIDRejectsInvalidValuesBeforeTransport(t *testing.T) {
+	for name, id := range map[string]string{
+		"embedded tab":        "case\tportal",
+		"leading whitespace":  " portal",
+		"trailing whitespace": "portal ",
+		"blank":               " \t",
+		"empty":               "",
+		"newline":             "portal\n",
+		"null":                "por\x00tal",
 	} {
 		t.Run(name, func(t *testing.T) {
 			calls := 0
@@ -231,10 +225,10 @@ func TestApplicationCredentialRejectsInvalidConfigurationBeforeTransport(t *test
 			var refusal any
 			func() {
 				defer func() { refusal = recover() }()
-				_ = New("http://localhost", WithHTTPClient(&http.Client{Transport: transport}), WithCredentials(credentials))
+				_ = New("http://localhost", WithHTTPClient(&http.Client{Transport: transport}), WithApplicationID(id))
 			}()
 			if refusal == nil {
-				t.Fatal("constructor accepted invalid application credentials")
+				t.Fatal("WithApplicationID accepted a value that cannot be sent as a header")
 			}
 			if calls != 0 {
 				t.Fatalf("invalid configuration made %d transport calls", calls)
@@ -243,63 +237,7 @@ func TestApplicationCredentialRejectsInvalidConfigurationBeforeTransport(t *test
 	}
 }
 
-func TestApplicationCredentialDoesNotFollowCrossOriginRedirect(t *testing.T) {
-	var sourceValue, targetValue string
-	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		targetValue = r.Header.Get(applicationCredentialHeader)
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"contexts":[]}`)
-	}))
-	t.Cleanup(target.Close)
-	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sourceValue = r.Header.Get(applicationCredentialHeader)
-		http.Redirect(w, r, target.URL+r.URL.Path, http.StatusTemporaryRedirect)
-	}))
-	t.Cleanup(origin.Close)
-	client := New(origin.URL, WithCredentials(RestClientCredentials{ApplicationCredential: "opaque"}))
-	if _, err := client.ListContexts(context.Background()); err != nil {
-		t.Fatal(err)
-	}
-	if sourceValue != "opaque" || targetValue != "" {
-		t.Fatalf("credential at origin=%q, redirect target=%q", sourceValue, targetValue)
-	}
-}
-
-func TestApplicationAndUserCredentialsStayCallerScoped(t *testing.T) {
-	var seen []http.Header
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		seen = append(seen, r.Header.Clone())
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"contexts":[]}`)
-	}))
-	t.Cleanup(server.Close)
-	for _, user := range []string{"caller-a", "caller-b"} {
-		client := New(server.URL, WithCredentials(RestClientCredentials{ApplicationCredential: "shared-application", AccessToken: user}))
-		if _, err := client.ListContexts(context.Background()); err != nil {
-			t.Fatal(err)
-		}
-		response, err := client.httpClient.Get(server.URL + "/v1/health")
-		if err != nil {
-			t.Fatal(err)
-		}
-		_ = response.Body.Close()
-	}
-	if len(seen) != 4 {
-		t.Fatalf("observed %d requests, want 4", len(seen))
-	}
-	for i, user := range []string{"caller-a", "caller-b"} {
-		for _, headers := range seen[i*2 : i*2+2] {
-			if headers.Get("Authorization") != "Bearer "+user || headers.Get(contextTokenHeader) != "" {
-				t.Fatalf("caller %d lost its independent user credential", i)
-			}
-		}
-		if seen[i*2].Get(applicationCredentialHeader) != "shared-application" || seen[i*2+1].Get(applicationCredentialHeader) != "" {
-			t.Fatalf("caller %d application grant escaped Context routes", i)
-		}
-	}
-}
-
-func TestApplicationAndUserCredentialsDoNotFollowCrossOriginRedirect(t *testing.T) {
+func TestApplicationIDDoesNotFollowCrossOriginRedirect(t *testing.T) {
 	var originHeaders, targetHeaders http.Header
 	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		targetHeaders = r.Header.Clone()
@@ -312,14 +250,14 @@ func TestApplicationAndUserCredentialsDoNotFollowCrossOriginRedirect(t *testing.
 		http.Redirect(w, r, target.URL+r.URL.Path, http.StatusTemporaryRedirect)
 	}))
 	t.Cleanup(origin.Close)
-	client := New(origin.URL, WithCredentials(RestClientCredentials{ApplicationCredential: "application", AccessToken: "caller"}))
+	client := New(origin.URL, WithApplicationID("portal"), WithCredentials(RestClientCredentials{AccessToken: "caller"}))
 	if _, err := client.ListContexts(context.Background()); err != nil {
 		t.Fatal(err)
 	}
-	if originHeaders.Get(applicationCredentialHeader) != "application" || originHeaders.Get("Authorization") != "Bearer caller" {
-		t.Fatal("origin did not receive both configured credentials")
+	if originHeaders.Get(applicationIDHeader) != "portal" || originHeaders.Get("Authorization") != "Bearer caller" {
+		t.Fatal("origin did not receive the application id and the caller token")
 	}
-	if targetHeaders.Get(applicationCredentialHeader) != "" || targetHeaders.Get("Authorization") != "" {
-		t.Fatal("redirect target received credentials")
+	if targetHeaders.Get(applicationIDHeader) != "" || targetHeaders.Get("Authorization") != "" {
+		t.Fatal("redirect target received the application id or the caller token")
 	}
 }

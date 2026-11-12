@@ -147,11 +147,11 @@ func TestUnknownEnumValuesDecodeAtEveryPosition(t *testing.T) {
 		if err := ezclassify.Connect(describe.URL, "c", ver).Resolve(ctx); err != nil {
 			t.Fatalf("Resolve against a newer scheme role: %v", err)
 		}
-		described, err := ezclassify.New(describe.URL).CtxDescribeWithResponse(ctx, "c", ver)
-		if err != nil || described.JSON200 == nil {
-			t.Fatalf("describe decode: err=%v status=%d", err, described.StatusCode())
+		described, err := ezclassify.Connect(describe.URL, "c", ver).Describe(ctx)
+		if err != nil {
+			t.Fatalf("describe decode: %v", err)
 		}
-		roles := described.JSON200.Schemes[0].Roles
+		roles := described.Schemes[0].Roles
 		if len(roles) != 2 || !roles[0].Valid() || roles[1] != "reviewer" || roles[1].Valid() {
 			t.Errorf("Roles = %v, want [primary reviewer] with the unknown role kept", roles)
 		}

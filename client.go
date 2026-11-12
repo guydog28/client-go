@@ -33,11 +33,9 @@ type PingResult struct {
 	GitTag string
 }
 
-// RestClientCredentials carries caller identity and Context authorization, or
-// an opaque managed application credential. AccessToken is sent as a bearer
-// token on every REST request. ContextToken and ApplicationCredential are sent
-// only to /v1/ctx and its descendants. ApplicationCredential may accompany an
-// AccessToken when the application requires a user, but not a ContextToken.
+// RestClientCredentials carries caller identity and Context authorization.
+// AccessToken is sent as a bearer token on every REST request. ContextToken is
+// sent only to /v1/ctx and its descendants.
 //
 // Credentials are attached only to requests whose scheme and host match the
 // client's base URL. A redirect to another origin is passed through without them.
@@ -50,24 +48,12 @@ type RestClientCredentials struct {
 	AccessToken string
 	// ContextToken authorizes Context operations and is sent only on /v1/ctx routes.
 	ContextToken string
-	// ApplicationCredential authorizes the calling application on Context routes.
-	// The SDK sends its opaque value without decoding or refreshing it.
-	ApplicationCredential string
 }
 
 const contextTokenHeader = "x-ezclassify-context-token"
-const applicationCredentialHeader = "x-ezclassify-application-grant"
+const applicationIDHeader = "x-ezclassify-application-id"
 
 func (c RestClientCredentials) validate() error {
-	if c.ApplicationCredential != "" && c.ContextToken != "" {
-		return fmt.Errorf("application credential cannot be combined with a context token")
-	}
-	if c.ApplicationCredential != strings.TrimSpace(c.ApplicationCredential) {
-		return fmt.Errorf("application credential must not have leading or trailing whitespace")
-	}
-	if strings.ContainsRune(c.ApplicationCredential, '\t') || !validHeaderValue(c.ApplicationCredential) {
-		return fmt.Errorf("application credential must not contain control characters")
-	}
 	if c.AccessToken != "" && strings.TrimSpace(c.AccessToken) == "" {
 		return fmt.Errorf("access token must be empty or non-blank")
 	}
@@ -233,11 +219,9 @@ func isContextPath(routePrefix, path string) bool {
 }
 
 // Client is the EzClassify Go SDK deployment client. Use [ConnectWith] to bind
-// a published Context and access its grouped operations. The embedded generated
-// ClientWithResponses also exposes low-level *WithResponse methods for the
-// operations defined in the mirrored OpenAPI document.
+// a published Context and access its grouped operations.
 type Client struct {
-	*api.ClientWithResponses
+	wire            *api.ClientWithResponses
 	baseURL         string
 	httpClient      *http.Client
 	versionWarnOnce sync.Once
@@ -295,7 +279,7 @@ func New(baseURL string, opts ...Option) *Client {
 		if resp.Body == nil {
 			return resp, nil
 		}
-		resp.Body = newLimitedBody(resp.Body, config.maxResponseBytes)
+		resp.Body = newLimitedBody(resp.Body, maxResponseBytes)
 		return resp, nil
 	}
 	configuredHTTPClient.Transport = roundTripperFunc(func(req *http.Request) (*http.Response, error) {
@@ -314,8 +298,8 @@ func New(baseURL string, opts ...Option) *Client {
 		if isContextPath(contextRoot, req.URL.Path) && credentials.ContextToken != "" {
 			req.Header.Set(contextTokenHeader, credentials.ContextToken)
 		}
-		if isContextPath(contextRoot, req.URL.Path) && credentials.ApplicationCredential != "" {
-			req.Header.Set(applicationCredentialHeader, credentials.ApplicationCredential)
+		if isContextPath(contextRoot, req.URL.Path) && config.applicationID != "" {
+			req.Header.Set(applicationIDHeader, config.applicationID)
 		}
 		return capResponse(roundTripWithin(baseTransport, req))
 	})
@@ -326,10 +310,10 @@ func New(baseURL string, opts ...Option) *Client {
 		panic("ezclassify: " + err.Error())
 	}
 	return &Client{
-		ClientWithResponses: apiClient,
-		baseURL:             strings.TrimRight(baseURL, "/"),
-		httpClient:          &configuredHTTPClient,
-		cacheConfig:         config,
+		wire:        apiClient,
+		baseURL:     strings.TrimRight(baseURL, "/"),
+		httpClient:  &configuredHTTPClient,
+		cacheConfig: config,
 	}
 }
 
@@ -345,7 +329,7 @@ func (c *Client) EngineSpecVersion() string {
 // member the contract requires is a *[MalformedResponseError].
 func (c *Client) ListContexts(ctx context.Context) (*ContextListResponse, error) {
 	ctx, status := withResponseStatus(ctx)
-	resp, err := c.CtxListWithResponse(ctx)
+	resp, err := c.wire.CtxListWithResponse(ctx)
 	if err != nil {
 		return nil, decodeFailure("list contexts", status, fmt.Errorf("ezclassify: list contexts: %w", err))
 	}
@@ -356,7 +340,7 @@ func (c *Client) ListContexts(ctx context.Context) (*ContextListResponse, error)
 // first as ordered by the server. Errors follow [Client.ListContexts].
 func (c *Client) ListContextVersions(ctx context.Context, contextID string) (*ContextVersionsResponse, error) {
 	ctx, status := withResponseStatus(ctx)
-	resp, err := c.CtxVersionsWithResponse(ctx, contextID)
+	resp, err := c.wire.CtxVersionsWithResponse(ctx, contextID)
 	if err != nil {
 		return nil, decodeFailure("list context versions", status, fmt.Errorf("ezclassify: list context versions: %w", err))
 	}
