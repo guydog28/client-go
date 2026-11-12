@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@7e2f9fab6b656f6cc7f5d47a1988ffdaf25a8310283b7a6a7e1ac38fd72a7bd8 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@61f4be388fc94d7d86e1c84cde98c894f9635ae61458c9c7b0c51920f9046100 by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -440,34 +440,34 @@ func (e GuideFindingDecision) Valid() bool {
 
 // Defines values for GuideWhenOperator.
 const (
-	CountEq       GuideWhenOperator = "count_eq"
-	CountGt       GuideWhenOperator = "count_gt"
-	CountGte      GuideWhenOperator = "count_gte"
-	CountLt       GuideWhenOperator = "count_lt"
-	CountLte      GuideWhenOperator = "count_lte"
-	HasConcept    GuideWhenOperator = "has_concept"
-	HasContent    GuideWhenOperator = "has_content"
-	NotHasConcept GuideWhenOperator = "not_has_concept"
+	GuideWhenOperatorCountEq       GuideWhenOperator = "count_eq"
+	GuideWhenOperatorCountGt       GuideWhenOperator = "count_gt"
+	GuideWhenOperatorCountGte      GuideWhenOperator = "count_gte"
+	GuideWhenOperatorCountLt       GuideWhenOperator = "count_lt"
+	GuideWhenOperatorCountLte      GuideWhenOperator = "count_lte"
+	GuideWhenOperatorHasConcept    GuideWhenOperator = "has_concept"
+	GuideWhenOperatorHasContent    GuideWhenOperator = "has_content"
+	GuideWhenOperatorNotHasConcept GuideWhenOperator = "not_has_concept"
 )
 
 // Valid indicates whether the value is a known member of the GuideWhenOperator enum.
 func (e GuideWhenOperator) Valid() bool {
 	switch e {
-	case CountEq:
+	case GuideWhenOperatorCountEq:
 		return true
-	case CountGt:
+	case GuideWhenOperatorCountGt:
 		return true
-	case CountGte:
+	case GuideWhenOperatorCountGte:
 		return true
-	case CountLt:
+	case GuideWhenOperatorCountLt:
 		return true
-	case CountLte:
+	case GuideWhenOperatorCountLte:
 		return true
-	case HasConcept:
+	case GuideWhenOperatorHasConcept:
 		return true
-	case HasContent:
+	case GuideWhenOperatorHasContent:
 		return true
-	case NotHasConcept:
+	case GuideWhenOperatorNotHasConcept:
 		return true
 	default:
 		return false
@@ -729,6 +729,57 @@ func (e Rollup) Valid() bool {
 	case Pipeline:
 		return true
 	case Union:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for RuleConditionOperator.
+const (
+	RuleConditionOperatorAnyLacksConcept   RuleConditionOperator = "any_lacks_concept"
+	RuleConditionOperatorCountEq           RuleConditionOperator = "count_eq"
+	RuleConditionOperatorCountGt           RuleConditionOperator = "count_gt"
+	RuleConditionOperatorCountGte          RuleConditionOperator = "count_gte"
+	RuleConditionOperatorCountLt           RuleConditionOperator = "count_lt"
+	RuleConditionOperatorCountLte          RuleConditionOperator = "count_lte"
+	RuleConditionOperatorEveryHasConcept   RuleConditionOperator = "every_has_concept"
+	RuleConditionOperatorHasConcept        RuleConditionOperator = "has_concept"
+	RuleConditionOperatorHasContent        RuleConditionOperator = "has_content"
+	RuleConditionOperatorMinOrder          RuleConditionOperator = "min_order"
+	RuleConditionOperatorNotHasConcept     RuleConditionOperator = "not_has_concept"
+	RuleConditionOperatorSharesConceptWith RuleConditionOperator = "shares_concept_with"
+	RuleConditionOperatorSubsetOf          RuleConditionOperator = "subset_of"
+)
+
+// Valid indicates whether the value is a known member of the RuleConditionOperator enum.
+func (e RuleConditionOperator) Valid() bool {
+	switch e {
+	case RuleConditionOperatorAnyLacksConcept:
+		return true
+	case RuleConditionOperatorCountEq:
+		return true
+	case RuleConditionOperatorCountGt:
+		return true
+	case RuleConditionOperatorCountGte:
+		return true
+	case RuleConditionOperatorCountLt:
+		return true
+	case RuleConditionOperatorCountLte:
+		return true
+	case RuleConditionOperatorEveryHasConcept:
+		return true
+	case RuleConditionOperatorHasConcept:
+		return true
+	case RuleConditionOperatorHasContent:
+		return true
+	case RuleConditionOperatorMinOrder:
+		return true
+	case RuleConditionOperatorNotHasConcept:
+		return true
+	case RuleConditionOperatorSharesConceptWith:
+		return true
+	case RuleConditionOperatorSubsetOf:
 		return true
 	default:
 		return false
@@ -4210,11 +4261,8 @@ type RuleCondition struct {
 	// Has Shorthand for has_concept: check if this concept is present
 	Has *string `json:"has,omitempty"`
 
-	// Is Combined operator+value shorthand (e.g. "count_eq 1", "has_content")
-	Is *string `json:"is,omitempty"`
-
-	// Operator Explicit operator for the condition
-	Operator *string `json:"operator,omitempty"`
+	// Operator The test a scheme condition applies to one category's assertions. `has_concept` and `not_has_concept` name a concept in `value`; `has_content` holds when the category holds anything; the `count_*` tests (greater than, greater than or equal, equal, less than, less than or equal) compare the number of concepts in the category with the number in `value`; `min_order` holds when a concept sits at or above the order in `value`; `subset_of` holds when this category's concepts are a subset of the category named in `value`, and `shares_concept_with` when the two share a concept; `every_has_concept` and `any_lacks_concept` ask whether every assertion set, or at least one, holds the concept named in `value`.
+	Operator *RuleConditionOperator `json:"operator,omitempty"`
 
 	// Role Structural role of a marking within a processing operation.
 	Role *ProcessingRole `json:"role,omitempty"`
@@ -4240,6 +4288,9 @@ type RuleConditionValue1 = float32
 type RuleCondition_Value struct {
 	union json.RawMessage
 }
+
+// RuleConditionOperator The test a scheme condition applies to one category's assertions. `has_concept` and `not_has_concept` name a concept in `value`; `has_content` holds when the category holds anything; the `count_*` tests (greater than, greater than or equal, equal, less than, less than or equal) compare the number of concepts in the category with the number in `value`; `min_order` holds when a concept sits at or above the order in `value`; `subset_of` holds when this category's concepts are a subset of the category named in `value`, and `shares_concept_with` when the two share a concept; `every_has_concept` and `any_lacks_concept` ask whether every assertion set, or at least one, holds the concept named in `value`.
+type RuleConditionOperator string
 
 // RuleConditionTarget Assertion set a rule condition is evaluated against.
 //
