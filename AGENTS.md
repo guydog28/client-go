@@ -12,10 +12,10 @@ dependency direction, and required boundary gates.
 
 Runnable examples live under [`examples/`](examples/) and are part of this module (`go build ./...` covers them).
 
-- **[`examples/basic/`](examples/basic/)**: demonstrates validate, aggregate, and access-check through one published Context. Defaults to the Cedar Valley replay server (`--server http://127.0.0.1:4010 --ctx cedar-valley --ctx-version 1.0.0`). Run: `go run ./examples/basic`
-- **[`examples/go-classify/`](examples/go-classify/)**: scans text files through a Context and produces a per-file classification report. Needs a runtime, since the replay server has no recording for arbitrary file text. Run: `go run ./examples/go-classify --server http://localhost:3000 --ctx cedar-valley-protection --dir ./examples/go-classify/sample`
-- **[`examples/server-tour/`](examples/server-tour/)**: discovers available Contexts and drives a Context-bound process call. Defaults to the Cedar Valley replay server. Run: `go run ./examples/server-tour --marking "INTERNAL"`
+- **[`examples/basic/`](examples/basic/)**: validates a marking, aggregates two, and checks access through one published Context.
+- **[`examples/go-classify/`](examples/go-classify/)**: scans a directory of text files through a Context and prints a per-file classification report. It sends arbitrary file text, so it needs a runtime that serves the Context.
+- **[`examples/server-tour/`](examples/server-tour/)**: lists the Contexts a server publishes and processes a marking through one of them.
 
-Each example has a README with the replay server start command, expected output, and the switch to a runtime. All three read optional `EZC_ACCESS_TOKEN` and `EZC_CONTEXT_TOKEN` for a secured runtime.
+Each example's README is the source for its server setup, flag defaults, and expected output; keep facts about an example there, not here. All three read optional `EZC_ACCESS_TOKEN` and `EZC_CONTEXT_TOKEN` for a secured runtime.
 
 Examples have no tests. They are built by `make build` and verified to compile on every CI run.
