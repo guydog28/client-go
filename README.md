@@ -33,10 +33,10 @@ Go 1.26.10+.
 
 ## Quickstart
 
-Start with the Cedar Valley replay server. It answers over real HTTP with recorded responses for a fictional school-district Context, so you can see your client work before you have a runtime. Node.js 22 or newer is needed for the replay server only.
+Start with the free developer runtime. It is one container that serves the built-in Contexts, such as `capco-demo` and `cedar-valley`, over real HTTP, with no license, credentials or account.
 
 ```sh
-npx @ezclassify/conformance-server --scenario cedar-valley --port 4010
+docker run --rm -p 3000:8080 ghcr.io/ezclassify/developer-runtime
 ```
 
 In your Go module, connect the normal client to it, process a marking, and check access:
@@ -54,7 +54,7 @@ import (
 
 func main() {
 	ctx := context.Background()
-	cx := ezclassify.Connect("http://127.0.0.1:4010", "cedar-valley", "1.0.0")
+	cx := ezclassify.Connect("http://localhost:3000", "cedar-valley", "1.0.0")
 
 	res, err := cx.Scheme.Process(ctx, ezclassify.CtxSchemeProcessRequest{Input: "INTERNAL"})
 	if err != nil {
@@ -86,15 +86,16 @@ protection-clearance false The reader’s trusted clearance is below this protec
 recipient-organization false The reader’s trusted recipient organization is not permitted.
 ```
 
-The context is `cedar-valley` at version `1.0.0`. The server replays recordings, so it answers a finite set of requests: markings such as `PUBLIC`, `INTERNAL`, and `CONFIDENTIAL`, plus the guide, aggregate, and access cases listed in the [scenario catalog](https://github.com/ezclassify/contracts/tree/main/packages/conformance-server/scenarios/cedar-valley). Any other request gets a 501 diagnostic that names the nearest recording. By default it asks for no credentials. Start it with `--auth simulated` to test sending a bearer token (`ezclassify-conformance-test-bearer`).
+The context is `cedar-valley` at version `1.0.0`, a fictional school district policy for teaching, so use synthetic markings with it. `GET /v1/ctx` on the runtime lists every built-in Context.
 
 ### Swap to your runtime
 
-When the integration works, point the same code at your runtime. Change the base URL, supply the credentials your administrator issued, and bind your own Context. The calls stay the same.
+When the integration works, point the same code at your runtime. Four values change: the base URL, the Context, your application id and the caller token. The calls stay the same.
 
 ```go
 client := ezclassify.New(
 	"https://runtime.example.com",
+	ezclassify.WithApplicationID("your-application-id"),
 	ezclassify.WithCredentials(ezclassify.RestClientCredentials{
 		AccessToken:  "caller-access-token",
 		ContextToken: "signed-context-token",
@@ -103,7 +104,7 @@ client := ezclassify.New(
 cx := ezclassify.ConnectWith(client, "your-context-id", "")
 ```
 
-The empty version lets the server choose: your Context token's default version, or the newest published when there is no token. Use markings your Context accepts, since the replay server's inputs belong to Cedar Valley. The next section walks a fuller call sequence against a runtime.
+The empty version lets the server choose: your Context token's default version, or the newest published when there is no token. Use markings your Context accepts. The next section walks a fuller call sequence against a runtime.
 
 ## Against a runtime
 
@@ -459,33 +460,30 @@ SDK `major.minor` tracks the rest-api `major.minor`; patch versions may drift. `
 
 ## Examples
 
-Three runnable commands live under [`examples/`](examples/). Start the replay
-server from the [quickstart](#quickstart), then run either of these from the
+Three runnable commands live under [`examples/`](examples/). Start the developer
+runtime from the [quickstart](#quickstart), then run either of these from the
 repository root:
 
 ```sh
-go run ./examples/basic
-go run ./examples/server-tour
+go run ./examples/basic --server http://localhost:3000
+go run ./examples/server-tour --server http://localhost:3000
 ```
 
 [`basic`](examples/basic/README.md) validates a marking, aggregates two, and
 checks access. [`server-tour`](examples/server-tour/README.md) lists the
 Contexts a server publishes and processes a marking. Both default to
-`http://127.0.0.1:4010`, Context `cedar-valley`, version `1.0.0`, and their
-READMEs show the output. To switch to your runtime, pass `--server`, `--ctx` and
+Context `cedar-valley`, version `1.0.0`, and their READMEs show the output.
+To switch to your runtime, pass `--server`, `--ctx` and
 `--ctx-version`, set `EZC_ACCESS_TOKEN` and `EZC_CONTEXT_TOKEN` if your runtime
 requires them, and use markings your Context accepts.
 
 [`go-classify`](examples/go-classify/README.md) scans a directory of files for
-markings. It sends arbitrary file text, which the replay server has no
-recording for, so it needs a runtime that serves the Context; its README has
-the setup. `go build ./...` covers all three.
+markings. It sends arbitrary file text and needs a runtime that serves the
+Context; its README has the setup. `go build ./...` covers all three.
 
 ## Integration testing
 
-The quickstart server doubles as an integration test fixture for your backend. Use your normal client to test connectivity, response handling, and access-decision logging. Supported requests are listed in the
-[replay server guide](https://github.com/ezclassify/contracts/tree/main/packages/conformance-server#testing-an-application-integration).
-Unrecorded requests return a diagnostic rather than computing a new answer.
+The quickstart runtime doubles as an integration test fixture for your backend. Use your normal client to test connectivity, response handling, and access-decision logging.
 
 The quickstart prints each rule's explanation without copying subject
 attributes or credentials into the output. In your backend, derive attributes
