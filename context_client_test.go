@@ -673,6 +673,24 @@ func TestSchemeSummaryCarriesTheDocumentsOwnMarking(t *testing.T) {
 	}
 }
 
+// TestSchemeSummaryOfASchemeWithoutADescription pins that a scheme document
+// may have no description: the runtime leaves the member out and the summary
+// still decodes, with a nil Description.
+func TestSchemeSummaryOfASchemeWithoutADescription(t *testing.T) {
+	const body = `{"id":"levels","version":"1.0.0","name":"Levels","referenceSurfaceLabel":{"singular":"Handbook","plural":"Handbooks"}}`
+	srv, _ := ctxServer(t, "1.0.0", map[string]string{"/scheme": body})
+	summary, err := ezclassify.Connect(srv.URL, "c", "1.0.0").Scheme.Summary(context.Background())
+	if err != nil {
+		t.Fatalf("Summary: %v", err)
+	}
+	if summary.Description != nil {
+		t.Fatalf("Summary description = %q, want nil", *summary.Description)
+	}
+	if summary.Name != "Levels" {
+		t.Fatalf("Summary name = %q, want Levels", summary.Name)
+	}
+}
+
 // TestContextSchemeScopes covers the Context-bound scopes operation. The response is an ordered array of scope
 // entries, not a map, because a selector offers scopes in declaration order
 // and a JSON object carries no order. This pins that shape and the ordering.

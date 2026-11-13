@@ -6,13 +6,15 @@ package ezclassify_test
 //
 // Unlike the replayed conformance suite (which seeds a local HTTP replayer with
 // canned responses), this test drives the SDK against a real, running
-// @ezclassify/rest-api instance over the wire. Its job is to catch a base-path
+// EzClassify REST runtime over the wire. Its job is to catch a base-path
 // or version break, e.g. the client emitting /api/* against a /v1 server, or a
 // stale vendored spec, that a replayer can never surface, because the replayer
 // answers whatever path the client happens to send.
 //
 // The live lane requires EZC_SMOKE_URL to point at a running, licensed and
-// content-configured REST API that serves the Context below:
+// content-configured REST runtime (the ezclassify-rest-api binary, or the
+// ghcr.io/ezclassify/rest-api image with its license and bundles mounted) that
+// serves the Context below:
 //
 //	EZC_SMOKE_URL=http://localhost:3000 go test -tags live -run TestSmoke .
 
@@ -41,7 +43,7 @@ func smokeURL(t *testing.T) string {
 	url := os.Getenv("EZC_SMOKE_URL")
 	if url == "" {
 		t.Fatal("EZC_SMOKE_URL is required for the live-server smoke lane " +
-			"(boot @ezclassify/rest-api and set EZC_SMOKE_URL=http://host:port)")
+			"(start the REST runtime and set EZC_SMOKE_URL=http://host:port)")
 	}
 	return url
 }

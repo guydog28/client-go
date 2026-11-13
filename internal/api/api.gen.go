@@ -1,4 +1,4 @@
-// Code generated from openapi.yaml@39fe4e3f3a9bf7433c10c8c0d10c04a28a087ed3f8d2cee30461a763747c132f by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
+// Code generated from openapi.yaml@b2bca608ea6203a0110078b19a8f566f9b572e9457b1847e390ccb9667bf85ff by oapi-codegen@v2.8.0@h1:s4hxMxuqtR8jPzXkBTtFwY/SBuj3gEAYikmbBSdtLMM=. DO NOT EDIT.
 // Package api provides primitives to interact with the openapi HTTP API.
 package api
 
@@ -4487,8 +4487,8 @@ type SchemeSummary struct {
 	// Definition Human-readable definition of the scheme, for tooltips and about panels.
 	Definition *string `json:"definition,omitempty"`
 
-	// Description Free-text description from the scheme metadata.
-	Description string `json:"description"`
+	// Description Free-text description from the scheme metadata. Omitted when the scheme has none.
+	Description *string `json:"description,omitempty"`
 
 	// EmbeddedMarking Ways a marking may appear embedded in free text. Omitted when the scheme declares none, which is how a client tells that inline marking is off.
 	EmbeddedMarking *[]EmbeddedMarkingStyle `json:"embeddedMarking,omitempty"`
